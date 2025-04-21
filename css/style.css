@@ -1,0 +1,423 @@
+/* ============== 全局 ============== */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* ============== 主体布局 ============== */
+.content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* ============== 侧边栏 ============== */
+.side-nav {
+  width: 250px;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+}
+
+.side-nav .logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 20px 40px 20px;
+  padding: 0 10px;
+}
+
+.side-nav .side-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #555;
+  padding: 12px 20px;
+  margin: 4px 12px;
+  border-radius: 8px;
+  transition: all .2s;
+}
+
+.side-nav .side-item:hover {
+  background: #f0f4ff;
+  color: #667eea;
+}
+
+.side-nav .side-item.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.side-nav .side-item i {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+}
+
+.side-nav .user-profile {
+  margin-top: auto;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #eee;
+}
+
+.side-nav .user-profile i {
+  font-size: 2rem;
+  color: #888;
+}
+
+/* ============== 主内容区 ============== */
+.main-content {
+  flex: 1;
+  height: 100%;
+  padding: 30px;
+  overflow-y: auto;
+  background: #f0f2f5;
+}
+
+/* ============== 卡片网格 ============== */
+.cards-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* ============== 通用卡片 ============== */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card h5 {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* ============== 上传区 ============== */
+.drop-zone {
+  padding: 40px;
+  text-align: center;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  transition: background .2s;
+}
+.drop-zone.dragover { background: #f0f0f0; }
+
+/* ============== 图表中心文字 ============== */
+.chart-center-text {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; font-size: 1.6rem; color: #333;
+}
+.chart-center-text span {
+  display: block; margin-top: 4px;
+  font-size: 0.85rem; color: #777;
+}
+
+/* ============== 渐变按钮 ============== */
+.btn-gradient {
+  padding: 12px 24px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff; font-size: 1rem; cursor: pointer;
+  box-shadow:
+    4px 4px 8px rgba(0,0,0,0.1),
+   -4px -4px 8px rgba(255,255,255,0.7);
+  transition: opacity .2s;
+}
+.btn-gradient:hover { opacity: 0.9; }
+
+/* ============== 评论框 ============== */
+.comment-box {
+  width: 100%; resize: none; padding: 12px;
+  border: 1px solid #ddd; border-radius: 12px;
+  outline: none; font-size: 0.95rem; margin: 12px 0;
+}
+
+/* ============== 特殊：第一行图表统一 16:9 ============== */
+.cards-row:first-of-type .card {
+  aspect-ratio: 16 / 9;
+  padding: 16px;
+  overflow: hidden;
+}
+/* 让 canvas 按宽度自动缩放，高度自适应 */
+.cards-row:first-of-type .card canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* ============== 特殊：下方按钮自适应居中 ============== */
+.cards-row:last-of-type .card {
+  display: flex; flex-direction: column; align-items: center;
+}
+.cards-row:last-of-type .card .btn-gradient {
+  width: auto; min-width: 120px; margin: 8px 0;
+}
+
+/* ============== 表单样式 ============== */
+.form-input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  outline: none;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border-color .2s;
+}
+.form-input:focus {
+  border-color: #667eea;
+}
+
+/* ============== 分享列表样式 ============== */
+.share-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.share-list li {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.share-list li:last-child {
+  border-bottom: none;
+}
+.share-info {
+  font-weight: 500;
+  color: #333;
+}
+.text-muted {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+/* ============== 分享选项样式 ============== */
+.share-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ============== 论坛样式 ============== */
+.forum-post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forum-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.forum-post {
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 
+    2px 2px 5px rgba(163,177,198,0.15),
+    -2px -2px 5px rgba(255,255,255,0.5);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.post-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.post-content {
+  color: #555;
+  margin: 8px 0;
+}
+
+.post-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background-color .2s;
+}
+
+.btn-text:hover {
+  background-color: #f0f0f0;
+}
+
+/* ============== 设置页面样式 ============== */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #444;
+}
+
+.profile-upload {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ============== 上传列表样式 ============== */
+.upload-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.upload-list li {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.upload-list li:last-child {
+  border-bottom: none;
+}
+
+.upload-info {
+  font-weight: 500;
+  color: #333;
+}
+
+/* ============== 统计网格样式 ============== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* ============== 进度条样式 ============== */
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.progress-item {
+  width: 100%;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e0e5ec;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* ============== 图表容器样式 ============== */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+}

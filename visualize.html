@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Fitness Dashboard - Visualize</title>
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="app-container">
+    <div class="content">
+      <!-- Sidebar -->
+      <nav class="side-nav">
+        <div class="logo">Fitness Dashboard</div>
+        <a href="index.html" class="side-item"><i class="bi bi-house-fill"></i><span>Home</span></a>
+        <a href="upload.html" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
+        <a href="visualize.html" class="side-item active"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
+        <a href="forum.html" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
+        <a href="settings.html" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+        <div class="user-profile">
+          <i class="bi bi-person-circle"></i>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="cards-row">
+          <!-- Activity Overview -->
+          <div class="card">
+            <h5>Weekly Activity</h5>
+            <div class="chart-container">
+              <canvas id="weeklyChart"></canvas>
+            </div>
+          </div>
+          <!-- Progress Chart -->
+          <div class="card">
+            <h5>Progress Overview</h5>
+            <div class="chart-container">
+              <canvas id="progressChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="cards-row">
+          <!-- Activity Stats -->
+          <div class="card">
+            <h5>Activity Statistics</h5>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-value">12.5 km</span>
+                <span class="stat-label">Total Distance</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">2:30:00</span>
+                <span class="stat-label">Total Time</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">850</span>
+                <span class="stat-label">Calories Burned</span>
+              </div>
+            </div>
+          </div>
+          <!-- Goals Progress -->
+          <div class="card">
+            <h5>Goals Progress</h5>
+            <div class="progress-list">
+              <div class="progress-item">
+                <div class="progress-header">
+                  <span>Weekly Distance</span>
+                  <span>75%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 75%"></div>
+                </div>
+              </div>
+              <div class="progress-item">
+                <div class="progress-header">
+                  <span>Monthly Workouts</span>
+                  <span>60%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 60%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/visualize.js"></script>
+</body>
+</html>
