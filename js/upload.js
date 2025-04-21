@@ -196,3 +196,88 @@ function showSuccess(message) {
   document.body.appendChild(successDiv);
   setTimeout(() => successDiv.remove(), 3000);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const activityForm = document.getElementById('activity-form');
+  const activitiesList = document.querySelector('.activities-list');
+
+  // 设置日期输入框的默认值为今天
+  document.getElementById('activity-date').valueAsDate = new Date();
+
+  // 加载最近的活动
+  loadRecentActivities();
+
+  // 处理表单提交
+  activityForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(activityForm);
+    const activityData = {
+      activity_type: formData.get('activity_type'),
+      date: formData.get('date'),
+      duration: parseInt(formData.get('duration')),
+      distance: parseFloat(formData.get('distance')) || 0,
+      calories: parseInt(formData.get('calories')) || 0
+    };
+
+    try {
+      const response = await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(activityData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add activity');
+      }
+
+      showSuccess('Activity added successfully!');
+      activityForm.reset();
+      document.getElementById('activity-date').valueAsDate = new Date();
+      loadRecentActivities();
+    } catch (error) {
+      showError(error.message);
+    }
+  });
+});
+
+// 加载最近的活动
+async function loadRecentActivities() {
+  try {
+    const response = await fetch('/api/activities?limit=5');
+    if (!response.ok) {
+      throw new Error('Failed to load activities');
+    }
+
+    const activities = await response.json();
+    displayActivities(activities);
+  } catch (error) {
+    showError('Failed to load recent activities');
+  }
+}
+
+// 显示活动列表
+function displayActivities(activities) {
+  const activitiesList = document.querySelector('.activities-list');
+  activitiesList.innerHTML = activities.length ? '' : '<p>No recent activities</p>';
+
+  activities.forEach(activity => {
+    const activityDate = new Date(activity.date);
+    const activityEl = document.createElement('div');
+    activityEl.className = 'activity-item';
+    activityEl.innerHTML = `
+      <div class="activity-header">
+        <span class="activity-type">${activity.activity_type}</span>
+        <span class="activity-date">${activityDate.toLocaleDateString()}</span>
+      </div>
+      <div class="activity-details">
+        <span><i class="bi bi-clock"></i> ${activity.duration} mins</span>
+        <span><i class="bi bi-lightning"></i> ${activity.calories} cal</span>
+        ${activity.distance ? `<span><i class="bi bi-geo"></i> ${activity.distance} km</span>` : ''}
+      </div>
+    `;
+    activitiesList.appendChild(activityEl);
+  });
+}
