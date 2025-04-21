@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Fitness Dashboard - Visualize</title>
+  <title>Visualize - Fitness Dashboard</title>
   <!-- Bootstrap Icons -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
@@ -29,15 +29,29 @@
 
       <!-- Main Content -->
       <main class="main-content">
+        <!-- Export Options -->
+        <div class="export-options">
+          <button class="btn-text" onclick="exportData('csv')">
+            <i class="bi bi-file-earmark-text"></i> Export CSV
+          </button>
+          <button class="btn-text" onclick="exportData('json')">
+            <i class="bi bi-file-earmark-code"></i> Export JSON
+          </button>
+          <button class="btn-text" onclick="exportData('pdf')">
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+          </button>
+        </div>
+
+        <!-- Charts Grid -->
         <div class="cards-row">
-          <!-- Activity Overview -->
+          <!-- Weekly Activity -->
           <div class="card">
             <h5>Weekly Activity</h5>
             <div class="chart-container">
               <canvas id="weeklyChart"></canvas>
             </div>
           </div>
-          <!-- Progress Chart -->
+          <!-- Progress Overview -->
           <div class="card">
             <h5>Progress Overview</h5>
             <div class="chart-container">
@@ -87,6 +101,28 @@
                   <div class="progress-fill" style="width: 60%"></div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Charts -->
+        <div class="cards-row">
+          <!-- Calories Overview -->
+          <div class="card">
+            <h5>Calories Overview</h5>
+            <div class="chart-container">
+              <canvas id="caloriesChart"></canvas>
+              <div class="chart-center-text">
+                850
+                <span>calories burned</span>
+              </div>
+            </div>
+          </div>
+          <!-- Activity Distribution -->
+          <div class="card">
+            <h5>Activity Distribution</h5>
+            <div class="chart-container">
+              <canvas id="activitiesChart"></canvas>
             </div>
           </div>
         </div>
