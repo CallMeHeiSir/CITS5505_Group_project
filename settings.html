@@ -32,59 +32,10 @@
         <div class="cards-row">
           <div class="card" style="grid-column:1/-1;">
             <h2>Settings</h2>
-            <p>Manage your account settings and preferences</p>
-          </div>
-        </div>
-
-        <div class="cards-row">
-          <!-- Profile Settings -->
-          <div class="card">
-            <h5>Profile Settings</h5>
-            <form class="settings-form">
-              <div class="form-group">
-                <label>Profile Picture</label>
-                <div class="profile-upload">
-                  <img src="images/default-avatar.png" alt="Profile" class="profile-img"/>
-                  <button type="button" class="btn-gradient">Change Photo</button>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Display Name</label>
-                <input type="text" class="form-input" value="John Doe"/>
-              </div>
-              <div class="form-group">
-                <label>Email</label>
-                <input type="email" class="form-input" value="john.doe@example.com"/>
-              </div>
-              <button type="submit" class="btn-gradient">Save Changes</button>
-            </form>
-          </div>
-
-          <!-- Preferences -->
-          <div class="card">
-            <h5>Preferences</h5>
-            <form class="settings-form">
-              <div class="form-group">
-                <label>Units</label>
-                <select class="form-input">
-                  <option value="metric">Metric (km, kg)</option>
-                  <option value="imperial">Imperial (mi, lb)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Privacy</label>
-                <label class="checkbox-label">
-                  <input type="checkbox" checked/> Make my profile public
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" checked/> Share my activities
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox"/> Allow email notifications
-                </label>
-              </div>
-              <button type="submit" class="btn-gradient">Save Preferences</button>
-            </form>
+            <div>
+              <button type="submit" class="btn-gradient" onclick="window.location.href='change_personal_information.html'">Edit Personal Information</button>
+              <button type="submit" class="btn-gradient" onclick="window.location.href='change_password.html'">Change Password</button>
+            </div>
           </div>
         </div>
       </main>
