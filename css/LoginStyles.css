@@ -133,7 +133,7 @@ html, body {
 
 /* ============== 提示和文本样式 ============== */
 .invalid-feedback {
-  display: block; /* 强制显示错误提示（静态页面中） */
+  display: none; /* 默认隐藏，JS动态控制 */
   color: #dc3545; /* Bootstrap 默认错误颜色 */
 }
 
