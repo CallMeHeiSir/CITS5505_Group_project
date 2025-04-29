@@ -1,26 +1,49 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from models import db, User, Activity, Upload
 from config import Config
+from auth import auth
 import pandas as pd
 import json
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# 初始化数据库
+# 配置CORS
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type"]
+    }
+})
+
+# 初始化扩展
 db.init_app(app)
+jwt = JWTManager(app)
+
+# 注册蓝图
+app.register_blueprint(auth, url_prefix='/api/auth')
 
 # 确保上传文件夹存在
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# 创建数据库表
+with app.app_context():
+    db.create_all()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 @app.route('/api/upload', methods=['POST'])
+@jwt_required()
 def upload_file():
+    current_user_id = get_jwt_identity()
+    
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     
@@ -38,7 +61,7 @@ def upload_file():
         
         # 创建上传记录
         upload = Upload(
-            user_id=1,  # 临时使用固定用户ID
+            user_id=current_user_id,
             filename=filename,
             file_type=filename.rsplit('.', 1)[1].lower(),
             file_size=os.path.getsize(file_path),
@@ -46,7 +69,7 @@ def upload_file():
         )
         
         # 解析文件数据
-        activities = parse_file(file_path, filename)
+        activities = parse_file(file_path, filename, current_user_id)
         if activities:
             db.session.add(upload)
             db.session.add_all(activities)
@@ -62,7 +85,7 @@ def upload_file():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-def parse_file(file_path, filename):
+def parse_file(file_path, filename, user_id):
     file_type = filename.rsplit('.', 1)[1].lower()
     activities = []
     
@@ -78,12 +101,12 @@ def parse_file(file_path, filename):
         
         for _, row in df.iterrows():
             activity = Activity(
-                user_id=1,  # 临时使用固定用户ID
+                user_id=user_id,
                 activity_type=row.get('activity_type', 'unknown'),
                 duration=row.get('duration', 0),
                 distance=row.get('distance', 0.0),
                 calories=row.get('calories', 0),
-                date=datetime.strptime(row.get('date', datetime.now().strftime('%Y-%m-%d')), '%Y-%m-%d')
+                date=datetime.strptime(row.get('date', datetime.now().strftime('%Y-%m-%d')), '%Y-%m-%d').date()
             )
             activities.append(activity)
         
@@ -93,105 +116,136 @@ def parse_file(file_path, filename):
         return None
 
 @app.route('/api/activities', methods=['POST'])
+@jwt_required()
 def add_activity():
-    data = request.json
-    
     try:
-        activity = Activity(
-            user_id=1,  # 临时使用固定用户ID
+        current_user_id = get_jwt_identity()
+        data = request.get_json()
+        
+        # 验证必需字段
+        required_fields = ['activity_type', 'duration', 'date']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+            
+        # 创建新活动
+        new_activity = Activity(
+            user_id=current_user_id,
             activity_type=data['activity_type'],
             duration=data['duration'],
-            distance=data['distance'],
-            calories=data['calories'],
-            date=datetime.strptime(data['date'], '%Y-%m-%d')
+            distance=data.get('distance'),
+            calories=data.get('calories'),
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date()
         )
         
-        db.session.add(activity)
+        db.session.add(new_activity)
         db.session.commit()
         
-        return jsonify({'message': 'Activity added successfully', 'activity': activity.to_dict()}), 201
+        return jsonify(new_activity.to_dict()), 201
+        
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/activities', methods=['GET'])
+@jwt_required()
 def get_activities():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    activity_type = request.args.get('activity_type')
-    limit = request.args.get('limit', type=int)
-    
-    query = Activity.query
-    
-    if start_date:
-        query = query.filter(Activity.date >= datetime.strptime(start_date, '%Y-%m-%d'))
-    if end_date:
-        query = query.filter(Activity.date <= datetime.strptime(end_date, '%Y-%m-%d'))
-    if activity_type:
-        query = query.filter(Activity.activity_type == activity_type)
-    
-    query = query.order_by(Activity.date.desc())
-    
-    if limit:
-        query = query.limit(limit)
-    
-    activities = query.all()
-    return jsonify([activity.to_dict() for activity in activities])
+    try:
+        current_user_id = get_jwt_identity()
+        activities = Activity.query.filter_by(user_id=current_user_id).all()
+        return jsonify([activity.to_dict() for activity in activities])
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/activities/stats', methods=['GET'])
+@jwt_required()
 def get_activity_stats():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    
-    query = Activity.query
-    
-    if start_date:
-        query = query.filter(Activity.date >= datetime.strptime(start_date, '%Y-%m-%d'))
-    if end_date:
-        query = query.filter(Activity.date <= datetime.strptime(end_date, '%Y-%m-%d'))
-    
-    activities = query.all()
-    
-    stats = {
-        'total_distance': sum(a.distance or 0 for a in activities),
-        'total_duration': sum(a.duration or 0 for a in activities),
-        'total_calories': sum(a.calories or 0 for a in activities),
-        'activity_count': len(activities),
-        'activity_types': {}
-    }
-    
-    for activity in activities:
-        if activity.activity_type not in stats['activity_types']:
-            stats['activity_types'][activity.activity_type] = 0
-        stats['activity_types'][activity.activity_type] += 1
-    
-    return jsonify(stats)
+    try:
+        current_user_id = get_jwt_identity()
+        
+        # 获取过去7天的活动
+        end_date = datetime.now().date()
+        start_date = end_date - timedelta(days=6)
+        
+        activities = Activity.query.filter(
+            Activity.user_id == current_user_id,
+            Activity.date >= start_date,
+            Activity.date <= end_date
+        ).all()
+        
+        # 计算统计数据
+        total_duration = sum(a.duration for a in activities)
+        total_distance = sum(a.distance or 0 for a in activities)
+        total_calories = sum(a.calories or 0 for a in activities)
+        
+        # 按活动类型分组
+        activity_types = {}
+        for activity in activities:
+            if activity.activity_type not in activity_types:
+                activity_types[activity.activity_type] = 0
+            activity_types[activity.activity_type] += 1
+        
+        return jsonify({
+            'total_duration': total_duration,
+            'total_distance': total_distance,
+            'total_calories': total_calories,
+            'activity_count': len(activities),
+            'activity_types': activity_types
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-@app.route('/api/export/<format>', methods=['GET'])
-def export_data(format):
-    if format not in ['csv', 'json']:
-        return jsonify({'error': 'Invalid format'}), 400
-    
-    activities = Activity.query.order_by(Activity.date.desc()).all()
-    data = [activity.to_dict() for activity in activities]
-    
-    if format == 'csv':
+@app.route('/api/activities/export', methods=['GET'])
+@jwt_required()
+def export_data():
+    try:
+        current_user_id = get_jwt_identity()
+        activities = Activity.query.filter_by(user_id=current_user_id).all()
+        
+        if not activities:
+            return jsonify({'error': 'No data found'}), 404
+            
+        # 转换为DataFrame
+        data = [activity.to_dict() for activity in activities]
         df = pd.DataFrame(data)
-        output = df.to_csv(index=False)
+        
+        # 导出为CSV
+        csv_file = f'activities_export_{current_user_id}.csv'
+        df.to_csv(csv_file, index=False)
+        
         return send_file(
-            output,
+            csv_file,
             mimetype='text/csv',
             as_attachment=True,
-            download_name='fitness_data.csv'
+            download_name=csv_file
         )
-    else:  # json
-        return jsonify(data)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/uploads', methods=['GET'])
+@jwt_required()
 def get_uploads():
-    uploads = Upload.query.order_by(Upload.created_at.desc()).all()
-    return jsonify([upload.to_dict() for upload in uploads])
+    try:
+        current_user_id = get_jwt_identity()
+        uploads = Upload.query.filter_by(user_id=current_user_id).order_by(Upload.created_at.desc()).all()
+        return jsonify([upload.to_dict() for upload in uploads])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/auth/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'ok'}), 200
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify({'error': 'Resource not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True) 
+    app.run(debug=True, port=8081) 

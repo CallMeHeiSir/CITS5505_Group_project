@@ -5,7 +5,9 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-please-change'
     
     # 数据库配置
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///fitness.db'
+    BASEDIR = os.path.abspath(os.path.dirname(__file__))
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(BASEDIR, 'fitness.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # 文件上传配置
@@ -14,4 +16,7 @@ class Config:
     ALLOWED_EXTENSIONS = {'csv', 'json', 'txt'}
     
     # 每页显示的记录数
-    ITEMS_PER_PAGE = 10 
+    ITEMS_PER_PAGE = 10
+    
+    # CORS配置
+    CORS_HEADERS = 'Content-Type' 

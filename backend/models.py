@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
 class User(db.Model):
+    __tablename__ = 'users'
+    
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -20,20 +22,31 @@ class User(db.Model):
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'created_at': self.created_at.isoformat()
+        }
 
 class Activity(db.Model):
+    __tablename__ = 'activities'
+    
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     activity_type = db.Column(db.String(50), nullable=False)
-    duration = db.Column(db.Integer)  # 以分钟为单位
-    distance = db.Column(db.Float)    # 以公里为单位
+    duration = db.Column(db.Integer, nullable=False)  # 以分钟为单位
+    distance = db.Column(db.Float)  # 以公里为单位
     calories = db.Column(db.Integer)
-    date = db.Column(db.DateTime, nullable=False)
+    date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def to_dict(self):
         return {
             'id': self.id,
+            'user_id': self.user_id,
             'activity_type': self.activity_type,
             'duration': self.duration,
             'distance': self.distance,
@@ -44,7 +57,7 @@ class Activity(db.Model):
 
 class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
     file_type = db.Column(db.String(10), nullable=False)
     file_size = db.Column(db.Integer, nullable=False)  # 以字节为单位
