@@ -1,12 +1,84 @@
 // Constants for file upload validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const VALID_TYPES = ['.csv', '.json', '.txt'];
+const VALID_TYPES = ['.csv'];
 
 // Get DOM elements
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
 const fileList = document.getElementById('file-list');
 const uploadForm = document.getElementById('upload-form');
+const manualEntryForm = document.getElementById('manual-entry-form');
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+const activityForm = document.getElementById('activity-form');
+
+// Tab switching functionality
+tabButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const tabId = button.getAttribute('data-tab');
+    
+    // Update active tab button
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+    
+    // Show corresponding tab content
+    tabContents.forEach(content => {
+      content.classList.remove('active');
+      if (content.id === tabId) {
+        content.classList.add('active');
+      }
+    });
+  });
+});
+
+// Handle manual form submission
+manualEntryForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  const formData = {
+    sportEvent: document.getElementById('sport-event').value,
+    sportType: document.getElementById('sport-type').value,
+    duration: document.getElementById('duration').value,
+    height: document.getElementById('height').value,
+    weight: document.getElementById('weight').value,
+    age: document.getElementById('age').value,
+    location: document.getElementById('location').value
+  };
+  
+  // TODO: Send form data to backend
+  console.log('Manual entry data:', formData);
+  
+  // Show success message
+  showSuccess('Data submitted successfully!');
+  manualEntryForm.reset();
+});
+
+// Handle activity form submission
+activityForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  const formData = {
+    activityType: activityForm.querySelector('[name="activity_type"]').value,
+    date: activityForm.querySelector('[name="date"]').value,
+    duration: activityForm.querySelector('[name="duration"]').value,
+    distance: activityForm.querySelector('[name="distance"]').value,
+    calories: activityForm.querySelector('[name="calories"]').value,
+    height: activityForm.querySelector('[name="height"]').value,
+    weight: activityForm.querySelector('[name="weight"]').value,
+    age: activityForm.querySelector('[name="age"]').value,
+    location: activityForm.querySelector('[name="location"]').value
+  };
+  
+  // TODO: Send form data to backend
+  console.log('Activity data:', formData);
+  
+  // Show success message
+  showSuccess('Activity added successfully!');
+  activityForm.reset();
+  
+  // Set default date to today
+  activityForm.querySelector('[name="date"]').valueAsDate = new Date();
+});
 
 // Validate file size and type
 function validateFile(file) {
