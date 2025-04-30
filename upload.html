@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Upload - Fitness Dashboard</title>
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="app-container">
+    <div class="content">
+      <!-- Sidebar -->
+      <nav class="side-nav">
+        <div class="logo">Fitness Dashboard</div>
+        <a href="index.html" class="side-item"><i class="bi bi-house-fill"></i><span>Home</span></a>
+        <a href="upload.html" class="side-item active"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
+        <a href="visualize.html" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
+        <a href="forum.html" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
+        <a href="settings.html" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+        <div class="user-profile">
+          <i class="bi bi-person-circle"></i>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="cards-row">
+          <div class="card" style="grid-column:1/-1;">
+            <div class="header-content">
+              <div class="header-left">
+                <h2>Upload</h2>
+                <p>Upload your fitness data files or manually add activities</p>
+                <!-- Upload Process Flow Diagram -->
+                <div class="upload-flow">
+                  <div class="flow-step">
+                    <div class="flow-icon">
+                      <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <div class="flow-text">
+                      <p>1. Prepare Data</p>
+                      <small>CSV, JSON, or TXT files</small>
+                    </div>
+                  </div>
+                  <div class="flow-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                  </div>
+                  <div class="flow-step">
+                    <div class="flow-icon">
+                      <i class="bi bi-cloud-arrow-up"></i>
+                    </div>
+                    <div class="flow-text">
+                      <p>2. Upload</p>
+                      <small>Drag & drop or browse</small>
+                    </div>
+                  </div>
+                  <div class="flow-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                  </div>
+                  <div class="flow-step">
+                    <div class="flow-icon">
+                      <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="flow-text">
+                      <p>3. Confirm</p>
+                      <small>Review and submit</small>
+                    </div>
+                  </div>
+                  <div class="flow-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                  </div>
+                  <div class="flow-step">
+                    <div class="flow-icon">
+                      <i class="bi bi-bar-chart"></i>
+                    </div>
+                    <div class="flow-text">
+                      <p>4. Visualize</p>
+                      <small>View your data</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="header-right">
+                <h5>Recent Activities</h5>
+                <ul class="recent-activities-list">
+                  <!-- Recent activities will be dynamically loaded here -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cards-row">
+          <div class="card">
+            <h5>Upload Files</h5>
+            <form class="upload-form" id="upload-form">
+              <div class="upload-zone" id="drop-zone">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <p>Drag and drop your files here or click to browse</p>
+                <input type="file" id="file-input" multiple/>
+              </div>
+              <div class="file-list" id="file-list"></div>
+              <button type="submit" class="btn-gradient" disabled>Upload Files</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h5>Add Activity</h5>
+            <form class="activity-form" id="activity-form">
+              <div class="form-group">
+                <label>Activity Type</label>
+                <select class="form-input" name="activity_type" required>
+                  <option value="">Select activity type</option>
+                  <option value="running">Running</option>
+                  <option value="cycling">Cycling</option>
+                  <option value="swimming">Swimming</option>
+                  <option value="walking">Walking</option>
+                  <option value="hiking">Hiking</option>
+                  <option value="yoga">Yoga</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" class="form-input" name="date" required/>
+              </div>
+
+              <div class="form-group">
+                <label>Duration (minutes)</label>
+                <input type="number" class="form-input" name="duration" min="1" required/>
+              </div>
+
+              <div class="form-group">
+                <label>Distance (km)</label>
+                <input type="number" class="form-input" name="distance" min="0" step="0.1"/>
+              </div>
+
+              <div class="form-group">
+                <label>Calories</label>
+                <input type="number" class="form-input" name="calories" min="0"/>
+              </div>
+
+              <button type="submit" class="btn-gradient">Add Activity</button>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/upload.js"></script>
+</body>
+</html>
