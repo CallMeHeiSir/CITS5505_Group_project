@@ -810,3 +810,129 @@ html, body {
 #apply-filters {
   margin-top: 16px;
 }
+
+/* Header Content Layout */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  flex: 1;
+  padding-left: 40px;
+  border-left: 1px solid #eee;
+}
+
+/* Recent Activities List */
+.recent-activities-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.recent-activities-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.recent-activities-list li:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f0f4ff;
+  color: #667eea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-details {
+  flex: 1;
+}
+
+.activity-name {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.activity-meta {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Upload Process Flow */
+.upload-flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.flow-icon {
+  width: 48px;
+  height: 48px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #667eea;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.flow-text p {
+  margin: 0;
+  font-weight: 500;
+  color: #333;
+}
+
+.flow-text small {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.flow-arrow {
+  color: #667eea;
+  font-size: 1.5rem;
+  margin: 0 8px;
+}
+
+/* Hover effects for flow steps */
+.flow-step:hover .flow-icon {
+  background: #667eea;
+  color: #fff;
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+.flow-step:hover .flow-text p {
+  color: #667eea;
+}

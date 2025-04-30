@@ -246,17 +246,41 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Load and display recent activities
-async function loadRecentActivities() {
-  try {
-    const response = await fetch('/api/activities?limit=5');
-    if (!response.ok) {
-      throw new Error('Failed to load activities');
-    }
-    const activities = await response.json();
-    displayActivities(activities);
-  } catch (error) {
-    showError(error.message);
-  }
+function loadRecentActivities() {
+  const recentActivitiesList = document.querySelector('.recent-activities-list');
+  
+  // TODO: Replace with actual API call to get recent activities
+  const mockActivities = [
+    { type: 'running', name: 'Morning Run', duration: '30 min', time: '2 hours ago' },
+    { type: 'cycling', name: 'Evening Ride', duration: '45 min', time: 'Yesterday' },
+    { type: 'swimming', name: 'Pool Session', duration: '60 min', time: '2 days ago' }
+  ];
+
+  recentActivitiesList.innerHTML = mockActivities.map(activity => `
+    <li>
+      <div class="activity-icon">
+        <i class="bi bi-${getActivityIcon(activity.type)}"></i>
+      </div>
+      <div class="activity-details">
+        <div class="activity-name">${activity.name}</div>
+        <div class="activity-meta">${activity.duration} • ${activity.time}</div>
+      </div>
+    </li>
+  `).join('');
+}
+
+// Get appropriate icon for activity type
+function getActivityIcon(type) {
+  const icons = {
+    running: 'person-running',
+    cycling: 'bicycle',
+    swimming: 'water',
+    walking: 'person-walking',
+    hiking: 'tree',
+    yoga: 'flower3',
+    other: 'activity'
+  };
+  return icons[type] || 'activity';
 }
 
 // Display activities in the list
