@@ -1,4 +1,4 @@
-// 圆环图
+// Create a doughnut chart for calorie tracking
 new Chart(document.getElementById('calorieChart'), {
   type: 'doughnut',
   data: {
@@ -15,7 +15,7 @@ new Chart(document.getElementById('calorieChart'), {
   }
 });
 
-// 折线图
+// Create a line chart for performance tracking
 new Chart(document.getElementById('performanceChart'), {
   type: 'line',
   data:{
@@ -36,16 +36,16 @@ new Chart(document.getElementById('performanceChart'), {
   }
 });
 
-// 好友对比 & 分享提示
+// Friend comparison and sharing functionality
 document.getElementById('selectFriend').onclick = () => {
-  alert('弹出好友列表供选择');
+  alert('Show friend list for selection');
 };
 document.getElementById('shareBtn').onclick = () => {
   const c = document.getElementById('commentBox').value;
-  alert('已分享: ' + c);
+  alert('Shared: ' + c);
 };
 
-// 图表配置和数据
+// Chart configurations and data templates
 const chartConfigs = {
   weekly: {
     type: 'bar',
@@ -106,7 +106,7 @@ const chartConfigs = {
   }
 };
 
-// 通用图表选项
+// Common chart options for all visualizations
 const commonOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -141,7 +141,7 @@ const commonOptions = {
   }
 };
 
-// 全局变量
+// Global variables for chart management
 let charts = {};
 let currentFilters = {
   startDate: null,
@@ -149,22 +149,22 @@ let currentFilters = {
   activityType: ''
 };
 
-// 初始化页面
+// Initialize the visualization page
 document.addEventListener('DOMContentLoaded', function() {
-  // 初始化日期范围选择器
+  // Initialize date range picker
   initializeDateFilter();
   
-  // 初始化图表
+  // Initialize all charts
   initializeCharts();
   
-  // 加载初始数据
+  // Load initial data
   updateData();
   
-  // 添加过滤器事件监听
+  // Add event listener for filter application
   document.getElementById('apply-filters').addEventListener('click', updateData);
 });
 
-// 初始化日期过滤器
+// Initialize date range filter functionality
 function initializeDateFilter() {
   const dateRange = document.getElementById('date-range');
   const customDates = document.querySelector('.custom-dates');
@@ -176,11 +176,11 @@ function initializeDateFilter() {
     }
   });
   
-  // 设置默认日期范围（最近一个月）
+  // Set default date range to last month
   setDefaultDates('month');
 }
 
-// 设置默认日期范围
+// Set default date range based on selected period
 function setDefaultDates(range) {
   const endDate = new Date();
   let startDate = new Date();
@@ -206,9 +206,9 @@ function setDefaultDates(range) {
   }
 }
 
-// 初始化图表
+// Initialize all charts with empty data
 function initializeCharts() {
-  // 活动时长图表
+  // Weekly activity duration chart
   charts.weekly = new Chart(document.getElementById('weeklyChart'), {
     type: 'bar',
     data: {
@@ -236,7 +236,7 @@ function initializeCharts() {
     }
   });
   
-  // 距离进度图表
+  // Distance progress chart
   charts.progress = new Chart(document.getElementById('progressChart'), {
     type: 'line',
     data: {
@@ -248,221 +248,157 @@ function initializeCharts() {
         backgroundColor: 'rgba(102, 126, 234, 0.1)',
         fill: true
       }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-  
-  // 活动分布图表
-  charts.activities = new Chart(document.getElementById('activitiesChart'), {
-    type: 'doughnut',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [],
-        backgroundColor: [
-          'rgba(102, 126, 234, 0.8)',
-          'rgba(159, 122, 234, 0.8)',
-          'rgba(236, 72, 153, 0.8)',
-          'rgba(248, 113, 113, 0.8)',
-          'rgba(45, 212, 191, 0.8)',
-          'rgba(251, 146, 60, 0.8)'
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-  
-  // 卡路里趋势图表
-  charts.calories = new Chart(document.getElementById('caloriesChart'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Calories',
-        data: [],
-        borderColor: 'rgba(236, 72, 153, 1)',
-        backgroundColor: 'rgba(236, 72, 153, 0.1)',
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
     }
   });
 }
 
-// 更新数据和图表
+// Update data based on current filters
 async function updateData() {
-  // 获取过滤条件
-  const dateRange = document.getElementById('date-range').value;
-  if (dateRange === 'custom') {
-    currentFilters.startDate = document.getElementById('start-date').value;
-    currentFilters.endDate = document.getElementById('end-date').value;
-  }
-  currentFilters.activityType = document.getElementById('activity-type').value;
-  
   try {
-    // 获取活动数据
-    const response = await fetch(`/api/activities?start_date=${currentFilters.startDate}&end_date=${currentFilters.endDate}${currentFilters.activityType ? `&activity_type=${currentFilters.activityType}` : ''}`);
+    const response = await fetch('/api/activities', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch activity data');
+    }
+    
     const activities = await response.json();
-    
-    // 获取统计数据
-    const statsResponse = await fetch(`/api/activities/stats?start_date=${currentFilters.startDate}&end_date=${currentFilters.endDate}${currentFilters.activityType ? `&activity_type=${currentFilters.activityType}` : ''}`);
-    const stats = await statsResponse.json();
-    
-    // 更新统计卡片
+    const stats = processActivityData(activities);
     updateStats(stats);
-    
-    // 更新图表
     updateCharts(activities, stats);
   } catch (error) {
-    console.error('Error fetching data:', error);
-    showError('Failed to load data');
+    showError(error.message);
   }
 }
 
-// 更新统计数据
+// Update statistics display
 function updateStats(stats) {
-  document.getElementById('total-calories').textContent = stats.total_calories.toLocaleString();
-  document.getElementById('total-distance').textContent = stats.total_distance.toFixed(1);
-  document.getElementById('total-duration').textContent = stats.total_duration.toLocaleString();
-  document.getElementById('activity-count').textContent = stats.activity_count.toLocaleString();
+  document.getElementById('total-activities').textContent = stats.totalActivities;
+  document.getElementById('total-duration').textContent = stats.totalDuration;
+  document.getElementById('total-distance').textContent = stats.totalDistance;
+  document.getElementById('total-calories').textContent = stats.totalCalories;
 }
 
-// 更新图表
+// Update all charts with new data
 function updateCharts(activities, stats) {
-  // 处理活动时长图表数据
-  const dailyData = processActivityData(activities);
-  charts.weekly.data.labels = dailyData.labels;
-  charts.weekly.data.datasets[0].data = dailyData.durations;
+  // Update weekly activity chart
+  const weeklyData = processActivityData(activities);
+  charts.weekly.data.labels = weeklyData.labels;
+  charts.weekly.data.datasets[0].data = weeklyData.data;
   charts.weekly.update();
   
-  // 处理距离进度图表数据
+  // Update progress chart
   const progressData = processProgressData(activities);
   charts.progress.data.labels = progressData.labels;
-  charts.progress.data.datasets[0].data = progressData.distances;
+  charts.progress.data.datasets[0].data = progressData.data;
   charts.progress.update();
-  
-  // 处理活动分布图表数据
-  charts.activities.data.labels = Object.keys(stats.activity_types);
-  charts.activities.data.datasets[0].data = Object.values(stats.activity_types);
-  charts.activities.update();
-  
-  // 处理卡路里趋势图表数据
-  const caloriesData = processCaloriesData(activities);
-  charts.calories.data.labels = caloriesData.labels;
-  charts.calories.data.datasets[0].data = caloriesData.calories;
-  charts.calories.update();
 }
 
-// 处理活动数据
+// Process activity data for visualization
 function processActivityData(activities) {
-  const data = {
-    labels: [],
-    durations: []
+  const weeklyData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    data: [0, 0, 0, 0, 0, 0, 0]
   };
   
-  // 按日期分组活动
-  const dailyActivities = activities.reduce((acc, activity) => {
-    const date = activity.date.split('T')[0];
-    if (!acc[date]) {
-      acc[date] = 0;
-    }
-    acc[date] += activity.duration;
-    return acc;
-  }, {});
-  
-  // 转换为数组格式
-  Object.entries(dailyActivities).forEach(([date, duration]) => {
-    data.labels.push(new Date(date).toLocaleDateString());
-    data.durations.push(duration);
+  activities.forEach(activity => {
+    const date = new Date(activity.date);
+    const dayOfWeek = date.getDay();
+    weeklyData.data[dayOfWeek] += activity.duration;
   });
   
-  return data;
+  return weeklyData;
 }
 
-// 处理进度数据
+// Process progress data for visualization
 function processProgressData(activities) {
-  const data = {
+  const progressData = {
     labels: [],
-    distances: []
+    data: []
   };
   
-  // 按日期分组并累计距离
-  let totalDistance = 0;
+  // Group activities by week
+  const weeklyGroups = {};
   activities.forEach(activity => {
-    totalDistance += activity.distance || 0;
-    data.labels.push(new Date(activity.date).toLocaleDateString());
-    data.distances.push(totalDistance);
+    const date = new Date(activity.date);
+    const weekNumber = Math.floor(date.getDate() / 7);
+    if (!weeklyGroups[weekNumber]) {
+      weeklyGroups[weekNumber] = 0;
+    }
+    weeklyGroups[weekNumber] += activity.distance || 0;
   });
   
-  return data;
+  // Convert to arrays for chart
+  Object.keys(weeklyGroups).forEach(week => {
+    progressData.labels.push(`Week ${parseInt(week) + 1}`);
+    progressData.data.push(weeklyGroups[week]);
+  });
+  
+  return progressData;
 }
 
-// 处理卡路里数据
+// Process calories data for visualization
 function processCaloriesData(activities) {
-  const data = {
-    labels: [],
-    calories: []
+  const caloriesData = {
+    burned: 0,
+    goal: 1000
   };
   
   activities.forEach(activity => {
-    data.labels.push(new Date(activity.date).toLocaleDateString());
-    data.calories.push(activity.calories);
+    caloriesData.burned += activity.calories || 0;
   });
   
-  return data;
+  return caloriesData;
 }
 
-// 导出数据
+// Export data in specified format
 async function exportData(format) {
   try {
-    const response = await fetch(`/api/export/${format}`);
+    const response = await fetch('/api/activities/export', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        format: format,
+        startDate: currentFilters.startDate,
+        endDate: currentFilters.endDate
+      })
+    });
+    
     if (!response.ok) {
-      throw new Error('Export failed');
+      throw new Error('Failed to export data');
     }
     
+    const data = await response.json();
     if (format === 'json') {
-      const data = await response.json();
-      downloadJSON(data, 'fitness_data.json');
+      downloadJSON(data, 'activities.json');
     } else {
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `fitness_data.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
+      // Handle other formats here
     }
   } catch (error) {
-    console.error('Export error:', error);
-    showError('Failed to export data');
+    showError(error.message);
   }
 }
 
-// 下载JSON文件
+// Download JSON data as file
 function downloadJSON(data, filename) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = window.URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
-  window.URL.revokeObjectURL(url);
-  a.remove();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
-// 显示错误消息
+// Display error message
 function showError(message) {
   const errorDiv = document.createElement('div');
   errorDiv.className = 'error-message';

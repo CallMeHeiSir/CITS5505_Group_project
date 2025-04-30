@@ -1,11 +1,12 @@
+// Initialize forum functionality when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // 获取表单元素
+  // Get form elements
   const postForm = document.querySelector('.forum-post-form');
   const titleInput = postForm.querySelector('input[type="text"]');
   const contentTextarea = postForm.querySelector('textarea');
   const postButton = postForm.querySelector('button');
 
-  // 处理发帖
+  // Handle post creation
   postButton.addEventListener('click', function() {
     const title = titleInput.value.trim();
     const content = contentTextarea.value.trim();
@@ -15,10 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // TODO: 发送创建帖子请求到后端
+    // TODO: Send create post request to backend
     console.log('Create post:', { title, content });
 
-    // 模拟发帖成功
+    // Simulate successful post creation
     const postElement = createPostElement({
       title,
       content,
@@ -28,16 +29,16 @@ document.addEventListener('DOMContentLoaded', function() {
       comments: 0
     });
 
-    // 添加到帖子列表的开头
+    // Add the new post to the beginning of the posts list
     const postsContainer = document.querySelector('.forum-posts');
     postsContainer.insertBefore(postElement, postsContainer.firstChild);
 
-    // 清空表单
+    // Clear the form
     titleInput.value = '';
     contentTextarea.value = '';
   });
 
-  // 处理帖子互动（点赞、评论、分享）
+  // Handle post interactions (likes, comments, shares)
   document.querySelectorAll('.post-actions').forEach(actions => {
     actions.addEventListener('click', function(e) {
       const button = e.target.closest('button');
@@ -50,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // 创建帖子元素的辅助函数
+  // Helper function to create a post element
   function createPostElement(post) {
     const div = document.createElement('div');
     div.className = 'forum-post';

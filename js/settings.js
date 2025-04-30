@@ -1,12 +1,13 @@
+// Initialize settings functionality when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // 获取表单元素
+  // Get form elements
   const profileForm = document.querySelector('.settings-form');
   const photoButton = profileForm.querySelector('.profile-upload button');
   const saveButton = profileForm.querySelector('button:last-child');
   const usernameInput = profileForm.querySelector('input[type="text"]');
   const emailInput = profileForm.querySelector('input[type="email"]');
 
-  // 处理头像更改
+  // Handle profile photo change
   photoButton.addEventListener('click', function() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     input.click();
   });
 
-  // 处理个人资料保存
+  // Handle profile information save
   saveButton.addEventListener('click', function() {
     const username = usernameInput.value.trim();
     const email = emailInput.value.trim();
@@ -36,17 +37,17 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // TODO: 发送更新请求到后端
+    // TODO: Send update request to backend
     console.log('Save profile:', { username, email });
 
-    // 模拟保存成功
+    // Simulate successful save
     alert('Profile updated successfully!');
   });
 
-  // 处理偏好设置更改
+  // Handle preference changes
   document.querySelectorAll('.settings-form select').forEach(select => {
     select.addEventListener('change', function() {
-      // TODO: 发送更新请求到后端
+      // TODO: Send update request to backend
       console.log('Preference changed:', { 
         name: this.previousElementSibling.textContent,
         value: this.value 
@@ -54,10 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // 处理隐私设置更改
+  // Handle privacy settings changes
   document.querySelectorAll('.checkbox-label input').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
-      // TODO: 发送更新请求到后端
+      // TODO: Send update request to backend
       console.log('Privacy setting changed:', {
         setting: this.parentElement.textContent.trim(),
         enabled: this.checked

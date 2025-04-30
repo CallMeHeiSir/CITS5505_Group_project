@@ -1,21 +1,21 @@
-// 文件上传相关常量
+// Constants for file upload validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const VALID_TYPES = ['.csv', '.json', '.txt'];
 
-// 获取DOM元素
+// Get DOM elements
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
 const fileList = document.getElementById('file-list');
 const uploadForm = document.getElementById('upload-form');
 
-// 文件验证函数
+// Validate file size and type
 function validateFile(file) {
-  // 检查文件大小
+  // Check file size
   if (file.size > MAX_FILE_SIZE) {
     throw new Error(`File size exceeds 5MB limit: ${file.name}`);
   }
   
-  // 检查文件类型
+  // Check file extension
   const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
   if (!VALID_TYPES.includes(ext)) {
     throw new Error(`Invalid file type: ${file.name}. Allowed types: ${VALID_TYPES.join(', ')}`);
@@ -24,12 +24,12 @@ function validateFile(file) {
   return true;
 }
 
-// 创建文件预览元素
+// Create a preview element for uploaded file
 function createFilePreview(file) {
   const div = document.createElement('div');
   div.className = 'file-preview';
   
-  // 添加文件信息
+  // Add file information
   div.innerHTML = `
     <div class="file-info">
       <i class="bi bi-file-earmark-text"></i>
@@ -45,12 +45,12 @@ function createFilePreview(file) {
     </div>
   `;
   
-  // 添加预览按钮事件
+  // Add preview button event listener
   div.querySelector('.preview-btn').addEventListener('click', () => {
     previewFile(file);
   });
   
-  // 添加删除按钮事件
+  // Add remove button event listener
   div.querySelector('.remove-btn').addEventListener('click', () => {
     div.remove();
     updateUploadButtonState();
@@ -59,7 +59,7 @@ function createFilePreview(file) {
   return div;
 }
 
-// 文件预览功能
+// Preview file content
 function previewFile(file) {
   if (file.type.startsWith('text')) {
     const reader = new FileReader();
@@ -70,7 +70,7 @@ function previewFile(file) {
   }
 }
 
-// 显示预览模态框
+// Display file preview in a modal
 function showPreviewModal(fileName, content) {
   const modal = document.createElement('div');
   modal.className = 'preview-modal';
@@ -90,7 +90,7 @@ function showPreviewModal(fileName, content) {
   document.body.appendChild(modal);
 }
 
-// 更新上传按钮状态
+// Update upload button state based on file list
 function updateUploadButtonState() {
   const hasFiles = fileList.children.length > 0;
   const uploadButton = uploadForm.querySelector('button[type="submit"]');
@@ -98,7 +98,7 @@ function updateUploadButtonState() {
   uploadButton.classList.toggle('btn-disabled', !hasFiles);
 }
 
-// 处理文件拖放
+// Handle drag and drop events
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
   dropZone.addEventListener(eventName, (e) => {
     e.preventDefault();
@@ -106,6 +106,7 @@ function updateUploadButtonState() {
   });
 });
 
+// Add visual feedback for drag and drop
 ['dragenter', 'dragover'].forEach(eventName => {
   dropZone.addEventListener(eventName, () => {
     dropZone.classList.add('dragover');
@@ -118,7 +119,7 @@ function updateUploadButtonState() {
   });
 });
 
-// 处理文件选择
+// Process selected files
 function handleFiles(files) {
   Array.from(files).forEach(file => {
     try {
@@ -132,7 +133,7 @@ function handleFiles(files) {
   });
 }
 
-// 显示错误消息
+// Display error message
 function showError(message) {
   const errorDiv = document.createElement('div');
   errorDiv.className = 'error-message';
@@ -144,18 +145,18 @@ function showError(message) {
   setTimeout(() => errorDiv.remove(), 3000);
 }
 
-// 文件拖放处理
+// Handle file drop
 dropZone.addEventListener('drop', (e) => {
   const files = e.dataTransfer.files;
   handleFiles(files);
 });
 
-// 文件输入处理
+// Handle file input change
 fileInput.addEventListener('change', (e) => {
   handleFiles(e.target.files);
 });
 
-// 表单提交处理
+// Handle form submission
 uploadForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const files = Array.from(fileList.children).map(div => {
@@ -169,7 +170,7 @@ uploadForm.addEventListener('submit', async (e) => {
     };
   });
   
-  // 模拟上传过程
+  // Simulate upload process
   for (const file of files) {
     for (let i = 0; i <= 100; i += 10) {
       file.updateProgress(i);
@@ -177,7 +178,7 @@ uploadForm.addEventListener('submit', async (e) => {
     }
   }
   
-  // 模拟上传完成
+  // Simulate upload completion
   setTimeout(() => {
     fileList.innerHTML = '';
     updateUploadButtonState();
@@ -185,7 +186,7 @@ uploadForm.addEventListener('submit', async (e) => {
   }, 500);
 });
 
-// 显示成功消息
+// Display success message
 function showSuccess(message) {
   const successDiv = document.createElement('div');
   successDiv.className = 'success-message';
@@ -197,17 +198,18 @@ function showSuccess(message) {
   setTimeout(() => successDiv.remove(), 3000);
 }
 
+// Initialize activity form functionality
 document.addEventListener('DOMContentLoaded', function() {
   const activityForm = document.getElementById('activity-form');
   const activitiesList = document.querySelector('.activities-list');
 
-  // 设置日期输入框的默认值为今天
+  // Set default date to today
   document.getElementById('activity-date').valueAsDate = new Date();
 
-  // 加载最近的活动
+  // Load recent activities
   loadRecentActivities();
 
-  // 处理表单提交
+  // Handle activity form submission
   activityForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -243,41 +245,34 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// 加载最近的活动
+// Load and display recent activities
 async function loadRecentActivities() {
   try {
     const response = await fetch('/api/activities?limit=5');
     if (!response.ok) {
       throw new Error('Failed to load activities');
     }
-
     const activities = await response.json();
     displayActivities(activities);
   } catch (error) {
-    showError('Failed to load recent activities');
+    showError(error.message);
   }
 }
 
-// 显示活动列表
+// Display activities in the list
 function displayActivities(activities) {
   const activitiesList = document.querySelector('.activities-list');
-  activitiesList.innerHTML = activities.length ? '' : '<p>No recent activities</p>';
-
+  activitiesList.innerHTML = '';
+  
   activities.forEach(activity => {
-    const activityDate = new Date(activity.date);
-    const activityEl = document.createElement('div');
-    activityEl.className = 'activity-item';
-    activityEl.innerHTML = `
-      <div class="activity-header">
-        <span class="activity-type">${activity.activity_type}</span>
-        <span class="activity-date">${activityDate.toLocaleDateString()}</span>
-      </div>
-      <div class="activity-details">
-        <span><i class="bi bi-clock"></i> ${activity.duration} mins</span>
-        <span><i class="bi bi-lightning"></i> ${activity.calories} cal</span>
-        ${activity.distance ? `<span><i class="bi bi-geo"></i> ${activity.distance} km</span>` : ''}
-      </div>
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span class="activity-type">${activity.activity_type}</span>
+      <span class="activity-date">${new Date(activity.date).toLocaleDateString()}</span>
+      <span class="activity-duration">${activity.duration} min</span>
+      <span class="activity-distance">${activity.distance} km</span>
+      <span class="activity-calories">${activity.calories} cal</span>
     `;
-    activitiesList.appendChild(activityEl);
+    activitiesList.appendChild(li);
   });
 }

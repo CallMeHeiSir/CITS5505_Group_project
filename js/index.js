@@ -1,32 +1,35 @@
+// Wait for the DOM to be fully loaded before executing the code
 document.addEventListener('DOMContentLoaded', function() {
-  // 获取表单元素
+  // Get form elements for login and registration
   const loginForm = document.getElementById('login-form');
   const registerForm = document.getElementById('register-form');
 
-  // 处理登录表单提交
+  // Handle login form submission
   loginForm.addEventListener('submit', function(e) {
     e.preventDefault();
+    // Get email and password from the form
     const email = this.querySelector('input[type="email"]').value;
     const password = this.querySelector('input[type="password"]').value;
 
-    // TODO: 发送登录请求到后端
+    // TODO: Send login request to backend
     console.log('Login attempt:', { email, password });
     
-    // 模拟登录成功
+    // Simulate successful login by redirecting to upload page
     window.location.href = 'upload.html';
   });
 
-  // 处理注册表单提交
+  // Handle registration form submission
   registerForm.addEventListener('submit', function(e) {
     e.preventDefault();
+    // Get user registration details from the form
     const username = this.querySelector('input[type="text"]').value;
     const email = this.querySelector('input[type="email"]').value;
     const password = this.querySelector('input[type="password"]').value;
 
-    // TODO: 发送注册请求到后端
+    // TODO: Send registration request to backend
     console.log('Register attempt:', { username, email, password });
     
-    // 模拟注册成功
+    // Simulate successful registration
     alert('Registration successful! Please login.');
     this.reset();
   });

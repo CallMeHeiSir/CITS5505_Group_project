@@ -1,9 +1,9 @@
-// 设置当前页面的导航项为激活状态
+// Set the current page's navigation item to active state
 document.addEventListener('DOMContentLoaded', function() {
-    // 获取当前页面的文件名
+    // Get the current page's filename from the URL
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     
-    // 找到对应的导航项并添加激活类
+    // Find the corresponding navigation item and add active class
     const navItems = document.querySelectorAll('.side-item');
     navItems.forEach(item => {
         if (item.getAttribute('href') === currentPage) {
