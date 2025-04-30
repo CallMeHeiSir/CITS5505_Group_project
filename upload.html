@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Upload - Fitness Dashboard</title>
   <!-- Bootstrap Icons -->
   <link
@@ -43,7 +43,7 @@
                     </div>
                     <div class="flow-text">
                       <p>1. Prepare Data</p>
-                      <small>CSV, JSON, or TXT files</small>
+                      <small>Only CSV file</small>
                     </div>
                   </div>
                   <div class="flow-arrow">
@@ -95,58 +95,99 @@
         </div>
 
         <div class="cards-row">
-          <div class="card">
-            <h5>Upload Files</h5>
-            <form class="upload-form" id="upload-form">
-              <div class="upload-zone" id="drop-zone">
-                <i class="bi bi-cloud-arrow-up"></i>
-                <p>Drag and drop your files here or click to browse</p>
-                <input type="file" id="file-input" multiple/>
+          <div class="card" style="grid-column: 1/-1;">
+            <h5>Add Fitness Data</h5>
+            <div class="upload-options">
+              <div class="option-tabs">
+                <button class="tab-btn active" data-tab="file-upload">File Upload</button>
+                <button class="tab-btn" data-tab="manual-entry">Manual Entry</button>
               </div>
-              <div class="file-list" id="file-list"></div>
-              <button type="submit" class="btn-gradient" disabled>Upload Files</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <h5>Add Activity</h5>
-            <form class="activity-form" id="activity-form">
-              <div class="form-group">
-                <label>Activity Type</label>
-                <select class="form-input" name="activity_type" required>
-                  <option value="">Select activity type</option>
-                  <option value="running">Running</option>
-                  <option value="cycling">Cycling</option>
-                  <option value="swimming">Swimming</option>
-                  <option value="walking">Walking</option>
-                  <option value="hiking">Hiking</option>
-                  <option value="yoga">Yoga</option>
-                  <option value="other">Other</option>
-                </select>
+              
+              <!-- File Upload Tab -->
+              <div class="tab-content active" id="file-upload">
+                <div class="upload-description">
+                  <p>Upload your fitness data in CSV format. <a href="templates/fitness_data_template.csv" download class="template-link">Download template</a></p>
+                </div>
+                <form class="upload-form" id="upload-form">
+                  <div class="upload-zone" id="drop-zone">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <p>Drag and drop your CSV files here or click to browse</p>
+                    <input type="file" id="file-input" accept=".csv" multiple/>
+                  </div>
+                  <div class="file-list" id="file-list"></div>
+                  <button type="submit" class="btn-gradient" disabled>Upload Files</button>
+                </form>
               </div>
 
-              <div class="form-group">
-                <label>Date</label>
-                <input type="date" class="form-input" name="date" required/>
-              </div>
+              <!-- Manual Entry Tab -->
+              <div class="tab-content" id="manual-entry">
+                <form class="activity-form" id="activity-form">
+                  <div class="form-group">
+                    <label>Activity Type</label>
+                    <select class="form-input" name="activity_type" required>
+                      <option value="">Select activity type</option>
+                      <option value="running">Running</option>
+                      <option value="cycling">Cycling</option>
+                      <option value="swimming">Swimming</option>
+                      <option value="walking">Walking</option>
+                      <option value="hiking">Hiking</option>
+                      <option value="yoga">Yoga</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
 
-              <div class="form-group">
-                <label>Duration (minutes)</label>
-                <input type="number" class="form-input" name="duration" min="1" required/>
-              </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Date</label>
+                      <input type="date" class="form-input" name="date" required/>
+                    </div>
 
-              <div class="form-group">
-                <label>Distance (km)</label>
-                <input type="number" class="form-input" name="distance" min="0" step="0.1"/>
-              </div>
+                    <div class="form-group">
+                      <label>Duration (minutes)</label>
+                      <input type="number" class="form-input" name="duration" min="1" required/>
+                    </div>
+                  </div>
 
-              <div class="form-group">
-                <label>Calories</label>
-                <input type="number" class="form-input" name="calories" min="0"/>
-              </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Distance (km)</label>
+                      <input type="number" class="form-input" name="distance" min="0" step="0.1"/>
+                    </div>
 
-              <button type="submit" class="btn-gradient">Add Activity</button>
-            </form>
+                    <div class="form-group">
+                      <label>Calories</label>
+                      <input type="number" class="form-input" name="calories" min="0"/>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Height (cm)</label>
+                      <input type="number" class="form-input" name="height" min="0" required/>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Weight (kg)</label>
+                      <input type="number" class="form-input" name="weight" min="0" required/>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Age</label>
+                      <input type="number" class="form-input" name="age" min="0" required/>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Location</label>
+                      <input type="text" class="form-input" name="location" required/>
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn-gradient">Add Activity</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </main>
