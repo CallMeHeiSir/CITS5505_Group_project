@@ -141,3 +141,27 @@ html, body {
   color: #888;
   font-size: 0.85rem;
 }
+
+/* ============== 页脚样式 ============== */
+.footer {
+  padding: 20px 0;
+  background: #f8fafc;
+  border-top: 1px solid #ddd;
+  margin-top: 40px;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+.footer-link {
+  margin: 0 15px;
+  color: #667eea;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color .2s;
+}
+
+.footer-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
