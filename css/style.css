@@ -1312,3 +1312,10 @@ html, body {
     font-size: 16px !important;
   }
 }
+
+a.btn-gradient {
+  text-decoration: none;
+}
+a.btn-gradient:hover {
+  text-decoration: none;
+}
