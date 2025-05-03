@@ -8,10 +8,10 @@
 - [Profile]
 
 # Authors
-- Guoxing Zhu (24308319)   GithubID: GallMeHeiSir
+- Gawen Hei (23824629)     GithubID: GallMeHeiSir
 - Yiran Li (24171143)      GithubID: Yiran1Li
 - Jiazheng Guo (24070858)  GithubID: GJZ99123
-- Gawen Hei (23824629)     GithubID: uwaguoxing
+- Guoxing Zhu (24308319)   GithubID: uwaguoxing
 
 # Launch instruction
 
