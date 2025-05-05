@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from dotenv import load_dotenv
@@ -40,10 +40,75 @@ def create_app():
         from auth import auth as auth_blueprint
         app.register_blueprint(auth_blueprint, url_prefix='/auth')
         
-        # 添加一个测试路由
+        # 添加页面路由
         @app.route('/')
+        def home():
+            return render_template('index.html')
+        @app.route('/index')
         def index():
-            return 'Hello, World!'
+            return render_template('index.html')
+        @app.route('/upload')
+        def upload():
+            return render_template('upload.html')
+        @app.route('/visualize')
+        def visualize():
+            return render_template('visualize.html')
+        @app.route('/profile')
+        def profile():
+            return render_template('profile.html')
+        @app.route('/register')
+        def register():
+            return render_template('register.html')
+        @app.route('/login')
+        def login():
+            return render_template('login.html')
+        @app.route('/settings')
+        def settings():
+            return render_template('settings.html')
+        @app.route('/new_issue')
+        def new_issue():
+            return render_template('new_issue.html')
+        @app.route('/new_challenge')
+        def new_challenge():
+            return render_template('new_challenge.html')
+        @app.route('/new_friend')
+        def new_friend():
+            return render_template('new_friend.html')
+        @app.route('/leaderboard')
+        def leaderboard():
+            return render_template('leaderboard.html')
+        @app.route('/issue')
+        def issue():
+            return render_template('issue.html')
+        @app.route('/issue_detail')
+        def issue_detail():
+            return render_template('issue_detail.html')
+        @app.route('/friends')
+        def friends():
+            return render_template('friends.html')
+        @app.route('/forum')
+        def forum():
+            return render_template('forum copy.html')
+        @app.route('/change_personal_information')
+        def change_personal_information():
+            return render_template('change_personal_information.html')
+        @app.route('/change_password')
+        def change_password():
+            return render_template('change_password.html')
+        @app.route('/challenge_detail')
+        def challenge_detail():
+            return render_template('challenge_detail.html')
+        @app.route('/challenge')
+        def challenge():
+            return render_template('challenge.html')
+        @app.route('/share')
+        def share():
+            return render_template('share.html')
+        # 你可以根据需要继续添加其它页面
+        
+        @login_manager.user_loader
+        def load_user(user_id):
+            return db.session.get(User, int(user_id))
     
     return app
 

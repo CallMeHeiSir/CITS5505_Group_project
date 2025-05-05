@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from models.user import User
 from app import db
+from sqlalchemy import select
 
 auth = Blueprint('auth', __name__)
 
@@ -13,7 +14,8 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
+        stmt = select(User).where(User.username == username)
+        user = db.session.execute(stmt).scalar_one_or_none()
         
         if user and user.check_password(password):
             login_user(user)
@@ -38,11 +40,15 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        if User.query.filter_by(username=username).first():
+        # 检查用户名是否已存在
+        stmt = select(User).where(User.username == username)
+        if db.session.execute(stmt).scalar_one_or_none():
             flash('Username already exists')
             return redirect(url_for('auth.register'))
         
-        if User.query.filter_by(email=email).first():
+        # 检查邮箱是否已存在
+        stmt = select(User).where(User.email == email)
+        if db.session.execute(stmt).scalar_one_or_none():
             flash('Email already exists')
             return redirect(url_for('auth.register'))
         

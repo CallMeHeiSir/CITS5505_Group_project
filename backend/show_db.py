@@ -1,11 +1,14 @@
 from app import create_app, db
 from models.user import User
+from sqlalchemy import select
 
 app = create_app()
 
 with app.app_context():
     # 查询所有用户
-    users = User.query.all()
+    stmt = select(User)
+    users = db.session.execute(stmt).scalars().all()
+    
     print("\nAll Users:")
     print("-" * 50)
     for user in users:

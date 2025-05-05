@@ -7,7 +7,7 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 
 <body>
@@ -46,11 +46,11 @@
 
                 <!-- 模块入口按钮（靠上、横向排列） -->
                 <section style="margin-bottom: 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">
-                    <a href="challenge.html" class="btn-gradient" style="padding: 10px 20px;">🔥 Challenges</a>
-                    <a href="friends.html" class="btn-gradient" style="padding: 10px 20px;">👥 Friends</a>
-                    <a href="leaderboard.html" class="btn-gradient" style="padding: 10px 20px;">🥇 Leaderboard</a>
-                    <a href="profile.html" class="btn-gradient" style="padding: 10px 20px;">🐱‍🏍 Profile</a>
-                    <a href="issue.html" class="btn-gradient" style="padding: 10px 20px;">💬 Issues</a>
+                    <a href="{{ url_for('challenge') }}" class="btn-gradient" style="padding: 10px 20px;">🔥 Challenges</a>
+                    <a href="{{ url_for('friends') }}" class="btn-gradient" style="padding: 10px 20px;">👥 Friends</a>
+                    <a href="{{ url_for('leaderboard') }}" class="btn-gradient" style="padding: 10px 20px;">🥇 Leaderboard</a>
+                    <a href="{{ url_for('profile') }}" class="btn-gradient" style="padding: 10px 20px;">🐱‍🏍 Profile</a>
+                    <a href="{{ url_for('issue') }}" class="btn-gradient" style="padding: 10px 20px;">💬 Issues</a>
                 </section>
 
                 <!-- Create New Post -->
@@ -81,7 +81,7 @@
                             <option value="Life">Life</option>
                         </select>
                     </div>
-                    <a href="leaderboard.html" class="btn-gradient" style="padding: 10px 20px;">Leaderboard</a>
+                    <a href="{{ url_for('leaderboard') }}" class="btn-gradient" style="padding: 10px 20px;">Leaderboard</a>
                 </section>
 
                 <!-- Recent Posts -->
@@ -105,7 +105,7 @@
 </div>
 
 <!-- 功能脚本 -->
-<script src="js/forum.js"></script>
+<script src="{{ url_for('static', filename='js/forum.js') }}"></script>
 
 </body>
 </html>
