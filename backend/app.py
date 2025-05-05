@@ -2,13 +2,18 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from dotenv import load_dotenv
+from sqlalchemy.orm import DeclarativeBase
 import os
 
 # 加载环境变量
 load_dotenv()
 
+# 创建基础模型类
+class Base(DeclarativeBase):
+    pass
+
 # 初始化扩展
-db = SQLAlchemy()
+db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 
 def create_app():
