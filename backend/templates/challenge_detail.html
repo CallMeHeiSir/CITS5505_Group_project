@@ -6,7 +6,7 @@
     <title>Challenge Detail - Fitness Dashboard</title>
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 
 <body>
@@ -17,11 +17,11 @@
         <!-- 侧边栏 Sidebar -->
         <nav class="side-nav">
             <div class="logo">Fitness Dashboard</div>
-            <a href="index.html" class="side-item"><i class="bi bi-house-fill"></i><span>Home</span></a>
-            <a href="upload.html" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-            <a href="visualize.html" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-            <a href="forum.html" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
-            <a href="settings.html" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+            <a href="{{ url_for('index') }}" class="side-item"><i class="bi bi-house-fill"></i><span>Home</span></a>
+            <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
+            <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
+            <a href="{{ url_for('forum') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
+            <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
             <div class="user-profile">
                 <i class="bi bi-person-circle"></i>
             </div>
@@ -71,7 +71,7 @@
 </div>
 
 <!-- 引入新的JS文件 -->
-<script src="js/challenge_detail.js"></script>
+<script src="{{ url_for('static', filename='js/challenge_detail.js') }}"></script>
 
 </body>
 </html>
