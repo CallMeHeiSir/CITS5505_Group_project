@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from dotenv import load_dotenv
@@ -43,7 +43,7 @@ def create_app():
         # 添加页面路由
         @app.route('/')
         def home():
-            return render_template('index.html')
+            return redirect(url_for('login'))
         @app.route('/index')
         def index():
             return render_template('index.html')
