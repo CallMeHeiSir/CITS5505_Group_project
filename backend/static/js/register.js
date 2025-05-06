@@ -1,4 +1,5 @@
-// 注册表单功能
+import { registerUser, uploadAvatar } from './api.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registerForm');
     const passwordInput = document.getElementById('password');
@@ -6,14 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarInput = document.getElementById('avatar');
     const avatarPreview = document.getElementById('avatarPreview');
     const avatarUploadZone = document.getElementById('avatarUploadZone');
+    let avatarPath = '';
 
-    // 功能 1：密码格式验证
-    // 验证密码是否至少6个字符且包含特殊字符
     passwordInput.addEventListener('input', () => {
         const password = passwordInput.value;
-        const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/; // 特殊字符正则表达式
-        const isValid = password.length >= 6 && specialCharRegex.test(password);
-
+        const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+        const isValid = password.length >= 6 && specialCharRegex.test(password )
         if (!isValid) {
             passwordInput.classList.add('is-invalid');
             passwordError.style.display = 'block';
@@ -23,36 +22,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 功能 2：Avatar 上传预览
-    // 当用户选择文件时，显示图像预览
-    avatarInput.addEventListener('change', (event) => {
+    avatarInput.addEventListener('change', async (event) => {
         const file = event.target.files[0];
         if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 avatarPreview.src = e.target.result;
                 avatarPreview.style.display = 'block';
-                avatarUploadZone.querySelector('p').style.display = 'none'; // 隐藏提示文字
+                avatarUploadZone.querySelector('p').style.display = 'none';
             };
             reader.readAsDataURL(file);
+
+            const result = await uploadAvatar(file);
+            if (result.avatar_path) {
+                avatarPath = result.avatar_path;
+            } else {
+                alert(result.error);
+            }
         }
     });
 
-    // 功能 3：表单提交提示
-    // 模拟提交，显示成功提示
-    form.addEventListener('submit', (event) => {
-        event.preventDefault(); // 阻止默认提交
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = {
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            password: passwordInput.value,
+            phone: document.getElementById('phone').value,
+            gender: document.getElementById('gender').value,
+            birthdate: document.getElementById('birthdate').value,
+            address: document.getElementById('address').value,
+            avatar_path: avatarPath
+        };
 
-        // 检查密码是否通过验证
-        const password = passwordInput.value;
         const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-        if (password.length < 6 || !specialCharRegex.test(password)) {
+        if (formData.password.length < 6 || !specialCharRegex.test(formData.password)) {
             passwordInput.classList.add('is-invalid');
             passwordError.style.display = 'block';
             return;
         }
 
-        // 显示成功提示
-        alert('Registration successful! (This is a simulation)');
+        try {
+            const result = await registerUser(formData);
+            if (result.message) {
+                alert(result.message);
+                window.location.href = '/login';
+            } else {
+                alert(result.error);
+            }
+        } catch (error) {
+            alert('错误: ' + error.message);
+        }
     });
 });
