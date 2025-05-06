@@ -12,6 +12,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 </head>
 <body>
+  <!-- 左上角的 Logout 链接 -->
+  <div class="top-logout">
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+
   <div class="app-container">
     <div class="content">
       <!-- Sidebar -->
@@ -25,8 +30,12 @@
         <a href="forum.html" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
         <a href="settings.html" class="side-item active"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
         <div class="user-profile">
-          <i class="bi bi-person-circle"></i>
-        </div>
+          <!-- 显示用户头像 -->
+          <img 
+            src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" 
+            alt="User Avatar" 
+            class="user-avatar"
+          />
       </nav>
 
       <!-- Main Content -->
@@ -35,8 +44,8 @@
           <div class="card" style="grid-column:1/-1;">
             <h2>Settings</h2>
             <div>
-              <button type="submit" class="btn-gradient" onclick="window.location.href='change_personal_information.html'">Edit Personal Information</button>
-              <button type="submit" class="btn-gradient" onclick="window.location.href='change_password.html'">Change Password</button>
+              <button type="submit" class="btn-gradient" onclick="window.location.href='{{url_for('auth.change_personal_information')}}'">Edit Personal Information</button>
+              <button type="submit" class="btn-gradient" onclick="window.location.href='{{url_for('auth.change_password')}}'">Change Password</button>
             </div>
           </div>
         </div>

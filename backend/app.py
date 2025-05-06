@@ -95,12 +95,6 @@ def create_app():
         @app.route('/forum')
         def forum():
             return render_template('forum copy.html')
-        @app.route('/change_personal_information')
-        def change_personal_information():
-            return render_template('change_personal_information.html')
-        @app.route('/change_password')
-        def change_password():
-            return render_template('change_password.html')
         @app.route('/challenge_detail')
         def challenge_detail():
             return render_template('challenge_detail.html')
