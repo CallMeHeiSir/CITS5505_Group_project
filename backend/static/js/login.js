@@ -1,15 +1,13 @@
-// 登录表单功能
+import { loginUser } from './api.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const emailError = document.getElementById('emailError');
 
-    // 功能 1：邮箱格式验证
-    // 验证邮箱是否包含 '@'
     emailInput.addEventListener('input', () => {
         const email = emailInput.value;
         const isValid = email.includes('@');
-
         if (!isValid) {
             emailInput.classList.add('is-invalid');
             emailError.style.display = 'block';
@@ -19,20 +17,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 功能 2：表单提交提示
-    // 模拟登录，显示成功提示
-    form.addEventListener('submit', (event) => {
-        event.preventDefault(); // 阻止默认提交
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const credentials = {
+            email: emailInput.value,
+            password: document.getElementById('password').value
+        };
 
-        // 检查邮箱是否通过验证
-        const email = emailInput.value;
-        if (!email.includes('@')) {
+        if (!credentials.email.includes('@')) {
             emailInput.classList.add('is-invalid');
             emailError.style.display = 'block';
             return;
         }
 
-        // 显示成功提示
-        alert('Login successful! (This is a simulation)');
+        try {
+            const result = await loginUser(credentials);
+            if (result.message) {
+                alert(result.message);
+                window.location.href = '/'; // 跳转到 index.html
+            } else {
+                alert(result.error);
+            }
+        } catch (error) {
+            alert('错误: ' + error.message);
+        }
     });
 });

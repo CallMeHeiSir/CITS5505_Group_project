@@ -106,6 +106,11 @@ def create_app():
             return render_template('share.html')
         # 你可以根据需要继续添加其它页面
         
+        # 404 错误处理
+        @app.errorhandler(404)
+        def not_found(error):
+            return {'error': '资源未找到'}, 404
+        
         @login_manager.user_loader
         def load_user(user_id):
             return db.session.get(User, int(user_id))
