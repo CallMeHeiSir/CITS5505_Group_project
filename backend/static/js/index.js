@@ -4,22 +4,12 @@ import { validateEmail, validatePassword } from './utils.js';
 document.addEventListener('DOMContentLoaded', function() {
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
-  const navToggle = document.querySelector('.nav-toggle');
-  const navLinks = document.querySelector('.nav-links');
   const avatarInput = document.getElementById('avatar');
   const avatarUploadZone = document.getElementById('avatarUploadZone');
   let avatarPath = ''; // 用于存储上传后的头像路径
 
-  // 移动端导航栏折叠功能
-  if (navToggle && navLinks) {
-    navToggle.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
-    });
-  }
-
   // 头像上传功能
   if (avatarInput && avatarUploadZone) {
-    // 点击上传
     avatarInput.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (file && file.type.startsWith('image/')) {
@@ -32,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         reader.readAsDataURL(file);
 
-        // 上传文件到后端
         const formData = new FormData();
         formData.append('avatar', file);
         try {
@@ -42,14 +31,12 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           const result = await response.json();
           if (result.avatar_path) {
-            avatarPath = result.avatar_path; // 存储头像路径
+            avatarPath = result.avatar_path;
             console.log('Avatar uploaded successfully:', avatarPath);
           } else {
-            console.error('Upload failed:', result.error);
             alert('上传失败: ' + result.error);
           }
         } catch (error) {
-          console.error('Upload error:', error);
           alert('上传失败: ' + error.message);
         }
       } else {
@@ -57,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // 拖拽上传
     avatarUploadZone.addEventListener('dragover', (event) => {
       event.preventDefault();
       avatarUploadZone.classList.add('dragover');
@@ -72,10 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
       avatarUploadZone.classList.remove('dragover');
       const file = event.dataTransfer.files[0];
       if (file && file.type.startsWith('image/')) {
-        const fileList = new DataTransfer();
-        fileList.items.add(file);
-        avatarInput.files = fileList.files;
-
         const reader = new FileReader();
         reader.onload = (e) => {
           const avatarPreview = document.getElementById('avatarPreview');
@@ -85,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         reader.readAsDataURL(file);
 
-        // 上传文件到后端
         const formData = new FormData();
         formData.append('avatar', file);
         try {
@@ -95,14 +76,12 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           const result = await response.json();
           if (result.avatar_path) {
-            avatarPath = result.avatar_path; // 存储头像路径
+            avatarPath = result.avatar_path;
             console.log('Avatar uploaded successfully:', avatarPath);
           } else {
-            console.error('Upload failed:', result.error);
             alert('上传失败: ' + result.error);
           }
         } catch (error) {
-          console.error('Upload error:', error);
           alert('上传失败: ' + error.message);
         }
       } else {
@@ -110,22 +89,18 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // 点击上传区域触发文件选择
     avatarUploadZone.addEventListener('click', () => {
       avatarInput.click();
     });
-  } else {
-    console.error('Avatar input or upload zone not found');
   }
 
-  // 登录表单
   if (loginForm) {
     loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       const email = this.querySelector('#email').value;
       const password = this.querySelector('#password').value;
 
-      if (!validateEmail(email)) {
+      if (!email.includes('@')) {
         alert('请输入有效的邮箱地址（包含@）');
         this.querySelector('#email').classList.add('is-invalid');
         document.getElementById('emailError').style.display = 'block';
@@ -133,22 +108,27 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       try {
-        const result = await loginUser({ email, password });
-        if (result.message) {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const result = await response.json();
+
+        if (response.ok) {
           alert(result.message);
-          window.location.href = '/';
+          window.location.href = '/upload.html';
         } else {
-          alert(result.error);
+          alert(result.error || '登录失败');
           this.querySelector('#email').classList.add('is-invalid');
           document.getElementById('emailError').style.display = 'block';
         }
-      } catch (error) {
-        alert('登录失败: ' + error.message);
+      } catch (err) {
+        alert('登录出错: ' + err.message);
       }
     });
   }
 
-  // 注册表单
   if (registerForm) {
     registerForm.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -164,11 +144,9 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('用户名、邮箱和密码为必填项');
         return;
       }
-      if (!validateEmail(email)) {
-        alert('请输入有效的邮箱地址（包含@）');
-        return;
-      }
-      if (!validatePassword(password)) {
+
+      const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+      if (password.length < 6 || !specialCharRegex.test(password)) {
         alert('密码需至少6个字符并包含特殊字符');
         this.querySelector('#password').classList.add('is-invalid');
         document.getElementById('passwordError').style.display = 'block';
@@ -187,16 +165,22 @@ document.addEventListener('DOMContentLoaded', function() {
       };
 
       try {
-        const result = await registerUser(formData);
-        if (result.message) {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        const result = await response.json();
+
+        if (response.ok) {
           alert('注册成功，请登录！');
-          window.location.href = '/login';
+          window.location.href = '/login.html';
           this.reset();
         } else {
-          alert(result.error);
+          alert(result.error || '注册失败');
         }
       } catch (error) {
-        alert('注册失败: ' + error.message);
+        alert('注册出错: ' + error.message);
       }
     });
   }
