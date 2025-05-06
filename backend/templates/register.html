@@ -10,6 +10,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/LoginStyles.css') }}">
 </head>
 <body>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand logo" href="#">Data Analytics App</a>
@@ -32,38 +46,56 @@
                     <div class="card-body">
                         <h2 class="card-title text-center mb-4">Create Your Account</h2>
                         <p class="text-center text-muted mb-4">Join our platform to analyze and share your data.</p>
-                        <form id="registerForm">
+                        <form id="registerForm" action="{{ url_for('auth.register') }}" method="POST" enctype="multipart/form-data">
                             <!-- Username -->
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control form-input" id="username" placeholder="Enter your username">
+                                <input type="text" class="form-control form-input" id="username" name="username" placeholder="Enter your username">
                             </div>
 
                             <!-- Email -->
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control form-input" id="email" placeholder="Enter your email">
+                                <input type="email" class="form-control form-input" id="email" name="email" placeholder="Enter your email">
                             </div>
 
                             <!-- Password -->
-                            <div class="mb-3">
+                            <div class="mb-3 position-relative">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control form-input" id="password" placeholder="Enter your password">
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-input" id="password" name="password" placeholder="Enter your password">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-eye-slash" id="togglePassword" style="cursor: pointer;"></i>
+                                    </span>
+                                </div>
                                 <div class="invalid-feedback" id="passwordError">
                                     Password must be at least 6 characters and include special characters like @#$%.
                                 </div>
                             </div>
-
+                            
+                            <!-- Confirm Password -->
+                            <div class="mb-3 position-relative">
+                                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-input" id="confirmPassword" placeholder="Confirm your password">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-eye-slash" id="toggleConfirmPassword" style="cursor: pointer;"></i>
+                                    </span>
+                                </div>
+                                <div class="invalid-feedback" id="confirmPasswordError">
+                                    Passwords do not match.
+                                </div>
+                            </div>
                             <!-- Phone Number -->
                             <div class="mb-3">
                                 <label for="phone" class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control form-input" id="phone" placeholder="Enter your phone number">
+                                <input type="tel" class="form-control form-input" id="phone" name="phone" placeholder="Enter your phone number">
                             </div>
 
                             <!-- Gender -->
                             <div class="mb-3">
                                 <label for="gender" class="form-label">Gender</label>
-                                <select class="form-control form-input" id="gender">
+                                <select class="form-control form-input" id="gender" name="gender">
                                     <option value="" disabled selected>Select your gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -74,13 +106,13 @@
                             <!-- Birthdate -->
                             <div class="mb-3">
                                 <label for="birthdate" class="form-label">Birthdate</label>
-                                <input type="date" class="form-control form-input" id="birthdate">
+                                <input type="date" class="form-control form-input" id="birthdate"name="birthdate">
                             </div>
 
                             <!-- Address -->
                             <div class="mb-3">
                                 <label for="address" class="form-label">Address</label>
-                                <textarea class="form-control form-input comment-box" id="address" placeholder="Enter your address" rows="3"></textarea>
+                                <textarea class="form-control form-input comment-box" id="address" name="address" placeholder="Enter your address" rows="3"></textarea>
                             </div>
 
                             <!-- Avatar -->
@@ -89,7 +121,7 @@
                                 <div class="upload-zone" id="avatarUploadZone">
                                     <i class="bi bi-upload"></i>
                                     <p>Click or drag to upload your avatar</p>
-                                    <input type="file" id="avatar" accept="image/*">
+                                    <input type="file" id="avatar" name="avatar" accept="image/*">
                                     <img id="avatarPreview" style="display: none; max-width: 100px; margin-top: 10px;" alt="Avatar Preview">
                                 </div>
                             </div>
@@ -120,7 +152,7 @@
     <!-- Bootstrap Icons (for upload icon) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+    <script src="{{url_for('static',filename='js/register.js')}}"></script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9385a486a9e1bce6',t:'MTc0NjAwMTQ2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
