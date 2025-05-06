@@ -1,18 +1,2 @@
-# CITS5505_Group_project
--This project is designed to help those users who want to track their exercise habits. Users can view stats about their habits, and share information about their achievements with their friends on the system.
-
-# Demo
-- [Register and Login]
-- [Homepage]
-- [Forum]
-- [Profile]
-
-# Authors
-- Guoxing Zhu (24308319)
-- Yiran Li (24171143)
-- Jiazheng Guo (24070858)
-- Gawen Hei (23824629)
-
-# Launch instruction
-
-# Running instruction
+# CITS5505
+-这个是能跑的注册登录代码，我尝试了在main的代码中实现，但是main的后端中有很多比如id不一样的东西，所以先留在这里更改
