@@ -1,4 +1,3 @@
-// 注册表单功能
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registerForm');
     const passwordInput = document.getElementById('password');
@@ -44,8 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleIcon.addEventListener('click', () => {
             const isPassword = input.getAttribute('type') === 'password';
             input.setAttribute('type', isPassword ? 'text' : 'password');
-            toggleIcon.classList.toggle('bi-eye');
-            toggleIcon.classList.toggle('bi-eye-slash');
+            toggleIcon.textContent = isPassword ? '👁️‍🗨️' : '👁️';
         });
     };
 
@@ -54,18 +52,60 @@ document.addEventListener('DOMContentLoaded', () => {
     togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
 
     // 功能 2：Avatar 上传预览
+    // 使整个 upload-zone 可点击
+    avatarUploadZone.addEventListener('click', (event) => {
+        // 避免重复触发（如果点击的是 input 本身）
+        if (event.target !== avatarInput) {
+            avatarInput.click();
+        }
+    });
+
     // 当用户选择文件时，显示图像预览
-    avatarInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
+    const handleFileSelect = (file) => {
         if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 avatarPreview.src = e.target.result;
                 avatarPreview.style.display = 'block';
                 avatarUploadZone.querySelector('p').style.display = 'none'; // 隐藏提示文字
+                avatarUploadZone.querySelector('.upload-icon').style.display = 'none'; // 隐藏上传图标
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    // 点击上传
+    avatarInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        handleFileSelect(file);
     });
 
+    // 拖放上传
+    avatarUploadZone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        avatarUploadZone.classList.add('dragover');
+    });
+
+    avatarUploadZone.addEventListener('dragleave', (event) => {
+        event.preventDefault();
+        avatarUploadZone.classList.remove('dragover');
+    });
+
+    avatarUploadZone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        avatarUploadZone.classList.remove('dragover');
+        const file = event.dataTransfer.files[0];
+        handleFileSelect(file);
+        // 更新 input 的文件（以便表单提交时包含文件）
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        avatarInput.files = dataTransfer.files;
+    });
+
+    // 功能 3：关闭 Flash 消息
+    document.querySelectorAll('.flash-close').forEach(button => {
+        button.addEventListener('click', () => {
+            button.parentElement.style.display = 'none';
+        });
+    });
 });
