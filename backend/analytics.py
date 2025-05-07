@@ -1,16 +1,21 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from flask_login import login_required, current_user
 from models.activity_log import ActivityLog
 from datetime import datetime, timedelta
 import numpy as np
+from extensions import db
+import pandas as pd
+import os
+import csv
+import io
 
 analytics = Blueprint('analytics', __name__)
 
-@analytics.route('/api/activities', methods=['POST'])
+@analytics.route('/api/activities', methods=['GET'])
 @login_required
 def get_activities():
     try:
-        data = request.get_json()
+        data = request.args
         start_date = data.get('startDate')
         end_date = data.get('endDate')
         activity_type = data.get('activityType')
@@ -198,4 +203,239 @@ def calculate_trend(activities, metric):
         'slope': float(slope),
         'intercept': float(intercept),
         'r_squared': float(r_squared)
-    } 
+    }
+
+@analytics.route('/api/activities/add', methods=['POST'])
+@login_required
+def add_activity():
+    try:
+        data = request.get_json()
+        
+        # 验证日期
+        try:
+            activity_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
+            today = datetime.now().date()
+            if activity_date > today:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Cannot add activities for future dates'
+                }), 400
+        except ValueError:
+            return jsonify({
+                'status': 'error',
+                'message': 'Invalid date format. Please use YYYY-MM-DD'
+            }), 400
+        
+        # 创建新的活动记录
+        activity = ActivityLog(
+            user_id=current_user.id,
+            activity_type=data['activityType'],
+            date=activity_date,
+            duration=int(data['duration']),
+            distance=float(data['distance']) if data['distance'] else None,
+            reps=int(data['reps']) if data['reps'] else None,
+            height=int(data['height']),
+            weight=int(data['weight']),
+            age=int(data['age']),
+            location=data['location']
+        )
+        
+        # 计算卡路里
+        activity.calories = activity.calculate_calories()
+        
+        # 保存到数据库
+        db.session.add(activity)
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Activity added successfully',
+            'calories': activity.calories
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 400
+
+@analytics.route('/api/activities/upload', methods=['POST'])
+@login_required
+def upload_activities():
+    try:
+        print("Received file upload request")
+        if 'file' not in request.files:
+            print("No file in request")
+            return jsonify({
+                'status': 'error',
+                'message': 'No file uploaded'
+            }), 400
+            
+        file = request.files['file']
+        print(f"Received file: {file.filename}")
+        
+        if file.filename == '':
+            print("Empty filename")
+            return jsonify({
+                'status': 'error',
+                'message': 'No file selected'
+            }), 400
+            
+        if not file.filename.endswith('.csv'):
+            print("Invalid file type")
+            return jsonify({
+                'status': 'error',
+                'message': 'Only CSV files are allowed'
+            }), 400
+            
+        # 读取CSV文件
+        print("Reading CSV file")
+        stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+        csv_reader = csv.DictReader(stream)
+        
+        # 验证必要的列是否存在
+        required_columns = ['activity_type', 'date', 'duration', 'height', 'weight', 'age', 'location']
+        if not csv_reader.fieldnames:
+            return jsonify({
+                'status': 'error',
+                'message': 'Empty CSV file'
+            }), 400
+            
+        missing_columns = [col for col in required_columns if col not in csv_reader.fieldnames]
+        if missing_columns:
+            print(f"Missing columns: {missing_columns}")
+            return jsonify({
+                'status': 'error',
+                'message': f'Missing required columns: {", ".join(missing_columns)}'
+            }), 400
+            
+        # 处理每一行数据
+        print("Processing rows")
+        activities = []
+        row_number = 1
+        skipped_rows = 0
+        
+        for row in csv_reader:
+            row_number += 1
+            
+            # 跳过空行
+            if all(not value or value.strip() == '' for value in row.values()):
+                print(f"Skipping empty row {row_number}")
+                skipped_rows += 1
+                continue
+                
+            try:
+                # 验证必填字段
+                for field in required_columns:
+                    if not row.get(field) or row[field].strip() == '':
+                        raise ValueError(f"Missing required field: {field}")
+                
+                # 验证日期格式
+                try:
+                    date = datetime.strptime(row['date'], '%Y-%m-%d').date()
+                except ValueError:
+                    raise ValueError(f"Invalid date format: {row['date']}. Expected format: YYYY-MM-DD")
+                
+                # 验证数值字段
+                try:
+                    duration = int(row['duration'])
+                    if duration <= 0:
+                        raise ValueError("Duration must be greater than 0")
+                except ValueError:
+                    raise ValueError(f"Invalid duration: {row['duration']}. Must be a positive integer")
+                
+                try:
+                    height = int(row['height'])
+                    if height <= 0:
+                        raise ValueError("Height must be greater than 0")
+                except ValueError:
+                    raise ValueError(f"Invalid height: {row['height']}. Must be a positive integer")
+                
+                try:
+                    weight = int(row['weight'])
+                    if weight <= 0:
+                        raise ValueError("Weight must be greater than 0")
+                except ValueError:
+                    raise ValueError(f"Invalid weight: {row['weight']}. Must be a positive integer")
+                
+                try:
+                    age = int(row['age'])
+                    if age <= 0 or age > 120:
+                        raise ValueError("Age must be between 1 and 120")
+                except ValueError:
+                    raise ValueError(f"Invalid age: {row['age']}. Must be a positive integer between 1 and 120")
+                
+                # 验证可选字段
+                distance = None
+                if row.get('distance') and row['distance'].strip():
+                    try:
+                        distance = float(row['distance'])
+                        if distance < 0:
+                            raise ValueError("Distance cannot be negative")
+                    except ValueError:
+                        raise ValueError(f"Invalid distance: {row['distance']}. Must be a non-negative number")
+                
+                reps = None
+                if row.get('reps') and row['reps'].strip():
+                    try:
+                        reps = int(row['reps'])
+                        if reps < 0:
+                            raise ValueError("Reps cannot be negative")
+                    except ValueError:
+                        raise ValueError(f"Invalid reps: {row['reps']}. Must be a non-negative integer")
+                
+                activity = ActivityLog(
+                    user_id=current_user.id,
+                    activity_type=row['activity_type'],
+                    date=date,
+                    duration=duration,
+                    distance=distance,
+                    reps=reps,
+                    height=height,
+                    weight=weight,
+                    age=age,
+                    location=row['location']
+                )
+                
+                # 计算卡路里
+                activity.calories = activity.calculate_calories()
+                activities.append(activity)
+                
+            except ValueError as e:
+                print(f"Error processing row {row_number}: {row}, Error: {str(e)}")
+                return jsonify({
+                    'status': 'error',
+                    'message': f'Error in row {row_number}: {str(e)}'
+                }), 400
+            
+        # 检查是否有有效数据
+        if not activities:
+            return jsonify({
+                'status': 'error',
+                'message': 'No valid data found in the file'
+            }), 400
+            
+        # 批量保存到数据库
+        print(f"Saving {len(activities)} activities to database")
+        db.session.bulk_save_objects(activities)
+        db.session.commit()
+        
+        # 构建成功消息
+        success_message = f'Successfully uploaded {len(activities)} activities'
+        if skipped_rows > 0:
+            success_message += f' (skipped {skipped_rows} empty rows)'
+            
+        print("Upload completed successfully")
+        return jsonify({
+            'status': 'success',
+            'message': success_message
+        }), 201
+        
+    except Exception as e:
+        print(f"Error during upload: {str(e)}")
+        db.session.rollback()
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 400 

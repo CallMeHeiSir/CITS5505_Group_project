@@ -116,11 +116,11 @@
                 <div class="upload-description">
                   <p>Upload your fitness data in CSV format. <a href="{{ url_for('static', filename='user_data_templates/fitness_data_template.csv') }}" download class="template-link">Download template</a></p>
                 </div>
-                <form class="upload-form" id="upload-form">
+                <form class="upload-form" id="upload-form" enctype="multipart/form-data">
                   <div class="upload-zone" id="drop-zone">
                     <i class="bi bi-cloud-arrow-up"></i>
-                    <p>Drag and drop your CSV files here or click to browse</p>
-                    <input type="file" id="file-input" accept=".csv" multiple/>
+                    <p>Drag and drop your CSV files here or <label for="file-input" class="browse-link">click to browse</label></p>
+                    <input type="file" id="file-input" accept=".csv" multiple style="display: none;"/>
                   </div>
                   <div class="file-list" id="file-list"></div>
                   <button type="submit" class="btn-gradient" disabled>Upload Files</button>
@@ -164,7 +164,7 @@
                       <label>Distance (km)</label>
                       <input type="number" class="form-input" name="distance" min="0" step="0.1"/>
                     </div>
-                    <div class="form-group" id="reps-group" style="display:none;">
+                    <div class="form-group" id="reps-group">
                       <label>Reps (count)</label>
                       <input type="number" class="form-input" name="reps" min="0"/>
                     </div>
@@ -172,29 +172,22 @@
 
                   <div class="form-row">
                     <div class="form-group">
-                      <label>Calories</label>
-                      <input type="number" class="form-input" name="calories" min="0"/>
-                    </div>
-
-                    <div class="form-group">
                       <label>Height (cm)</label>
                       <input type="number" class="form-input" name="height" min="0" required/>
                     </div>
-                  </div>
 
-                  <div class="form-row">
                     <div class="form-group">
                       <label>Weight (kg)</label>
                       <input type="number" class="form-input" name="weight" min="0" required/>
                     </div>
+                  </div>
 
+                  <div class="form-row">
                     <div class="form-group">
                       <label>Age</label>
                       <input type="number" class="form-input" name="age" min="0" required/>
                     </div>
-                  </div>
 
-                  <div class="form-row">
                     <div class="form-group">
                       <label>Location</label>
                       <input type="text" class="form-input" name="location" required/>
