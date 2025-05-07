@@ -430,107 +430,104 @@ html, body {
 
 .upload-zone {
   border: 2px dashed #ccc;
-  border-radius: 12px;
-  padding: 40px;
+  border-radius: 8px;
+  padding: 2rem;
   text-align: center;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
   cursor: pointer;
-  transition: all .2s;
 }
 
 .upload-zone:hover {
-  border-color: #667eea;
+  border-color: #007bff;
+  background: #f1f8ff;
 }
 
 .upload-zone.dragover {
-  background: #f0f4ff;
-  border-color: #667eea;
+  border-color: #28a745;
+  background: #f0fff4;
 }
 
 .upload-zone i {
   font-size: 2.5rem;
-  color: #667eea;
-  margin-bottom: 16px;
+  color: #6c757d;
+  margin-bottom: 1rem;
 }
 
 .upload-zone p {
-  color: #666;
-  margin-bottom: 16px;
+  margin: 0;
+  color: #6c757d;
 }
 
-.upload-zone input[type="file"] {
-  display: none;
+.browse-link {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
-/* ============== File List ============== */
+.browse-link:hover {
+  color: #0056b3;
+}
+
 .file-list {
-  margin-top: 24px;
+  margin-top: 1rem;
 }
 
 .file-preview {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  background: #fff;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
 }
 
 .file-info {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.file-info i {
-  font-size: 1.2rem;
-  color: #667eea;
+  gap: 0.5rem;
 }
 
 .file-name {
   font-weight: 500;
-  color: #333;
 }
 
 .file-size {
-  color: #666;
-  font-size: 0.9rem;
+  color: #6c757d;
+  font-size: 0.875rem;
 }
 
 .file-actions {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .file-actions button {
   background: none;
   border: none;
-  color: #666;
+  color: #6c757d;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all .2s;
+  padding: 0.25rem;
 }
 
 .file-actions button:hover {
-  background: #f0f4ff;
-  color: #667eea;
+  color: #007bff;
 }
 
-/* ============== Progress Bar ============== */
 .progress-bar {
   height: 4px;
-  background: #eee;
+  background: #e9ecef;
   border-radius: 2px;
+  margin-top: 0.5rem;
   overflow: hidden;
-  margin-top: 8px;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  transition: width .3s ease;
+  background: #28a745;
+  width: 0;
+  transition: width 0.3s ease;
 }
 
 /* ============== Preview Modal ============== */

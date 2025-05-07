@@ -1,4 +1,3 @@
-activity_type,date,duration,distance,reps,calories,height,weight,age,location
-running,2024-05-01,30,5,,300,175,70,25,Beijing
-pushup,2024-05-02,10,,50,50,175,70,25,Beijing
-"","","","","","","" 
+activity_type,date,duration,distance,reps,height,weight,age,location
+running,2024-05-01,30,5,,175,70,25,Beijing
+pushup,2024-05-02,10,,50,175,70,25,Beijing 
