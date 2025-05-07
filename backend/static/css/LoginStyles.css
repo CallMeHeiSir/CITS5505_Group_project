@@ -1,4 +1,4 @@
-/* ============== 全局 ============== */
+/* 全局样式 */
 html, body {
   width: 100%;
   height: 100%;
@@ -6,164 +6,6 @@ html, body {
   padding: 0;
   background: #f0f2f5;
   font-family: "Segoe UI", Tahoma, sans-serif;
-}
-
-/* ============== 导航相关 ============== */
-.logo {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
-  padding: 0 10px;
-}
-
-.side-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  color: #555;
-  padding: 12px 20px;
-  margin: 4px 12px;
-  border-radius: 8px;
-  transition: all .2s;
-}
-
-.side-item:hover {
-  background: #f0f4ff;
-  color: #667eea;
-}
-
-.side-item.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-}
-
-/* ============== 通用卡片 ============== */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-/* ============== 渐变按钮 ============== */
-.btn-gradient {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow:
-    4px 4px 8px rgba(0,0,0,0.1),
-   -4px -4px 8px rgba(255,255,255,0.7);
-  transition: opacity .2s;
-}
-
-.btn-gradient:hover {
-  opacity: 0.9;
-}
-
-/* ============== 表单样式 ============== */
-.form-input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  outline: none;
-  font-size: 0.95rem;
-  background: #fff;
-  transition: border-color .2s;
-}
-
-.form-input:focus {
-  border-color: #667eea;
-}
-
-/* 文本区域样式（用于 Address） */
-.comment-box {
-  width: 100%;
-  resize: none;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  outline: none;
-  font-size: 0.95rem;
-  margin: 12px 0;
-}
-
-/* 上传区域样式（用于 Avatar） */
-.upload-zone {
-  padding: 40px;
-  text-align: center;
-  border: 2px dashed #ccc;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  background: #f8fafc;
-}
-
-.upload-zone:hover {
-  border-color: #667eea;
-  background: #f0f4ff;
-}
-
-.upload-zone.dragover {
-  border-color: #667eea;
-  background: #f0f4ff;
-  transform: scale(1.02);
-}
-
-.upload-zone i {
-  font-size: 2.5rem;
-  color: #667eea;
-  margin-bottom: 12px;
-}
-
-.upload-zone p {
-  color: #666;
-  margin: 0;
-}
-
-.upload-zone input[type="file"] {
-  display: none;
-}
-
-/* ============== 提示和文本样式 ============== */
-.invalid-feedback {
-  display: none; /* 默认隐藏，JS动态控制 */
-  color: #dc3545; /* Bootstrap 默认错误颜色 */
-}
-
-.text-muted {
-  color: #888;
-  font-size: 0.85rem;
-}
-
-/* ============== 页脚样式 ============== */
-.footer {
-  padding: 20px 0;
-  background: #f8fafc;
-  border-top: 1px solid #ddd;
-  margin-top: 40px;
-  position: relative;
-  bottom: 0;
-  width: 100%;
-}
-
-.footer-link {
-  margin: 0 15px;
-  color: #667eea;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: color .2s;
-}
-
-.footer-link:hover {
-  color: #764ba2;
-  text-decoration: underline;
 }
 
 /* 自定义导航栏样式 */
@@ -180,6 +22,8 @@ html, body {
 .custom-navbar .logo {
   font-size: 1.4rem;
   font-weight: bold;
+  color: #333;
+  text-decoration: none;
 }
 
 .custom-navbar .nav-links {
@@ -202,10 +46,240 @@ html, body {
   color: #667eea;
 }
 
-/* 页面居中容器 */
+/* 登录/注册容器样式 */
 .login-container,
 .register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+/* 卡片样式 */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  width: 100%;
   max-width: 600px;
-  margin: 60px auto;
+}
+
+.card-body {
+  padding: 0;
+}
+
+/* 渐变按钮样式 */
+.btn-gradient {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow:
+    4px 4px 8px rgba(0,0,0,0.1),
+   -4px -4px 8px rgba(255,255,255,0.7);
+  transition: opacity .2s;
+  width: 100%;
+}
+
+.btn-gradient:hover {
+  opacity: 0.9;
+}
+
+/* 表单输入框样式 */
+.form-input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  outline: none;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border-color .2s;
+}
+
+.form-input:focus {
+  border-color: #667eea;
+}
+
+.form-input.is-invalid {
+  border-color: #dc3545;
+}
+
+/* 文本区域样式（用于地址） */
+.comment-box {
+  width: 100%;
+  resize: none;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  outline: none;
+  font-size: 0.95rem;
+  margin: 12px 0;
+}
+
+/* 头像上传区域样式 */
+.upload-zone {
+  padding: 40px;
+  text-align: center;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: #f8fafc;
+}
+
+.upload-zone:hover {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.upload-zone.dragover {
+  border-color: #667eea;
+  background: #f0f4ff;
+  transform: scale(1.02);
+}
+
+.upload-zone .upload-icon {
+  font-size: 2.5rem;
+  color: #667eea;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.upload-zone p {
+  color: #666;
+  margin: 0;
+}
+
+.upload-zone input[type="file"] {
+  display: none;
+}
+
+.upload-zone img#avatarPreview {
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+/* 错误提示样式 */
+.invalid-feedback {
+  display: none;
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.is-invalid ~ .invalid-feedback {
+  display: block;
+}
+
+/* 文本样式 */
+.text-muted {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+/* 表单组样式 */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+/* 密码输入框包裹样式 */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper .form-input {
+  padding-right: 40px;
+}
+
+.password-wrapper .toggle-password {
+  position: absolute;
+  right: 10px;
+  font-size: 1rem;
+  color: #666;
+}
+
+/* Flash 消息样式 */
+.flash-messages {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
   padding: 0 20px;
+}
+
+.flash-message {
+  position: relative;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.flash-success {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.flash-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+
+.flash-close {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.flash-close:hover {
+  color: #333;
+}
+
+/* 文本居中样式 */
+.text-center {
+  text-align: center;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+/* 移动端适配 */
+@media (max-width: 767px) {
+  .custom-navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .custom-navbar .nav-links {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .custom-navbar .nav-link {
+    padding: 8px 0;
+  }
+
+  .card {
+    max-width: 100%;
+  }
 }
