@@ -49,7 +49,10 @@ def create_app():
         # 添加页面路由
         @app.route('/')
         def home():
-            return redirect(url_for('login'))
+            return redirect(url_for('welcome'))
+        @app.route('/welcome')
+        def welcome():
+            return render_template('welcome.html')
         @app.route('/index')
         def index():
             return render_template('index.html')
