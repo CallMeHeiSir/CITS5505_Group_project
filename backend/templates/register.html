@@ -35,74 +35,78 @@
     <div class="card">
       <h2 class="text-center">Create Your Account</h2>
       <p class="text-muted text-center">Join our platform to analyze and share your data.</p>
-      <form id="registerForm" action="{{ url_for('auth.register') }}" method="POST" enctype="multipart/form-data">
-        <!-- Username -->
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" class="form-input" id="username" name="username" placeholder="Enter your username">
-        </div>
-
-        <!-- Email -->
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" class="form-input" id="email" name="email" placeholder="Enter your email">
-        </div>
-
-        <!-- Password -->
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="password-wrapper">
-            <input type="password" class="form-input" id="password" name="password" placeholder="Enter your password">
-            <span class="toggle-password" id="togglePassword" style="cursor: pointer;">👁️</span>
+      {% if current_user.is_authenticated %}
+        <p class="text-center text-muted">You are currently logged in as {{ current_user.username }}. Please logout to register a new account.</p>
+        <a href="{{ url_for('auth.logout') }}" class="btn-gradient">Logout</a>
+      {% else %}
+        <form id="registerForm" action="{{ url_for('auth.register') }}" method="POST" enctype="multipart/form-data">
+          <!-- Username -->
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-input" id="username" name="username" placeholder="Enter your username">
           </div>
-          <div class="invalid-feedback" id="passwordError">
-            Password must be at least 6 characters and include special characters like @#$%.
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-input" id="email" name="email" placeholder="Enter your email">
           </div>
-        </div>
 
-        <!-- Confirm Password -->
-        <div class="form-group">
-          <label for="confirmPassword">Confirm Password</label>
-          <div class="password-wrapper">
-            <input type="password" class="form-input" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password">
-            <span class="toggle-password" id="toggleConfirmPassword" style="cursor: pointer;">👁️</span>
+          <!-- Password -->
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+              <input type="password" class="form-input" id="password" name="password" placeholder="Enter your password">
+              <span class="toggle-password" id="togglePassword" style="cursor: pointer;">👁️</span>
+            </div>
+            <div class="invalid-feedback" id="passwordError">
+              Password must be at least 6 characters and include special characters like @#$%.
+            </div>
           </div>
-          <div class="invalid-feedback" id="confirmPasswordError">
-            Passwords do not match.
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="password-wrapper">
+              <input type="password" class="form-input" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password">
+              <span class="toggle-password" id="toggleConfirmPassword" style="cursor: pointer;">👁️</span>
+            </div>
+            <div class="invalid-feedback" id="confirmPasswordError">
+              Passwords do not match.
+            </div>
           </div>
-        </div>
 
-        <!-- Phone Number -->
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <input type="tel" class="form-input" id="phone" name="phone" placeholder="Enter your phone number">
-        </div>
+          <!-- Phone Number -->
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" class="form-input" id="phone" name="phone" placeholder="Enter your phone number">
+          </div>
 
-        <!-- Gender -->
-        <div class="form-group">
-          <label for="gender">Gender</label>
-          <select class="form-input" id="gender" name="gender">
-            <option value="" disabled selected>Select your gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
+          <!-- Gender -->
+          <div class="form-group">
+            <label for="gender">Gender</label>
+            <select class="form-input" id="gender" name="gender">
+              <option value="" disabled selected>Select your gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
-        <!-- Birthdate -->
-        <div class="form-group">
-          <label for="birthdate">Birthdate</label>
-          <input type="date" class="form-input" id="birthdate" name="birthdate">
-        </div>
+          <!-- Birthdate -->
+          <div class="form-group">
+            <label for="birthdate">Birthdate</label>
+            <input type="date" class="form-input" id="birthdate" name="birthdate">
+          </div>
 
-        <!-- Address -->
-        <div class="form-group">
-          <label for="address">Address</label>
-          <textarea class="form-input comment-box" id="address" name="address" placeholder="Enter your address" rows="3"></textarea>
-        </div>
+          <!-- Address -->
+          <div class="form-group">
+            <label for="address">Address</label>
+            <textarea class="form-input comment-box" id="address" name="address" placeholder="Enter your address" rows="3"></textarea>
+          </div>
 
-        <!-- Avatar -->
-        <div class="form-group">
+          <!-- Avatar -->
+          <div class="form-group">
             <label for="avatar">Avatar</label>
             <div class="upload-zone" id="avatarUploadZone">
               <span class="upload-icon">↑</span>
@@ -112,9 +116,10 @@
             </div>
           </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn-gradient">Register</button>
-      </form>
+          <!-- Submit Button -->
+          <button type="submit" class="btn-gradient">Register</button>
+        </form>
+      {% endif %}
       <p class="text-center mt-3">Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
     </div>
   </div>
