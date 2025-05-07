@@ -46,8 +46,10 @@ def create_app():
         # 注册蓝图
         from auth import auth as auth_blueprint
         from analytics import analytics as analytics_blueprint
+        from visualization import visualization as visualization_blueprint
         app.register_blueprint(auth_blueprint, url_prefix='/auth')
         app.register_blueprint(analytics_blueprint, url_prefix='/analytics')
+        app.register_blueprint(visualization_blueprint, url_prefix='/api/visualization')
         
         # 添加页面路由
         @app.route('/')
@@ -119,4 +121,5 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
+    print(app.url_map)
     app.run(debug=True) 

@@ -53,14 +53,14 @@
             <div class="filter-group custom-dates" style="display: none;">
               <label>Custom Range</label>
               <div class="date-inputs">
-                <input type="date" id="start-date" class="form-input"/>
+                <input type="date" id="startDate" class="form-input"/>
                 <span>to</span>
-                <input type="date" id="end-date" class="form-input"/>
+                <input type="date" id="endDate" class="form-input"/>
               </div>
             </div>
             <div class="filter-group">
-              <label for="activity-type">Activity Type</label>
-              <select id="activity-type" class="form-input">
+              <label for="activityType">Activity Type</label>
+              <select id="activityType" class="form-input">
                 <option value="">All Activities</option>
                 <option value="running">Running</option>
                 <option value="cycling">Cycling</option>
@@ -129,6 +129,16 @@
                 <div id="calendar-days" class="calendar-days"></div>
               </div>
             </div>
+            <div class="calendar-legend" style="margin-top: 12px; display: flex; align-items: center; gap: 16px;">
+              <span style="display: flex; align-items: center;">
+                <span style="display: inline-block; width: 20px; height: 20px; background: #6366f1; border-radius: 50%; margin-right: 6px;"></span>
+                Active Day
+              </span>
+              <span style="display: flex; align-items: center;">
+                <span style="display: inline-block; width: 20px; height: 20px; border: 2px solid #6366f1; border-radius: 50%; margin-right: 6px;"></span>
+                Today
+              </span>
+            </div>
           </div>
           <div class="card">
             <h5>Calories Prediction</h5>
@@ -176,19 +186,6 @@
             <div class="chart-container">
               <canvas id="caloriesChart"></canvas>
             </div>
-          </div>
-        </div>
-
-        <!-- Export Options -->
-        <div class="card">
-          <h5>Export Data</h5>
-          <div class="export-options">
-            <button onclick="exportData('csv')" class="btn-text">
-              <i class="bi bi-file-earmark-text"></i> Export as CSV
-            </button>
-            <button onclick="exportData('json')" class="btn-text">
-              <i class="bi bi-file-earmark-code"></i> Export as JSON
-            </button>
           </div>
         </div>
       </main>
