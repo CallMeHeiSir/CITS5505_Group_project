@@ -17,6 +17,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const distanceGroup = document.getElementById('distance-group');
   const repsGroup = document.getElementById('reps-group');
 
+  // 检查必要的DOM元素是否存在
+  if (!dropZone || !fileInput || !fileList || !uploadForm) {
+    console.error('Required DOM elements not found');
+    return;
+  }
+
   // Handle file input change
   fileInput.addEventListener('change', (e) => {
     console.log('File input changed:', e.target.files);
@@ -118,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('file', file);
         
-        const response = await fetch('/api/activities/upload', {
+        const response = await fetch('/analytics/api/activities/upload', {
           method: 'POST',
           body: formData
         });
@@ -127,11 +133,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (response.ok) {
           // 更新文件信息显示为上传成功
-          const fileInfo = fileList.querySelector(`.file-name:contains('${file.name}')`).parentElement;
-          fileInfo.innerHTML = `
-            <i class="bi bi-check-circle-fill text-success"></i>
-            <span class="file-name">${file.name} - Uploaded successfully</span>
-          `;
+          const fileInfo = fileList.querySelector(`.file-name`);
+          if (fileInfo) {
+            fileInfo.innerHTML = `
+              <i class="bi bi-check-circle-fill text-success"></i>
+              <span class="file-name">${file.name} - Uploaded successfully</span>
+            `;
+          }
           showSuccess(result.message);
         } else {
           showError(result.message || 'Failed to upload file');
@@ -180,143 +188,93 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Tab switching functionality
-  tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const tabId = button.getAttribute('data-tab');
-      
-      // Update active tab button
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-      
-      // Show corresponding tab content
-      tabContents.forEach(content => {
-        content.classList.remove('active');
-        if (content.id === tabId) {
-          content.classList.add('active');
-        }
+  if (tabButtons.length > 0 && tabContents.length > 0) {
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabId = button.getAttribute('data-tab');
+        
+        // Update active tab button
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Show corresponding tab content
+        tabContents.forEach(content => {
+          content.classList.remove('active');
+          if (content.id === tabId) {
+            content.classList.add('active');
+          }
+        });
       });
     });
-  });
+  }
 
   // Handle manual form submission
-  manualEntryForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const formData = {
-      sportEvent: document.getElementById('sport-event').value,
-      sportType: document.getElementById('sport-type').value,
-      duration: document.getElementById('duration').value,
-      height: document.getElementById('height').value,
-      weight: document.getElementById('weight').value,
-      age: document.getElementById('age').value,
-      location: document.getElementById('location').value
-    };
-    
-    // TODO: Send form data to backend
-    console.log('Manual entry data:', formData);
-    
-    // Show success message
-    showSuccess('Data submitted successfully!');
-    manualEntryForm.reset();
-  });
+  if (manualEntryForm) {
+    manualEntryForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        sportEvent: document.getElementById('sport-event').value,
+        sportType: document.getElementById('sport-type').value,
+        duration: document.getElementById('duration').value,
+        height: document.getElementById('height').value,
+        weight: document.getElementById('weight').value,
+        age: document.getElementById('age').value,
+        location: document.getElementById('location').value
+      };
+      
+      // TODO: Send form data to backend
+      console.log('Manual entry data:', formData);
+      
+      // Show success message
+      showSuccess('Data submitted successfully!');
+      manualEntryForm.reset();
+    });
+  }
 
   // Handle activity form submission
-  activityForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const formData = {
-      activityType: activityForm.querySelector('[name="activity_type"]').value,
-      date: activityForm.querySelector('[name="date"]').value,
-      duration: activityForm.querySelector('[name="duration"]').value,
-      distance: activityForm.querySelector('[name="distance"]').value || 0,
-      reps: activityForm.querySelector('[name="reps"]').value || 0,
-      height: activityForm.querySelector('[name="height"]').value,
-      weight: activityForm.querySelector('[name="weight"]').value,
-      age: activityForm.querySelector('[name="age"]').value,
-      location: activityForm.querySelector('[name="location"]').value
-    };
-    
-    try {
-      const response = await fetch('/api/activities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+  if (activityForm) {
+    activityForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
       
-      const result = await response.json();
+      const formData = {
+        activityType: activityForm.querySelector('[name="activity_type"]').value,
+        date: activityForm.querySelector('[name="date"]').value,
+        duration: activityForm.querySelector('[name="duration"]').value,
+        distance: activityForm.querySelector('[name="distance"]').value || 0,
+        reps: activityForm.querySelector('[name="reps"]').value || 0,
+        height: activityForm.querySelector('[name="height"]').value,
+        weight: activityForm.querySelector('[name="weight"]').value,
+        age: activityForm.querySelector('[name="age"]').value,
+        location: activityForm.querySelector('[name="location"]').value
+      };
       
-      if (response.ok) {
-        showSuccess(`Activity added successfully! Calories burned: ${result.calories}`);
-        activityForm.reset();
-        activityForm.querySelector('[name="date"]').valueAsDate = new Date();
-      } else {
-        showError(result.message || 'Failed to add activity');
+      try {
+        const response = await fetch('/analytics/api/activities', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          showSuccess(`Activity added successfully! Calories burned: ${result.calories}`);
+          activityForm.reset();
+          activityForm.querySelector('[name="date"]').valueAsDate = new Date();
+        } else {
+          showError(result.message || 'Failed to add activity');
+        }
+      } catch (error) {
+        showError('Failed to connect to server');
       }
-    } catch (error) {
-      showError('Failed to connect to server');
-    }
-  });
-
-  // Load and display recent activities
-  function loadRecentActivities() {
-    const recentActivitiesList = document.querySelector('.recent-activities-list');
-    
-    // TODO: Replace with actual API call to get recent activities
-    const mockActivities = [
-      { type: 'running', name: 'Morning Run', duration: '30 min', time: '2 hours ago' },
-      { type: 'cycling', name: 'Evening Ride', duration: '45 min', time: 'Yesterday' },
-      { type: 'swimming', name: 'Pool Session', duration: '60 min', time: '2 days ago' }
-    ];
-
-    recentActivitiesList.innerHTML = mockActivities.map(activity => `
-      <li>
-        <div class="activity-icon">
-          <i class="bi bi-${getActivityIcon(activity.type)}"></i>
-        </div>
-        <div class="activity-details">
-          <div class="activity-name">${activity.name}</div>
-          <div class="activity-meta">${activity.duration} • ${activity.time}</div>
-        </div>
-      </li>
-    `).join('');
-  }
-
-  // Get appropriate icon for activity type
-  function getActivityIcon(type) {
-    const icons = {
-      running: 'person-running',
-      cycling: 'bicycle',
-      swimming: 'water',
-      walking: 'person-walking',
-      hiking: 'tree',
-      yoga: 'flower3',
-      other: 'activity'
-    };
-    return icons[type] || 'activity';
-  }
-
-  // Display activities in the list
-  function displayActivities(activities) {
-    const activitiesList = document.querySelector('.activities-list');
-    activitiesList.innerHTML = '';
-    
-    activities.forEach(activity => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <span class="activity-type">${activity.activity_type}</span>
-        <span class="activity-date">${new Date(activity.date).toLocaleDateString()}</span>
-        <span class="activity-duration">${activity.duration} min</span>
-        <span class="activity-distance">${activity.distance} km</span>
-        <span class="activity-calories">${activity.calories} cal</span>
-      `;
-      activitiesList.appendChild(li);
     });
   }
 
   // Handle activity type change
-  if (activityTypeSelect) {
+  if (activityTypeSelect && distanceGroup && repsGroup) {
     activityTypeSelect.addEventListener('change', () => {
       const selectedType = activityTypeSelect.value;
       

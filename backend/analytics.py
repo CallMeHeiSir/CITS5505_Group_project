@@ -298,40 +298,123 @@ def upload_activities():
         # 处理每一行数据
         print("Processing rows")
         activities = []
+        row_number = 1
+        skipped_rows = 0
+        
         for row in csv_reader:
+            row_number += 1
+            
+            # 跳过空行
+            if all(not value or value.strip() == '' for value in row.values()):
+                print(f"Skipping empty row {row_number}")
+                skipped_rows += 1
+                continue
+                
             try:
+                # 验证必填字段
+                for field in required_columns:
+                    if not row.get(field) or row[field].strip() == '':
+                        raise ValueError(f"Missing required field: {field}")
+                
+                # 验证日期格式
+                try:
+                    date = datetime.strptime(row['date'], '%Y-%m-%d').date()
+                except ValueError:
+                    raise ValueError(f"Invalid date format: {row['date']}. Expected format: YYYY-MM-DD")
+                
+                # 验证数值字段
+                try:
+                    duration = int(row['duration'])
+                    if duration <= 0:
+                        raise ValueError("Duration must be greater than 0")
+                except ValueError:
+                    raise ValueError(f"Invalid duration: {row['duration']}. Must be a positive integer")
+                
+                try:
+                    height = int(row['height'])
+                    if height <= 0:
+                        raise ValueError("Height must be greater than 0")
+                except ValueError:
+                    raise ValueError(f"Invalid height: {row['height']}. Must be a positive integer")
+                
+                try:
+                    weight = int(row['weight'])
+                    if weight <= 0:
+                        raise ValueError("Weight must be greater than 0")
+                except ValueError:
+                    raise ValueError(f"Invalid weight: {row['weight']}. Must be a positive integer")
+                
+                try:
+                    age = int(row['age'])
+                    if age <= 0 or age > 120:
+                        raise ValueError("Age must be between 1 and 120")
+                except ValueError:
+                    raise ValueError(f"Invalid age: {row['age']}. Must be a positive integer between 1 and 120")
+                
+                # 验证可选字段
+                distance = None
+                if row.get('distance') and row['distance'].strip():
+                    try:
+                        distance = float(row['distance'])
+                        if distance < 0:
+                            raise ValueError("Distance cannot be negative")
+                    except ValueError:
+                        raise ValueError(f"Invalid distance: {row['distance']}. Must be a non-negative number")
+                
+                reps = None
+                if row.get('reps') and row['reps'].strip():
+                    try:
+                        reps = int(row['reps'])
+                        if reps < 0:
+                            raise ValueError("Reps cannot be negative")
+                    except ValueError:
+                        raise ValueError(f"Invalid reps: {row['reps']}. Must be a non-negative integer")
+                
                 activity = ActivityLog(
                     user_id=current_user.id,
                     activity_type=row['activity_type'],
-                    date=datetime.strptime(row['date'], '%Y-%m-%d').date(),
-                    duration=int(row['duration']),
-                    distance=float(row['distance']) if row.get('distance') and row['distance'].strip() else None,
-                    reps=int(row['reps']) if row.get('reps') and row['reps'].strip() else None,
-                    height=int(row['height']),
-                    weight=int(row['weight']),
-                    age=int(row['age']),
+                    date=date,
+                    duration=duration,
+                    distance=distance,
+                    reps=reps,
+                    height=height,
+                    weight=weight,
+                    age=age,
                     location=row['location']
                 )
                 
                 # 计算卡路里
                 activity.calories = activity.calculate_calories()
                 activities.append(activity)
-            except (ValueError, KeyError) as e:
-                print(f"Error processing row: {row}, Error: {str(e)}")
+                
+            except ValueError as e:
+                print(f"Error processing row {row_number}: {row}, Error: {str(e)}")
                 return jsonify({
                     'status': 'error',
-                    'message': f'Error processing row: {str(e)}'
+                    'message': f'Error in row {row_number}: {str(e)}'
                 }), 400
+            
+        # 检查是否有有效数据
+        if not activities:
+            return jsonify({
+                'status': 'error',
+                'message': 'No valid data found in the file'
+            }), 400
             
         # 批量保存到数据库
         print(f"Saving {len(activities)} activities to database")
         db.session.bulk_save_objects(activities)
         db.session.commit()
         
+        # 构建成功消息
+        success_message = f'Successfully uploaded {len(activities)} activities'
+        if skipped_rows > 0:
+            success_message += f' (skipped {skipped_rows} empty rows)'
+            
         print("Upload completed successfully")
         return jsonify({
             'status': 'success',
-            'message': f'Successfully uploaded {len(activities)} activities'
+            'message': success_message
         }), 201
         
     except Exception as e:
