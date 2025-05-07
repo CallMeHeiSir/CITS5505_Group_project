@@ -72,6 +72,9 @@ html, body {
 
 /* 渐变按钮样式 */
 .btn-gradient {
+  display: block; /* 使按钮成为块级元素，以便居中 */
+  width: fit-content; /* 宽度自适应内容 */
+  margin: 0 auto; /* 水平居中 */
   padding: 12px 24px;
   border: none;
   border-radius: 12px;
@@ -83,7 +86,8 @@ html, body {
     4px 4px 8px rgba(0,0,0,0.1),
    -4px -4px 8px rgba(255,255,255,0.7);
   transition: opacity .2s;
-  width: 100%;
+  text-align: center;
+  text-decoration: none; /* 确保 <a> 标签没有下划线 */
 }
 
 .btn-gradient:hover {
@@ -255,6 +259,10 @@ html, body {
 /* 文本居中样式 */
 .text-center {
   text-align: center;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
 }
 
 .mt-3 {
