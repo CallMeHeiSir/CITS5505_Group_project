@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from dotenv import load_dotenv
+from extensions import db, login_manager
 from sqlalchemy.orm import DeclarativeBase
 import os
 
@@ -12,9 +12,7 @@ load_dotenv()
 class Base(DeclarativeBase):
     pass
 
-# 初始化扩展
-db = SQLAlchemy(model_class=Base)
-login_manager = LoginManager()
+
 
 def create_app():
     app = Flask(__name__)
@@ -23,11 +21,19 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'static/uploads/')
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制上传文件大小为16MB
+    
+    # 自动创建上传文件夹
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     # 初始化扩展
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+    
+    
     
     with app.app_context():
         # 导入模型
@@ -61,10 +67,10 @@ def create_app():
             return render_template('profile.html')
         @app.route('/register')
         def register():
-            return render_template('register.html')
+            return redirect(url_for('auth.register'))
         @app.route('/login')
         def login():
-            return render_template('login.html')
+            return redirect(url_for('auth.login'))
         @app.route('/settings')
         def settings():
             return render_template('settings.html')
@@ -92,12 +98,6 @@ def create_app():
         @app.route('/forum')
         def forum():
             return render_template('forum copy.html')
-        @app.route('/change_personal_information')
-        def change_personal_information():
-            return render_template('change_personal_information.html')
-        @app.route('/change_password')
-        def change_password():
-            return render_template('change_password.html')
         @app.route('/challenge_detail')
         def challenge_detail():
             return render_template('challenge_detail.html')

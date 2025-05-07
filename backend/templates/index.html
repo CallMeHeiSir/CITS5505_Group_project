@@ -12,6 +12,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 </head>
 <body>
+  <!-- 左上角的 Logout 链接 -->
+  <div class="top-logout">
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
   <div class="app-container">
     <div class="content">
       <!-- Sidebar -->
@@ -23,7 +27,8 @@
         <a href="{{ url_for('forum') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
         <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
         <div class="user-profile">
-          <i class="bi bi-person-circle"></i>
+          <!-- 显示用户头像 -->
+          <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
         </div>
       </nav>
 
@@ -68,18 +73,6 @@
                   <option value="friend9">Grace Lee</option>
                 </select>
               </div>
-    
-              <!-- Search Box -->
-              <div class="search-box">
-                <input type="text" id="search-user" placeholder="Search by account...">
-                <button id="search-button">Search</button>
-                <div id="search-results" class="search-results">
-                  <!-- Search results will be dynamically populated here -->
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         
         <div class="cards-row">
           <!-- Quick Stats -->

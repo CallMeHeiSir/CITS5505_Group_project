@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registerForm');
     const passwordInput = document.getElementById('password');
     const passwordError = document.getElementById('passwordError');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
     const avatarInput = document.getElementById('avatar');
     const avatarPreview = document.getElementById('avatarPreview');
     const avatarUploadZone = document.getElementById('avatarUploadZone');
@@ -23,6 +25,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 确认密码验证
+    confirmPasswordInput.addEventListener('input', () => {
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        if (password !== confirmPassword) {
+            confirmPasswordError.style.display = 'block';
+        } else {
+            confirmPasswordError.style.display = 'none';
+        }
+    });
+
+    // 密码显示/隐藏功能
+    const togglePasswordVisibility = (inputId, toggleIconId) => {
+        const input = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(toggleIconId);
+
+        toggleIcon.addEventListener('click', () => {
+            const isPassword = input.getAttribute('type') === 'password';
+            input.setAttribute('type', isPassword ? 'text' : 'password');
+            toggleIcon.classList.toggle('bi-eye');
+            toggleIcon.classList.toggle('bi-eye-slash');
+        });
+    };
+
+    // 添加眼睛图标功能
+    togglePasswordVisibility('password', 'togglePassword');
+    togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
+
     // 功能 2：Avatar 上传预览
     // 当用户选择文件时，显示图像预览
     avatarInput.addEventListener('change', (event) => {
@@ -38,21 +68,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 功能 3：表单提交提示
-    // 模拟提交，显示成功提示
-    form.addEventListener('submit', (event) => {
-        event.preventDefault(); // 阻止默认提交
-
-        // 检查密码是否通过验证
-        const password = passwordInput.value;
-        const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-        if (password.length < 6 || !specialCharRegex.test(password)) {
-            passwordInput.classList.add('is-invalid');
-            passwordError.style.display = 'block';
-            return;
-        }
-
-        // 显示成功提示
-        alert('Registration successful! (This is a simulation)');
-    });
 });
