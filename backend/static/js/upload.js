@@ -11,6 +11,9 @@ const manualEntryForm = document.getElementById('manual-entry-form');
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
 const activityForm = document.getElementById('activity-form');
+const activityTypeSelect = document.getElementById('activity_type');
+const distanceGroup = document.getElementById('distance-group');
+const repsGroup = document.getElementById('reps-group');
 
 // Tab switching functionality
 tabButtons.forEach(button => {
@@ -61,8 +64,8 @@ activityForm.addEventListener('submit', (e) => {
     activityType: activityForm.querySelector('[name="activity_type"]').value,
     date: activityForm.querySelector('[name="date"]').value,
     duration: activityForm.querySelector('[name="duration"]').value,
-    distance: activityForm.querySelector('[name="distance"]').value,
-    calories: activityForm.querySelector('[name="calories"]').value,
+    distance: activityForm.querySelector('[name="distance"]').value || 0,
+    reps: activityForm.querySelector('[name="reps"]').value || 0,
     height: activityForm.querySelector('[name="height"]').value,
     weight: activityForm.querySelector('[name="weight"]').value,
     age: activityForm.querySelector('[name="age"]').value,
@@ -391,3 +394,20 @@ function displayActivities(activities) {
     activitiesList.appendChild(li);
   });
 }
+
+// Handle activity type change
+activityTypeSelect.addEventListener('change', () => {
+  const selectedType = activityTypeSelect.value;
+  
+  // Show/hide distance and reps inputs based on activity type
+  if (['running', 'cycling', 'swimming', 'walking', 'hiking'].includes(selectedType)) {
+    distanceGroup.style.display = 'block';
+    repsGroup.style.display = 'none';
+  } else if (['pushup', 'situp', 'pullup'].includes(selectedType)) {
+    distanceGroup.style.display = 'none';
+    repsGroup.style.display = 'block';
+  } else {
+    distanceGroup.style.display = 'none';
+    repsGroup.style.display = 'none';
+  }
+});
