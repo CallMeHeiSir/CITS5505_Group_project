@@ -315,6 +315,25 @@ document.addEventListener('DOMContentLoaded', function() {
       showError(error.message);
     }
   });
+
+  var activityType = document.getElementById('activity_type');
+  if (activityType) {
+    activityType.addEventListener('change', function() {
+      var type = this.value;
+      var distanceGroup = document.getElementById('distance-group');
+      var repsGroup = document.getElementById('reps-group');
+      if (["running", "cycling", "swimming", "walking", "hiking", "yoga"].includes(type)) {
+        distanceGroup.style.display = '';
+        repsGroup.style.display = 'none';
+      } else if (["pushup", "situp", "pullup"].includes(type)) {
+        distanceGroup.style.display = 'none';
+        repsGroup.style.display = '';
+      } else {
+        distanceGroup.style.display = '';
+        repsGroup.style.display = '';
+      }
+    });
+  }
 });
 
 // Load and display recent activities

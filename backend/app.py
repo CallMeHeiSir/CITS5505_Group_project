@@ -1,6 +1,6 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required, current_user
 from dotenv import load_dotenv
 from sqlalchemy.orm import DeclarativeBase
 import os
@@ -32,13 +32,16 @@ def create_app():
     with app.app_context():
         # 导入模型
         from models.user import User
+        from models.activity_log import ActivityLog
         
         # 创建数据库表
         db.create_all()
         
         # 注册蓝图
         from auth import auth as auth_blueprint
+        from analytics import analytics as analytics_blueprint
         app.register_blueprint(auth_blueprint, url_prefix='/auth')
+        app.register_blueprint(analytics_blueprint, url_prefix='/analytics')
         
         # 添加页面路由
         @app.route('/')
@@ -104,7 +107,6 @@ def create_app():
         @app.route('/share')
         def share():
             return render_template('share.html')
-        # 你可以根据需要继续添加其它页面
         
         @login_manager.user_loader
         def load_user(user_id):
