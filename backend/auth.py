@@ -9,9 +9,6 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    
     if request.method == 'POST':
         from models.user import User
         username = request.form.get('username')
@@ -20,6 +17,7 @@ def login():
         
         if user and user.check_password(password):
            login_user(user)
+           flash('Login successful!', 'success')  # 添加成功提示
            return redirect(url_for('index'))
         else:
            flash('Invalid username or password', 'danger')
@@ -31,14 +29,11 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
-
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('welcome'))  # 注销后跳转到 welcome 页面
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    
     if request.method == 'POST':
         from models.user import User
         username = request.form.get('username')
@@ -65,13 +60,13 @@ def register():
         # 检查用户名是否已存在
         stmt = select(User).where(User.username == username)
         if db.session.execute(stmt).scalar_one_or_none():
-            flash('Username already exists')
+            flash('Username already exists', 'danger')
             return redirect(url_for('auth.register'))
         
         # 检查邮箱是否已存在
         stmt = select(User).where(User.email == email)
         if db.session.execute(stmt).scalar_one_or_none():
-            flash('Email already exists')
+            flash('Email already exists', 'danger')
             return redirect(url_for('auth.register'))
         
         user = User(
@@ -88,7 +83,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        flash('Registration successful')
+        flash('Registration successful', 'success')
         return redirect(url_for('auth.login'))
     
     return render_template('register.html') 
