@@ -11,11 +11,11 @@ import io
 
 analytics = Blueprint('analytics', __name__)
 
-@analytics.route('/api/activities', methods=['POST'])
+@analytics.route('/api/activities', methods=['GET'])
 @login_required
 def get_activities():
     try:
-        data = request.get_json()
+        data = request.args
         start_date = data.get('startDate')
         end_date = data.get('endDate')
         activity_type = data.get('activityType')
@@ -205,17 +205,32 @@ def calculate_trend(activities, metric):
         'r_squared': float(r_squared)
     }
 
-@analytics.route('/api/activities', methods=['POST'])
+@analytics.route('/api/activities/add', methods=['POST'])
 @login_required
 def add_activity():
     try:
         data = request.get_json()
         
+        # 验证日期
+        try:
+            activity_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
+            today = datetime.now().date()
+            if activity_date > today:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Cannot add activities for future dates'
+                }), 400
+        except ValueError:
+            return jsonify({
+                'status': 'error',
+                'message': 'Invalid date format. Please use YYYY-MM-DD'
+            }), 400
+        
         # 创建新的活动记录
         activity = ActivityLog(
             user_id=current_user.id,
             activity_type=data['activityType'],
-            date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+            date=activity_date,
             duration=int(data['duration']),
             distance=float(data['distance']) if data['distance'] else None,
             reps=int(data['reps']) if data['reps'] else None,

@@ -240,17 +240,19 @@ document.addEventListener('DOMContentLoaded', function() {
       const formData = {
         activityType: activityForm.querySelector('[name="activity_type"]').value,
         date: activityForm.querySelector('[name="date"]').value,
-        duration: activityForm.querySelector('[name="duration"]').value,
-        distance: activityForm.querySelector('[name="distance"]').value || 0,
-        reps: activityForm.querySelector('[name="reps"]').value || 0,
-        height: activityForm.querySelector('[name="height"]').value,
-        weight: activityForm.querySelector('[name="weight"]').value,
-        age: activityForm.querySelector('[name="age"]').value,
+        duration: parseInt(activityForm.querySelector('[name="duration"]').value),
+        distance: activityForm.querySelector('[name="distance"]').value ? parseFloat(activityForm.querySelector('[name="distance"]').value) : null,
+        reps: activityForm.querySelector('[name="reps"]').value ? parseInt(activityForm.querySelector('[name="reps"]').value) : null,
+        height: parseInt(activityForm.querySelector('[name="height"]').value),
+        weight: parseInt(activityForm.querySelector('[name="weight"]').value),
+        age: parseInt(activityForm.querySelector('[name="age"]').value),
         location: activityForm.querySelector('[name="location"]').value
       };
       
+      console.log('Submitting activity data:', formData);  // 添加日志
+      
       try {
-        const response = await fetch('/analytics/api/activities', {
+        const response = await fetch('/analytics/api/activities/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -259,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         const result = await response.json();
+        console.log('Server response:', result);  // 添加日志
         
         if (response.ok) {
           showSuccess(`Activity added successfully! Calories burned: ${result.calories}`);
@@ -268,6 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
           showError(result.message || 'Failed to add activity');
         }
       } catch (error) {
+        console.error('Error submitting activity:', error);  // 添加错误日志
         showError('Failed to connect to server');
       }
     });
