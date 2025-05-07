@@ -20,14 +20,18 @@
     <div class="content">
       <nav class="side-nav">
         <div class="logo">Fitness Dashboard</div>
-        <a href="{{ url_for('index') }}" class="side-item active"><i class="bi bi-house-fill"></i><span>Home</span></a>
-        <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-        <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-        <a href="{{ url_for('forum') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
-        <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+        <a href="{{ url_for('index') }}" class="side-item {% if request.endpoint == 'index' %}active{% endif %}"><i class="bi bi-house-fill"></i><span>Home</span></a>
+        <a href="{{ url_for('upload') }}" class="side-item {% if request.endpoint == 'upload' %}active{% endif %}"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
+        <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
+        <a href="{{ url_for('forum') }}" class="side-item {% if request.endpoint == 'forum' %}active{% endif %}"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
+        <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
         <div class="user-profile">
           <!-- 显示用户头像 -->
-          <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% if current_user.avatar %}
+            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% else %}
+            <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
+          {% endif %}
         </div>
       </nav>
 
@@ -110,7 +114,7 @@
               <!-- File Upload Tab -->
               <div class="tab-content active" id="file-upload">
                 <div class="upload-description">
-                  <p>Upload your fitness data in CSV format. <a href="templates/fitness_data_template.csv" download class="template-link">Download template</a></p>
+                  <p>Upload your fitness data in CSV format. <a href="{{ url_for('static', filename='user_data_templates/fitness_data_template.csv') }}" download class="template-link">Download template</a></p>
                 </div>
                 <form class="upload-form" id="upload-form">
                   <div class="upload-zone" id="drop-zone">

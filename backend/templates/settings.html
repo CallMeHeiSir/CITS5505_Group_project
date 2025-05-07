@@ -22,14 +22,18 @@
       <!-- Sidebar -->
       <nav class="side-nav">
         <div class="logo">Fitness Dashboard</div>
-        <a href="{{ url_for('index') }}" class="side-item active"><i class="bi bi-house-fill"></i><span>Home</span></a>
-        <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-        <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-        <a href="{{ url_for('forum') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
-        <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+        <a href="{{ url_for('index') }}" class="side-item {% if request.endpoint == 'index' %}active{% endif %}"><i class="bi bi-house-fill"></i><span>Home</span></a>
+        <a href="{{ url_for('upload') }}" class="side-item {% if request.endpoint == 'upload' %}active{% endif %}"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
+        <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
+        <a href="{{ url_for('forum') }}" class="side-item {% if request.endpoint == 'forum' %}active{% endif %}"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
+        <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
         <div class="user-profile">
           <!-- 显示用户头像 -->
-          <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% if current_user.avatar %}
+            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% else %}
+            <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
+          {% endif %}
         </div>
       </nav>
 
@@ -39,8 +43,8 @@
           <div class="card" style="grid-column:1/-1;">
             <h2>Settings</h2>
             <div>
-              <button type="submit" class="btn-gradient" onclick="window.location.href='{{url_for('auth.change_personal_information')}}'">Edit Personal Information</button>
-              <button type="submit" class="btn-gradient" onclick="window.location.href='{{url_for('auth.change_password')}}'">Change Password</button>
+              <a href="{{ url_for('auth.change_personal_information') }}" class="btn-gradient" style="margin-right: 10px;">Edit Personal Information</a>
+              <a href="{{ url_for('auth.change_password') }}" class="btn-gradient">Change Password</a>
             </div>
           </div>
         </div>

@@ -1359,3 +1359,33 @@ a.btn-gradient:hover {
 .top-logout a:hover {
   text-decoration: underline;
 }
+
+/* 日历头部横向居中排列 */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.calendar-header h4 {
+  margin: 0 12px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.calendar-header button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.calendar-header button:hover {
+  background: #f0f4ff;
+  color: #667eea;
+}

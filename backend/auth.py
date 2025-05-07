@@ -49,6 +49,11 @@ def register():
         birthdate = request.form.get('birthdate')
         address = request.form.get('address')
         avatar = request.files.get('avatar')
+        avatar_filename = None
+        if avatar and avatar.filename != '':
+            avatar_filename = avatar.filename
+            avatar_path = os.path.join(current_app.config['AVATAR_FOLDER'], avatar_filename)
+            avatar.save(avatar_path)
         
         # 将 birthdate 转换为 datetime.date 对象
         try:
@@ -69,12 +74,8 @@ def register():
             flash('Email already exists')
             return redirect(url_for('auth.register'))
         
-        user = User(username=username, email=email,phone=phone,gender=gender,birthdate=birthdate,address=address,avatar=avatar)
+        user = User(username=username, email=email,phone=phone,gender=gender,birthdate=birthdate,address=address,avatar=avatar_filename)
         user.set_password(password)
-        if avatar:
-            avatar_filename = avatar.filename
-            avatar.save(os.path.join(current_app.config['UPLOAD_FOLDER'], avatar_filename))
-            user.avatar = avatar_filename
         db.session.add(user)
         db.session.commit()
         
@@ -111,7 +112,8 @@ def change_personal_information():
 
         if avatar:
             avatar_filename = avatar.filename
-            avatar.save(os.path.join(current_app.config['UPLOAD_FOLDER'], avatar_filename))
+            avatar_path = os.path.join(current_app.config['AVATAR_FOLDER'], avatar_filename)
+            avatar.save(avatar_path)
             current_user.avatar = avatar_filename
 
         db.session.commit()
