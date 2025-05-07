@@ -1344,7 +1344,7 @@ a.btn-gradient:hover {
 /* 左上角 Logout 链接样式 */
 .top-logout {
   position: absolute;
-  top: 30px;
+  top: 5px;
   right: 30px;
   z-index: 1000;
 }

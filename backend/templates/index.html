@@ -12,6 +12,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 </head>
 <body>
+  <!-- 左上角的 Logout 链接 -->
+  <div class="top-logout">
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
   <div class="app-container">
     <div class="content">
       <!-- Sidebar -->
