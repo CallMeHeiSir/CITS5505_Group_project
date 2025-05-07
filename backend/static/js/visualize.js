@@ -149,6 +149,107 @@ let currentFilters = {
   activityType: ''
 };
 
+// Calendar functionality
+let currentDate = new Date();
+let activityDates = new Set();
+
+function renderCalendar() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  
+  // Update month header
+  document.getElementById('current-month').textContent = 
+    currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+  
+  // Get first day of month
+  const firstDay = new Date(year, month, 1);
+  const startingDay = firstDay.getDay();
+  
+  // Get last day of month
+  const lastDay = new Date(year, month + 1, 0);
+  const totalDays = lastDay.getDate();
+  
+  // Get days from previous month
+  const prevMonthLastDay = new Date(year, month, 0).getDate();
+  
+  const calendarDays = document.getElementById('calendar-days');
+  calendarDays.innerHTML = '';
+  
+  // Add days from previous month
+  for (let i = startingDay - 1; i >= 0; i--) {
+    const day = document.createElement('div');
+    day.className = 'calendar-day other-month';
+    day.textContent = prevMonthLastDay - i;
+    calendarDays.appendChild(day);
+  }
+  
+  // Add days of current month
+  const today = new Date();
+  for (let i = 1; i <= totalDays; i++) {
+    const day = document.createElement('div');
+    day.className = 'calendar-day';
+    day.textContent = i;
+    
+    // Check if today
+    if (i === today.getDate() && 
+        month === today.getMonth() && 
+        year === today.getFullYear()) {
+      day.classList.add('today');
+    }
+    
+    // Check if has activity
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    if (activityDates.has(dateStr)) {
+      day.classList.add('has-activity');
+    }
+    
+    calendarDays.appendChild(day);
+  }
+  
+  // Add days from next month
+  const remainingDays = 42 - (startingDay + totalDays); // 6 rows * 7 days
+  for (let i = 1; i <= remainingDays; i++) {
+    const day = document.createElement('div');
+    day.className = 'calendar-day other-month';
+    day.textContent = i;
+    calendarDays.appendChild(day);
+  }
+}
+
+// Prediction functionality
+function predictCalories(activities) {
+  if (activities.length < 2) return null;
+  
+  // Simple linear regression
+  const x = activities.map((_, i) => i);
+  const y = activities.map(a => a.calories);
+  
+  const n = x.length;
+  const sumX = x.reduce((a, b) => a + b, 0);
+  const sumY = y.reduce((a, b) => a + b, 0);
+  const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+  const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+  
+  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+  
+  // Predict next 30 days
+  const predictions = [];
+  const lastDate = new Date(activities[activities.length - 1].date);
+  
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(lastDate);
+    date.setDate(date.getDate() + i);
+    
+    predictions.push({
+      date: date.toISOString().split('T')[0],
+      calories: slope * (activities.length + i) + intercept
+    });
+  }
+  
+  return predictions;
+}
+
 // Initialize the visualization page
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize date range picker
@@ -162,6 +263,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Add event listener for filter application
   document.getElementById('apply-filters').addEventListener('click', updateData);
+  
+  // Initialize calendar
+  renderCalendar();
 });
 
 // Initialize date range filter functionality
@@ -255,23 +359,42 @@ function initializeCharts() {
 // Update data based on current filters
 async function updateData() {
   try {
-    const response = await fetch('/api/activities', {
-      method: 'GET',
+    const response = await fetch('/analytics/api/activities', {
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(currentFilters)
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch activity data');
+      throw new Error('Failed to fetch data');
     }
     
-    const activities = await response.json();
-    const stats = processActivityData(activities);
+    const data = await response.json();
+    const activities = data.activities;
+    const stats = data.stats;
+    
+    // Update activity dates for calendar
+    activityDates = new Set(activities.map(a => a.date.split('T')[0]));
+    
+    // Update calendar
+    renderCalendar();
+    
+    // Update stats
     updateStats(stats);
+    
+    // Update charts
     updateCharts(activities, stats);
+    
+    // Update prediction
+    const predictions = predictCalories(activities);
+    if (predictions) {
+      updatePredictionChart(activities, predictions);
+    }
+    
   } catch (error) {
-    showError(error.message);
+    showError('Failed to update data: ' + error.message);
   }
 }
 
@@ -358,7 +481,7 @@ function processCaloriesData(activities) {
 // Export data in specified format
 async function exportData(format) {
   try {
-    const response = await fetch('/api/activities/export', {
+    const response = await fetch('/analytics/api/activities/export', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -409,3 +532,90 @@ function showError(message) {
   document.body.appendChild(errorDiv);
   setTimeout(() => errorDiv.remove(), 3000);
 }
+
+function updatePredictionChart(activities, predictions) {
+  const ctx = document.getElementById('predictionChart').getContext('2d');
+  
+  // Calculate current month calories
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const currentMonthCalories = activities
+    .filter(a => {
+      const date = new Date(a.date);
+      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    })
+    .reduce((sum, a) => sum + a.calories, 0);
+  
+  // Update current month calories display
+  document.getElementById('current-month-calories').textContent = currentMonthCalories.toFixed(0);
+  
+  // Calculate predicted total
+  const predictedTotal = predictions.reduce((sum, p) => sum + p.calories, 0);
+  document.getElementById('predicted-calories').textContent = predictedTotal.toFixed(0);
+  
+  // Create or update chart
+  if (window.predictionChart) {
+    window.predictionChart.destroy();
+  }
+  
+  window.predictionChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [...activities.map(a => a.date.split('T')[0]), ...predictions.map(p => p.date)],
+      datasets: [
+        {
+          label: 'Actual Calories',
+          data: [...activities.map(a => a.calories), ...Array(predictions.length).fill(null)],
+          borderColor: 'rgba(102, 126, 234, 1)',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          fill: true
+        },
+        {
+          label: 'Predicted Calories',
+          data: [...Array(activities.length).fill(null), ...predictions.map(p => p.calories)],
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderDash: [5, 5],
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Calories'
+          }
+        }
+      }
+    }
+  });
+}
+
+// Add event listeners for calendar navigation
+document.getElementById('prev-month').addEventListener('click', () => {
+  currentDate.setMonth(currentDate.getMonth() - 1);
+  renderCalendar();
+});
+
+document.getElementById('next-month').addEventListener('click', () => {
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  renderCalendar();
+});

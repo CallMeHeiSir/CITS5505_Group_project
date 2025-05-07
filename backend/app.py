@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from extensions import db, login_manager
@@ -21,12 +21,12 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'static/uploads/')
+    app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制上传文件大小为16MB
     
-    # 自动创建上传文件夹
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    # 自动创建头像文件夹
+    if not os.path.exists(app.config['AVATAR_FOLDER']):
+        os.makedirs(app.config['AVATAR_FOLDER'], exist_ok=True)
     
     # 初始化扩展
     db.init_app(app)
@@ -38,13 +38,16 @@ def create_app():
     with app.app_context():
         # 导入模型
         from models.user import User
+        from models.activity_log import ActivityLog
         
         # 创建数据库表
         db.create_all()
         
         # 注册蓝图
         from auth import auth as auth_blueprint
+        from analytics import analytics as analytics_blueprint
         app.register_blueprint(auth_blueprint, url_prefix='/auth')
+        app.register_blueprint(analytics_blueprint, url_prefix='/analytics')
         
         # 添加页面路由
         @app.route('/')
@@ -107,7 +110,6 @@ def create_app():
         @app.route('/share')
         def share():
             return render_template('share.html')
-        # 你可以根据需要继续添加其它页面
         
         @login_manager.user_loader
         def load_user(user_id):

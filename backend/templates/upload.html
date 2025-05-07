@@ -20,14 +20,18 @@
     <div class="content">
       <nav class="side-nav">
         <div class="logo">Fitness Dashboard</div>
-        <a href="{{ url_for('index') }}" class="side-item active"><i class="bi bi-house-fill"></i><span>Home</span></a>
-        <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-        <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-        <a href="{{ url_for('forum') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
-        <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+        <a href="{{ url_for('index') }}" class="side-item {% if request.endpoint == 'index' %}active{% endif %}"><i class="bi bi-house-fill"></i><span>Home</span></a>
+        <a href="{{ url_for('upload') }}" class="side-item {% if request.endpoint == 'upload' %}active{% endif %}"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
+        <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
+        <a href="{{ url_for('forum') }}" class="side-item {% if request.endpoint == 'forum' %}active{% endif %}"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
+        <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
         <div class="user-profile">
           <!-- 显示用户头像 -->
-          <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% if current_user.avatar %}
+            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% else %}
+            <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
+          {% endif %}
         </div>
       </nav>
 
@@ -110,7 +114,7 @@
               <!-- File Upload Tab -->
               <div class="tab-content active" id="file-upload">
                 <div class="upload-description">
-                  <p>Upload your fitness data in CSV format. <a href="templates/fitness_data_template.csv" download class="template-link">Download template</a></p>
+                  <p>Upload your fitness data in CSV format. <a href="{{ url_for('static', filename='user_data_templates/fitness_data_template.csv') }}" download class="template-link">Download template</a></p>
                 </div>
                 <form class="upload-form" id="upload-form">
                   <div class="upload-zone" id="drop-zone">
@@ -128,7 +132,7 @@
                 <form class="activity-form" id="activity-form">
                   <div class="form-group">
                     <label>Activity Type</label>
-                    <select class="form-input" name="activity_type" required>
+                    <select class="form-input" name="activity_type" id="activity_type" required>
                       <option value="">Select activity type</option>
                       <option value="running">Running</option>
                       <option value="cycling">Cycling</option>
@@ -136,6 +140,9 @@
                       <option value="walking">Walking</option>
                       <option value="hiking">Hiking</option>
                       <option value="yoga">Yoga</option>
+                      <option value="pushup">Push-up</option>
+                      <option value="situp">Sit-up</option>
+                      <option value="pullup">Pull-up</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
@@ -153,35 +160,41 @@
                   </div>
 
                   <div class="form-row">
-                    <div class="form-group">
+                    <div class="form-group" id="distance-group">
                       <label>Distance (km)</label>
                       <input type="number" class="form-input" name="distance" min="0" step="0.1"/>
                     </div>
+                    <div class="form-group" id="reps-group" style="display:none;">
+                      <label>Reps (count)</label>
+                      <input type="number" class="form-input" name="reps" min="0"/>
+                    </div>
+                  </div>
 
+                  <div class="form-row">
                     <div class="form-group">
                       <label>Calories</label>
                       <input type="number" class="form-input" name="calories" min="0"/>
                     </div>
-                  </div>
 
-                  <div class="form-row">
                     <div class="form-group">
                       <label>Height (cm)</label>
                       <input type="number" class="form-input" name="height" min="0" required/>
                     </div>
-
-                    <div class="form-group">
-                      <label>Weight (kg)</label>
-                      <input type="number" class="form-input" name="weight" min="0" required/>
-                    </div>
                   </div>
 
                   <div class="form-row">
                     <div class="form-group">
+                      <label>Weight (kg)</label>
+                      <input type="number" class="form-input" name="weight" min="0" required/>
+                    </div>
+
+                    <div class="form-group">
                       <label>Age</label>
                       <input type="number" class="form-input" name="age" min="0" required/>
                     </div>
+                  </div>
 
+                  <div class="form-row">
                     <div class="form-group">
                       <label>Location</label>
                       <input type="text" class="form-input" name="location" required/>

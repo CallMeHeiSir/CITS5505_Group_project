@@ -21,14 +21,18 @@
       <!-- Sidebar -->
       <nav class="side-nav">
         <div class="logo">Fitness Dashboard</div>
-        <a href="{{ url_for('index') }}" class="side-item active"><i class="bi bi-house-fill"></i><span>Home</span></a>
-        <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-        <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-        <a href="{{ url_for('forum') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
-        <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+        <a href="{{ url_for('index') }}" class="side-item {% if request.endpoint == 'index' %}active{% endif %}"><i class="bi bi-house-fill"></i><span>Home</span></a>
+        <a href="{{ url_for('upload') }}" class="side-item {% if request.endpoint == 'upload' %}active{% endif %}"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
+        <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
+        <a href="{{ url_for('forum') }}" class="side-item {% if request.endpoint == 'forum' %}active{% endif %}"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
+        <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
         <div class="user-profile">
           <!-- 显示用户头像 -->
-          <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% if current_user.avatar %}
+            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% else %}
+            <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
+          {% endif %}
         </div>
       </nav>
 
@@ -98,6 +102,48 @@
             <div class="stat-content">
               <h3 id="activity-count">0</h3>
               <p>Activities</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Calendar and Prediction Cards -->
+        <div class="cards-row">
+          <div class="card">
+            <h5>Activity Calendar</h5>
+            <div class="calendar-container">
+              <div class="calendar-header">
+                <button id="prev-month" class="btn-text"><i class="bi bi-chevron-left"></i></button>
+                <h4 id="current-month">Month Year</h4>
+                <button id="next-month" class="btn-text"><i class="bi bi-chevron-right"></i></button>
+              </div>
+              <div class="calendar-grid">
+                <div class="calendar-weekdays">
+                  <span>Sun</span>
+                  <span>Mon</span>
+                  <span>Tue</span>
+                  <span>Wed</span>
+                  <span>Thu</span>
+                  <span>Fri</span>
+                  <span>Sat</span>
+                </div>
+                <div id="calendar-days" class="calendar-days"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h5>Calories Prediction</h5>
+            <div class="chart-container">
+              <canvas id="predictionChart"></canvas>
+            </div>
+            <div class="prediction-stats">
+              <div class="prediction-item">
+                <span class="label">Current Month:</span>
+                <span id="current-month-calories" class="value">0</span>
+              </div>
+              <div class="prediction-item">
+                <span class="label">Predicted Total:</span>
+                <span id="predicted-calories" class="value">0</span>
+              </div>
             </div>
           </div>
         </div>
