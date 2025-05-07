@@ -10,11 +10,11 @@
   <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <div class="container mt-3">
+      <div class="flash-messages mt-3">
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          <div class="flash-message flash-{{ category }}">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="flash-close" aria-label="Close">×</button>
           </div>
         {% endfor %}
       </div>
@@ -32,33 +32,23 @@
 
   <!-- 登录卡片 -->
   <div class="login-container">
-    <div class="container mt-5">
-      <div class="row justify-content-center">
-        <div class="col-md-6 col-12">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h2 class="card-title text-center mb-4">Login to Your Account</h2>
-              <p class="text-center text-muted mb-4">Access your data and insights.</p>
-              <form id="loginForm" action="{{ url_for('auth.login') }}" method="POST">
-                <div class="mb-3">
-                  <label for="name" class="form-label">Username</label>
-                  <input type="text" class="form-control form-input" id="name" name="username" placeholder="Enter your username">
-                  <div class="invalid-feedback" id="usernameError">Please enter a valid username.</div>
-                </div>
-                <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
-                  <input type="password" class="form-control form-input" id="password" name="password" placeholder="Enter your password">
-                  <div class="invalid-feedback" id="passwordError">Please enter a valid password.</div>
-                </div>
-                <div class="d-grid">
-                  <button type="submit" class="btn-gradient">Login</button>
-                </div>
-              </form>
-              <p class="text-center mt-3">Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-            </div>
-          </div>
+    <div class="card">
+      <h2 class="card-title text-center mb-4">Login to Your Account</h2>
+      <p class="text-center text-muted mb-4">Access your data and insights.</p>
+      <form id="loginForm" action="{{ url_for('auth.login') }}" method="POST">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" class="form-input" id="username" name="username" placeholder="Enter your username">
+          <div class="invalid-feedback" id="usernameError">Please enter your username.</div>
         </div>
-      </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-input" id="password" name="password" placeholder="Enter your password">
+          <div class="invalid-feedback" id="passwordError">Please enter your password.</div>
+        </div>
+        <button type="submit" class="btn-gradient">Login</button>
+      </form>
+      <p class="text-center mt-3">Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
     </div>
   </div>
 
