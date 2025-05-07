@@ -4,60 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Welcome</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: sans-serif;
-    }
-    .hero {
-      background: url("{{ url_for('static', filename='img/welcome-bg.png') }}") no-repeat center center/cover;
-      height: 100%;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 40px;
-      color: white;
-    }
-    .hero-box {
-      background: rgba(0,0,0,0.5);
-      padding: 40px;
-      max-width: 400px;
-      border-radius: 10px;
-      text-align: right;
-    }
-    .hero-box h1 {
-      margin-bottom: 20px;
-      font-size: 2.5em;
-    }
-    .hero-box p {
-      margin-bottom: 30px;
-      font-size: 1.1em;
-    }
-    .hero-box a {
-      display: block;
-      margin-top: 10px;
-      padding: 12px;
-      background: white;
-      color: black;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 6px;
-    }
-    .hero-box a:hover {
-      background: #f0f0f0;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/WelcomeStyles.css') }}" />
 </head>
 <body>
   <div class="hero">
     <div class="hero-box">
       <h1>REACH YOUR BEST</h1>
       <p>Whether you’re training for a marathon or your biggest season yet, we’re here to help you make serious progress.</p>
-      <a href="{{ url_for('auth.register') }}">Register</a>
       <a href="{{ url_for('auth.login') }}">Log In</a>
+      <a href="{{ url_for('auth.register') }}">Register</a>
     </div>
   </div>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="#" class="footer-link" onclick="openModal('about')">About us</a>
+      <a href="#" class="footer-link" onclick="openModal('connect')">Connect with us</a>
+      <a href="#" class="footer-link" onclick="openModal('help')">Help</a>
+    </div>
+  </footer>
+  
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <div id="modal-text"></div>
+    </div>
+  </div>
+    
+<!-- 引入 JS -->
+  <script src="{{ url_for('static', filename='js/welcome.js') }}"></script>
+
 </body>
 </html>
