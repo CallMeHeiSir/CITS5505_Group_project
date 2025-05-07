@@ -116,11 +116,11 @@
                 <div class="upload-description">
                   <p>Upload your fitness data in CSV format. <a href="{{ url_for('static', filename='user_data_templates/fitness_data_template.csv') }}" download class="template-link">Download template</a></p>
                 </div>
-                <form class="upload-form" id="upload-form">
+                <form class="upload-form" id="upload-form" enctype="multipart/form-data">
                   <div class="upload-zone" id="drop-zone">
                     <i class="bi bi-cloud-arrow-up"></i>
-                    <p>Drag and drop your CSV files here or click to browse</p>
-                    <input type="file" id="file-input" accept=".csv" multiple/>
+                    <p>Drag and drop your CSV files here or <label for="file-input" class="browse-link">click to browse</label></p>
+                    <input type="file" id="file-input" accept=".csv" multiple style="display: none;"/>
                   </div>
                   <div class="file-list" id="file-list"></div>
                   <button type="submit" class="btn-gradient" disabled>Upload Files</button>
