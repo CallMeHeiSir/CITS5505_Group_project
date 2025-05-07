@@ -74,7 +74,16 @@ def register():
             flash('Email already exists')
             return redirect(url_for('auth.register'))
         
-        user = User(username=username, email=email,phone=phone,gender=gender,birthdate=birthdate,address=address,avatar=avatar_filename)
+        user = User(
+            username=username,
+            email=email,
+            phone=phone,
+            gender=gender,
+            birthdate=birthdate,
+            address=address,
+            avatar=avatar_filename,
+            created_at=datetime.utcnow()
+        )
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
