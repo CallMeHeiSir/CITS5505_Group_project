@@ -38,6 +38,8 @@ html, body {
   color: #333;
   margin: 0 20px 40px 20px;
   padding: 0 10px;
+  margin-bottom: 50px; /* 减少底部的间距 */
+  text-align: center; /* 确保居中 */
 }
 
 .side-nav .side-item {
@@ -1320,95 +1322,40 @@ a.btn-gradient:hover {
   text-decoration: none;
 }
 
-/* Calendar Styles */
-.calendar-container {
-  padding: 1rem;
-}
-
-.calendar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.calendar-header h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.calendar-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.calendar-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-}
-
-.calendar-days {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-}
-
-.calendar-day {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* 用户头像样式 */
+.user-profile {
+  position: relative;
+  margin-top: 50px; /* 去掉顶部的默认间距 */
+  text-align: center; /* 确保头像居中 */
+  display: inline-block;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
+  overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.calendar-day:hover {
-  background-color: #f0f0f0;
+.user-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.calendar-day.has-activity {
-  background-color: #667eea;
-  color: white;
+/* 左上角 Logout 链接样式 */
+.top-logout {
+  position: absolute;
+  top: 5px;
+  right: 30px;
+  z-index: 1000;
 }
 
-.calendar-day.today {
-  border: 2px solid #667eea;
+.top-logout a {
+  color: black;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
 }
 
-.calendar-day.other-month {
-  color: #ccc;
-}
-
-/* Prediction Chart Styles */
-.prediction-stats {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #f8fafc;
-  border-radius: 0.5rem;
-}
-
-.prediction-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.prediction-item .label {
-  font-size: 0.8rem;
-  color: #666;
-}
-
-.prediction-item .value {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #667eea;
+.top-logout a:hover {
+  text-decoration: underline;
 }
