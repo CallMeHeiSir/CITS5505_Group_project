@@ -4,19 +4,19 @@ const VALID_TYPES = ['.csv'];
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Get DOM elements
-  const dropZone = document.getElementById('drop-zone');
-  const fileInput = document.getElementById('file-input');
-  const fileList = document.getElementById('file-list');
-  const uploadForm = document.getElementById('upload-form');
-  const manualEntryForm = document.getElementById('manual-entry-form');
-  const tabButtons = document.querySelectorAll('.tab-btn');
-  const tabContents = document.querySelectorAll('.tab-content');
-  const activityForm = document.getElementById('activity-form');
+// Get DOM elements
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const fileList = document.getElementById('file-list');
+const uploadForm = document.getElementById('upload-form');
+const manualEntryForm = document.getElementById('manual-entry-form');
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+const activityForm = document.getElementById('activity-form');
   const activityTypeSelect = document.getElementById('activity_type');
   const distanceGroup = document.getElementById('distance-group');
   const repsGroup = document.getElementById('reps-group');
-
+  
   // 检查必要的DOM元素是否存在
   if (!dropZone || !fileInput || !fileList || !uploadForm) {
     console.error('Required DOM elements not found');
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('File input changed:', e.target.files);
     if (e.target.files.length > 0) {
       handleFiles(e.target.files);
-    }
+  }
   });
 
   // Handle click on drop zone
@@ -36,29 +36,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // 如果点击的是 drop zone 本身，则触发文件选择
     if (e.target === dropZone) {
       fileInput.click();
-    }
+}
   });
 
-  // Handle drag and drop events
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    });
+// Handle drag and drop events
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  dropZone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
   });
+});
 
-  // Add visual feedback for drag and drop
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, () => {
-      dropZone.classList.add('dragover');
-    });
+// Add visual feedback for drag and drop
+['dragenter', 'dragover'].forEach(eventName => {
+  dropZone.addEventListener(eventName, () => {
+    dropZone.classList.add('dragover');
   });
+});
 
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, () => {
-      dropZone.classList.remove('dragover');
-    });
+['dragleave', 'drop'].forEach(eventName => {
+  dropZone.addEventListener(eventName, () => {
+    dropZone.classList.remove('dragover');
   });
+});
 
   // Handle file drop
   dropZone.addEventListener('drop', (e) => {
@@ -67,17 +67,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (files.length > 0) {
       handleFiles(files);
     }
-  });
+});
 
-  // Process selected files
-  function handleFiles(files) {
+// Process selected files
+function handleFiles(files) {
     console.log('Handling files:', files);
     // 清空现有文件列表
     fileList.innerHTML = '';
     
-    Array.from(files).forEach(file => {
-      try {
-        validateFile(file);
+  Array.from(files).forEach(file => {
+    try {
+      validateFile(file);
         // 只显示文件名,不创建预览
         const fileInfo = document.createElement('div');
         fileInfo.className = 'file-info';
@@ -86,12 +86,12 @@ document.addEventListener('DOMContentLoaded', function() {
           <span class="file-name">${file.name}</span>
         `;
         fileList.appendChild(fileInfo);
-        updateUploadButtonState();
-      } catch (error) {
-        showError(error.message);
-      }
-    });
-  }
+      updateUploadButtonState();
+    } catch (error) {
+      showError(error.message);
+    }
+  });
+}
 
   // Validate file size and type
   function validateFile(file) {
@@ -112,25 +112,20 @@ document.addEventListener('DOMContentLoaded', function() {
   // Handle file upload form submission
   uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
     const files = Array.from(fileInput.files);
     if (files.length === 0) {
       showError('Please select at least one file');
       return;
     }
-    
     for (const file of files) {
       try {
         const formData = new FormData();
         formData.append('file', file);
-        
         const response = await fetch('/analytics/api/activities/upload', {
           method: 'POST',
           body: formData
         });
-        
         const result = await response.json();
-        
         if (response.ok) {
           // 更新文件信息显示为上传成功
           const fileInfo = fileList.querySelector(`.file-name`);
@@ -141,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
           }
           showSuccess(result.message);
+          loadRecentActivities(); // 刷新活动历史
         } else {
           showError(result.message || 'Failed to upload file');
         }
@@ -149,8 +145,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showError('Failed to connect to server');
       }
     }
-    
-    // 清空文件输入
     fileInput.value = '';
     updateUploadButtonState();
   });
@@ -161,31 +155,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadButton = uploadForm.querySelector('button[type="submit"]');
     uploadButton.disabled = !hasFiles;
     uploadButton.classList.toggle('btn-disabled', !hasFiles);
-  }
+}
 
-  // Display error message
-  function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.innerHTML = `
-      <i class="bi bi-exclamation-circle"></i>
-      <span>${message}</span>
-    `;
-    document.body.appendChild(errorDiv);
-    setTimeout(() => errorDiv.remove(), 3000);
-  }
+// Display error message
+function showError(message) {
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'error-message';
+  errorDiv.innerHTML = `
+    <i class="bi bi-exclamation-circle"></i>
+    <span>${message}</span>
+  `;
+  document.body.appendChild(errorDiv);
+  setTimeout(() => errorDiv.remove(), 3000);
+}
 
-  // Display success message
-  function showSuccess(message) {
-    const successDiv = document.createElement('div');
-    successDiv.className = 'success-message';
-    successDiv.innerHTML = `
-      <i class="bi bi-check-circle"></i>
-      <span>${message}</span>
-    `;
-    document.body.appendChild(successDiv);
-    setTimeout(() => successDiv.remove(), 3000);
-  }
+// Display success message
+function showSuccess(message) {
+  const successDiv = document.createElement('div');
+  successDiv.className = 'success-message';
+  successDiv.innerHTML = `
+    <i class="bi bi-check-circle"></i>
+    <span>${message}</span>
+  `;
+  document.body.appendChild(successDiv);
+  setTimeout(() => successDiv.remove(), 3000);
+}
 
   // Tab switching functionality
   if (tabButtons.length > 0 && tabContents.length > 0) {
@@ -225,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // TODO: Send form data to backend
       console.log('Manual entry data:', formData);
-      
+
       // Show success message
       showSuccess('Data submitted successfully!');
       manualEntryForm.reset();
@@ -235,8 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Handle activity form submission
   if (activityForm) {
     activityForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
+    e.preventDefault();
       const formData = {
         activityType: activityForm.querySelector('[name="activity_type"]').value,
         date: activityForm.querySelector('[name="date"]').value,
@@ -248,30 +241,27 @@ document.addEventListener('DOMContentLoaded', function() {
         age: parseInt(activityForm.querySelector('[name="age"]').value),
         location: activityForm.querySelector('[name="location"]').value
       };
-      
-      console.log('Submitting activity data:', formData);  // 添加日志
-      
-      try {
+      console.log('Submitting activity data:', formData);
+    try {
         const response = await fetch('/analytics/api/activities/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
           body: JSON.stringify(formData)
-        });
-        
+      });
         const result = await response.json();
-        console.log('Server response:', result);  // 添加日志
-        
+        console.log('Server response:', result);
         if (response.ok) {
           showSuccess(`Activity added successfully! Calories burned: ${result.calories}`);
-          activityForm.reset();
+      activityForm.reset();
           activityForm.querySelector('[name="date"]').valueAsDate = new Date();
+          loadRecentActivities(); // 刷新活动历史
         } else {
           showError(result.message || 'Failed to add activity');
-        }
+    }
       } catch (error) {
-        console.error('Error submitting activity:', error);  // 添加错误日志
+        console.error('Error submitting activity:', error);
         showError('Failed to connect to server');
       }
     });
@@ -294,4 +284,80 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-});
+
+  // Render recent activities as cards
+  async function loadRecentActivities() {
+    const container = document.getElementById('recent-activities');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;color:#888;">Loading...</div>';
+    try {
+      const response = await fetch('/api/activities');
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.activities)) {
+        container.innerHTML = '<div style="text-align:center;color:#888;">No activities found.</div>';
+        return;
+      }
+      if (data.activities.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:#888;">No activities found.</div>';
+        return;
+      }
+      // Sort by date descending
+      const activities = data.activities.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+      container.innerHTML = '';
+      activities.forEach(activity => {
+        const card = document.createElement('div');
+        card.className = 'activity-card';
+        card.style = 'border:1px solid #e5e7eb; border-radius:12px; margin-bottom:12px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 1px 4px #e5e7eb;';
+        card.innerHTML = `
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="activity-icon" style="font-size:1.6em;">${getActivityIcon(activity.activity_type)}</span>
+            <div>
+              <div style="font-weight:bold;font-size:1.1em;">${capitalize(activity.activity_type)}</div>
+              <div style="font-size:0.95em;color:#666;">${formatDate(activity.date)}</div>
+            </div>
+      </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span title="Duration"><i class="bi bi-clock"></i> ${activity.duration} min</span>
+            ${activity.distance ? `<span title="Distance"><i class="bi bi-geo"></i> ${activity.distance} km</span>` : ''}
+            ${activity.reps ? `<span title="Reps"><i class="bi bi-arrow-up-circle"></i> ${activity.reps} reps</span>` : ''}
+            <span title="Calories"><i class="bi bi-fire"></i> ${activity.calories} kcal</span>
+            <button class="share-btn" title="Share" style="background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;"><i class="bi bi-share"></i></button>
+      </div>
+        `;
+        container.appendChild(card);
+      });
+    } catch (e) {
+      container.innerHTML = '<div style="text-align:center;color:#888;">Failed to load activities.</div>';
+    }
+  }
+
+function getActivityIcon(type) {
+    switch(type) {
+      case 'running': return '<i class="bi bi-person-fill"></i>';
+      case 'cycling': return '<i class="bi bi-bicycle"></i>';
+      case 'swimming': return '<i class="bi bi-droplet"></i>';
+      case 'walking': return '<i class="bi bi-person"></i>';
+      case 'hiking': return '<i class="bi bi-tree"></i>';
+      case 'yoga': return '<i class="bi bi-flower2"></i>';
+      case 'pushup': return '<i class="bi bi-arrow-up-circle"></i>';
+      case 'situp': return '<i class="bi bi-arrow-repeat"></i>';
+      case 'pullup': return '<i class="bi bi-arrows-angle-expand"></i>';
+      case 'basketball': return '<i class="bi bi-basket"></i>';
+      case 'squats': return '<i class="bi bi-chevron-bar-up"></i>';
+      case 'plank': return '<i class="bi bi-dash-lg"></i>';
+      default: return '<i class="bi bi-activity"></i>';
+    }
+  }
+
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString();
+  }
+
+  // 加载活动卡片
+  loadRecentActivities();
+  });

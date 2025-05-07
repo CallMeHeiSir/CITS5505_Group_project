@@ -87,8 +87,9 @@ html, body {
 /* ============== Main Content Area ============== */
 .main-content {
   flex: 1;
-  height: 100%;
-  padding: 30px;
+  height: auto;           /* 让高度自适应内容 */
+  min-height: unset;      /* 移除最小高度限制 */
+  padding: 20px 20px 16px 20px;  /* 只在底部留16px */
   overflow-y: auto;
   background: #f0f2f5;
 }
@@ -105,7 +106,7 @@ html, body {
 .card {
   background: #fff;
   border-radius: 12px;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
@@ -156,13 +157,15 @@ html, body {
 }
 
 /* ============== Special: First Row Charts 16:9 Aspect Ratio ============== */
-.cards-row:first-of-type .card {
-  aspect-ratio: 16 / 9;
+.cards-row:first-of-type > .card {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
   padding: 16px;
   overflow: hidden;
 }
 /* Make canvas scale with width, height auto */
-.cards-row:first-of-type .card canvas {
+.cards-row:first-of-type > .card canvas {
   width: 100% !important;
   height: auto !important;
 }
@@ -1220,6 +1223,33 @@ canvas {
     border-left: none;
     border-top: 1px solid #eee;
     padding-top: 20px;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  /* Ensure Recent Activities is visible on mobile */
+  #recent-activities {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 5px;
+  }
+
+  .activity-card {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .activity-card > div:first-child {
+    width: 100%;
+  }
+
+  .activity-card > div:last-child {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   /* Adjust tabs */
