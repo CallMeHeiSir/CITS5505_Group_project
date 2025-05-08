@@ -11,9 +11,9 @@ import io
 
 analytics = Blueprint('analytics', __name__)
 
-@analytics.route('/api/activities', methods=['GET'])
+@analytics.route('/api/activities/summary', methods=['GET'])
 @login_required
-def get_activities():
+def get_activities_summary():
     try:
         data = request.args
         start_date = data.get('startDate')

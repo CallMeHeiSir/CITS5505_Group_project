@@ -1,49 +1,5 @@
-// Create a doughnut chart for calorie tracking
-new Chart(document.getElementById('calorieChart'), {
-  type: 'doughnut',
-  data: {
-    labels: ['Burned','Remaining'],
-    datasets:[{
-      data: [530, 1000-530],
-      backgroundColor: ['#667eea','#e2e8f0'],
-      borderWidth: 0
-    }]
-  },
-  options:{
-    cutout: '70%',
-    plugins:{ legend:{ display:false } }
-  }
-});
-
-// Create a line chart for performance tracking
-new Chart(document.getElementById('performanceChart'), {
-  type: 'line',
-  data:{
-    labels: ['Jan','Feb','Mar','Apr'],
-    datasets:[{
-      data:[200,350,300,450],
-      fill:true, tension:0.4,
-      borderColor:'#667eea',
-      backgroundColor:'rgba(102,126,234,0.2)'
-    }]
-  },
-  options:{
-    plugins:{ legend:{ display:false } },
-    scales:{
-      x:{ grid:{ display:false } },
-      y:{ grid:{ color:'#eee' } }
-    }
-  }
-});
-
 // Friend comparison and sharing functionality
-document.getElementById('selectFriend').onclick = () => {
-  alert('Show friend list for selection');
-};
-document.getElementById('shareBtn').onclick = () => {
-  const c = document.getElementById('commentBox').value;
-  alert('Shared: ' + c);
-};
+// 删除 selectFriend 和 shareBtn 的相关 DOM 操作
 
 // Chart configurations and data templates
 const chartConfigs = {
@@ -154,99 +110,143 @@ let currentDate = new Date();
 let activityDates = new Set();
 
 function renderCalendar() {
+  function pad(n) { return n < 10 ? '0' + n : n; }
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  
+
   // Update month header
-  document.getElementById('current-month').textContent = 
-    currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-  
+  const monthHeader = document.getElementById('current-month');
+  if (monthHeader) {
+    monthHeader.textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    monthHeader.style.display = '';
+  }
+  const prevBtn = document.getElementById('prev-month');
+  if (prevBtn) prevBtn.style.display = '';
+  const nextBtn = document.getElementById('next-month');
+  if (nextBtn) nextBtn.style.display = '';
+
   // Get first day of month
   const firstDay = new Date(year, month, 1);
   const startingDay = firstDay.getDay();
-  
+
   // Get last day of month
   const lastDay = new Date(year, month + 1, 0);
   const totalDays = lastDay.getDate();
-  
+
   // Get days from previous month
   const prevMonthLastDay = new Date(year, month, 0).getDate();
-  
+
   const calendarDays = document.getElementById('calendar-days');
   calendarDays.innerHTML = '';
-  
-  // Add days from previous month
-  for (let i = startingDay - 1; i >= 0; i--) {
-    const day = document.createElement('div');
-    day.className = 'calendar-day other-month';
-    day.textContent = prevMonthLastDay - i;
-    calendarDays.appendChild(day);
-  }
-  
-  // Add days of current month
-  const today = new Date();
-  for (let i = 1; i <= totalDays; i++) {
-    const day = document.createElement('div');
-    day.className = 'calendar-day';
-    day.textContent = i;
-    
-    // Check if today
-    if (i === today.getDate() && 
-        month === today.getMonth() && 
-        year === today.getFullYear()) {
-      day.classList.add('today');
+
+  // Create a grid for the month (6 rows, 7 columns)
+  let dayCount = 0;
+  for (let week = 0; week < 6; week++) {
+    const weekRow = document.createElement('div');
+    weekRow.style.display = 'flex';
+
+    for (let day = 0; day < 7; day++) {
+      const cell = document.createElement('div');
+      cell.className = 'calendar-day';
+      cell.style.flex = '1';
+      cell.style.textAlign = 'center';
+      cell.style.padding = '8px 0';
+
+      let dateNum, dateStr, isCurrentMonth = true;
+
+      if (week === 0 && day < startingDay) {
+        // 上月
+        dateNum = prevMonthLastDay - (startingDay - day - 1);
+        cell.classList.add('other-month');
+        isCurrentMonth = false;
+        let prevMonth = month === 0 ? 12 : month;
+        let prevYear = month === 0 ? year - 1 : year;
+        dateStr = `${prevYear}-${pad(prevMonth)}-${pad(dateNum)}`;
+      } else if (dayCount >= totalDays) {
+        // 下月
+        dateNum = dayCount - totalDays + 1;
+        cell.classList.add('other-month');
+        isCurrentMonth = false;
+        let nextMonth = month === 11 ? 1 : month + 2;
+        let nextYear = month === 11 ? year + 1 : year;
+        dateStr = `${nextYear}-${pad(nextMonth)}-${pad(dateNum)}`;
+        dayCount++;
+      } else {
+        // 本月
+        dateNum = dayCount + 1;
+        dateStr = `${year}-${pad(month + 1)}-${pad(dateNum)}`;
+        dayCount++;
+      }
+
+      cell.textContent = dateNum;
+
+      // 判断有无运动
+      const hasActivity = activityDates.has(dateStr);
+
+      // 高亮今天
+      const today = new Date();
+      const isToday =
+        isCurrentMonth &&
+        dateNum === today.getDate() &&
+        month === today.getMonth() &&
+        year === today.getFullYear();
+
+      if (hasActivity && isToday) {
+        // 今天且有运动
+        cell.style.background = '#6366f1';
+        cell.style.color = '#fff';
+        cell.style.fontWeight = 'bold';
+        cell.style.border = '2px solid #374151';
+        cell.style.borderRadius = '50%';
+      } else if (hasActivity) {
+        // 有运动
+        cell.style.background = '#6366f1';
+        cell.style.color = '#fff';
+        cell.style.fontWeight = 'bold';
+        cell.style.borderRadius = '50%';
+      } else if (isToday) {
+        // 仅今天
+        cell.style.border = '2px solid #6366f1';
+        cell.style.borderRadius = '50%';
+      }
+
+      // 灰色显示其他月
+      if (!isCurrentMonth) {
+        cell.style.opacity = '0.4';
+      }
+
+      weekRow.appendChild(cell);
     }
-    
-    // Check if has activity
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-    if (activityDates.has(dateStr)) {
-      day.classList.add('has-activity');
-    }
-    
-    calendarDays.appendChild(day);
-  }
-  
-  // Add days from next month
-  const remainingDays = 42 - (startingDay + totalDays); // 6 rows * 7 days
-  for (let i = 1; i <= remainingDays; i++) {
-    const day = document.createElement('div');
-    day.className = 'calendar-day other-month';
-    day.textContent = i;
-    calendarDays.appendChild(day);
+    calendarDays.appendChild(weekRow);
   }
 }
 
 // Prediction functionality
 function predictCalories(activities) {
-  if (activities.length < 2) return null;
-  
-  // Simple linear regression
-  const x = activities.map((_, i) => i);
-  const y = activities.map(a => a.calories);
-  
-  const n = x.length;
-  const sumX = x.reduce((a, b) => a + b, 0);
-  const sumY = y.reduce((a, b) => a + b, 0);
-  const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
-  const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
-  
-  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-  const intercept = (sumY - slope * sumX) / n;
-  
-  // Predict next 30 days
+  if (activities.length < 1) return null;
+
+  // 用最近7天的均值（或全部均值）
+  const recent = activities.slice(-7);
+  const avg = recent.reduce((sum, a) => sum + a.calories, 0) / recent.length;
+  const maxVal = avg * 1.08;
+
   const predictions = [];
   const lastDate = new Date(activities[activities.length - 1].date);
-  
+
   for (let i = 0; i < 30; i++) {
     const date = new Date(lastDate);
-    date.setDate(date.getDate() + i);
-    
+    date.setDate(lastDate.getDate() + i);
+
+    // 线性插值：从avg平滑递增到maxVal
+    const t = i / 29; // 0~1
+    const predicted = avg + (maxVal - avg) * t;
+
     predictions.push({
       date: date.toISOString().split('T')[0],
-      calories: slope * (activities.length + i) + intercept
+      calories: predicted
     });
   }
-  
+
   return predictions;
 }
 
@@ -270,198 +270,426 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize date range filter functionality
 function initializeDateFilter() {
-  const dateRange = document.getElementById('date-range');
-  const customDates = document.querySelector('.custom-dates');
-  
-  dateRange.addEventListener('change', function() {
-    customDates.style.display = this.value === 'custom' ? 'block' : 'none';
-    if (this.value !== 'custom') {
-      setDefaultDates(this.value);
+  const today = new Date();
+  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+  const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  const dateRangeSelect = document.getElementById('date-range');
+
+  // 默认选中"Last Month"
+  dateRangeSelect.value = 'month';
+  startDateInput.value = lastMonth.toISOString().split('T')[0];
+  endDateInput.value = today.toISOString().split('T')[0];
+
+  currentFilters.startDate = lastMonth.toISOString().split('T')[0];
+  currentFilters.endDate = today.toISOString().split('T')[0];
+
+  dateRangeSelect.addEventListener('change', function() {
+    if (this.value === 'week') {
+      const lastWeek = new Date(today);
+      lastWeek.setDate(today.getDate() - 7);
+      startDateInput.value = lastWeek.toISOString().split('T')[0];
+      endDateInput.value = today.toISOString().split('T')[0];
+    } else if (this.value === 'month') {
+      startDateInput.value = lastMonth.toISOString().split('T')[0];
+      endDateInput.value = today.toISOString().split('T')[0];
+    } else if (this.value === 'year') {
+      // 优化为去年1月1日到去年12月31日
+      const lastYearStart = new Date(today.getFullYear() - 1, 0, 1);
+      const lastYearEnd = new Date(today.getFullYear() - 1, 11, 31);
+      startDateInput.value = lastYearStart.toISOString().split('T')[0];
+      endDateInput.value = lastYearEnd.toISOString().split('T')[0];
+    } else if (this.value === 'custom') {
+      // 不自动修改，用户自选
     }
   });
-  
-  // Set default date range to last month
-  setDefaultDates('month');
-}
-
-// Set default date range based on selected period
-function setDefaultDates(range) {
-  const endDate = new Date();
-  let startDate = new Date();
-  
-  switch (range) {
-    case 'week':
-      startDate.setDate(endDate.getDate() - 7);
-      break;
-    case 'month':
-      startDate.setMonth(endDate.getMonth() - 1);
-      break;
-    case 'year':
-      startDate.setFullYear(endDate.getFullYear() - 1);
-      break;
-  }
-  
-  currentFilters.startDate = startDate.toISOString().split('T')[0];
-  currentFilters.endDate = endDate.toISOString().split('T')[0];
-  
-  if (document.getElementById('start-date')) {
-    document.getElementById('start-date').value = currentFilters.startDate;
-    document.getElementById('end-date').value = currentFilters.endDate;
-  }
 }
 
 // Initialize all charts with empty data
 function initializeCharts() {
   // Weekly activity duration chart
-  charts.weekly = new Chart(document.getElementById('weeklyChart'), {
-    type: 'bar',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Duration (minutes)',
-        data: [],
-        backgroundColor: 'rgba(102, 126, 234, 0.5)',
-        borderColor: 'rgba(102, 126, 234, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Duration (minutes)'
+  const weeklyCtx = document.getElementById('weeklyChart');
+  if (weeklyCtx) {
+    charts.weekly = new Chart(weeklyCtx, {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Duration (minutes)',
+          data: [],
+          backgroundColor: 'rgba(102, 126, 234, 0.5)',
+          borderColor: 'rgba(102, 126, 234, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Duration (minutes)'
+            }
           }
         }
       }
-    }
-  });
+    });
+  }
   
   // Distance progress chart
-  charts.progress = new Chart(document.getElementById('progressChart'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Distance (km)',
-        data: [],
-        borderColor: 'rgba(102, 126, 234, 1)',
-        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-        fill: true
-      }]
-    }
-  });
+  const progressCtx = document.getElementById('progressChart');
+  if (progressCtx) {
+    charts.progress = new Chart(progressCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Distance (km)',
+          data: [],
+          borderColor: 'rgba(102, 126, 234, 1)',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Distance (km)'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Activity distribution chart
+  const activitiesCtx = document.getElementById('activitiesChart');
+  if (activitiesCtx) {
+    charts.activities = new Chart(activitiesCtx, {
+      type: 'pie',
+      data: {
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: [
+            'rgba(102, 126, 234, 0.8)',
+            'rgba(159, 122, 234, 0.8)',
+            'rgba(236, 72, 153, 0.8)',
+            'rgba(226, 232, 240, 0.8)'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  // Calories trend chart
+  const caloriesCtx = document.getElementById('caloriesChart');
+  if (caloriesCtx) {
+    charts.calories = new Chart(caloriesCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Calories',
+          data: [],
+          borderColor: 'rgba(102, 126, 234, 1)',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Calories'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Prediction chart
+  const predictionCtx = document.getElementById('predictionChart');
+  if (predictionCtx) {
+    charts.prediction = new Chart(predictionCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Actual Calories',
+          data: [],
+          borderColor: 'rgba(102, 126, 234, 1)',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          fill: true
+        }, {
+          label: 'Predicted Calories',
+          data: [],
+          borderColor: 'rgba(236, 72, 153, 1)',
+          backgroundColor: 'rgba(236, 72, 153, 0.1)',
+          fill: true,
+          borderDash: [5, 5]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Calories'
+            }
+          }
+        }
+      }
+    });
+  }
 }
 
 // Update data based on current filters
 async function updateData() {
   try {
-    const response = await fetch('/analytics/api/activities', {
+    // Update filters
+    currentFilters.startDate = document.getElementById('startDate').value;
+    currentFilters.endDate = document.getElementById('endDate').value;
+    currentFilters.activityType = document.getElementById('activityType').value;
+
+    console.log('Sending request with filters:', currentFilters);
+
+    // Get data
+    const response = await fetch('/api/visualization/activities', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(currentFilters)
     });
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch data');
     }
-    
+
     const data = await response.json();
-    const activities = data.activities;
-    const stats = data.stats;
+    console.log('Received data:', data);
+    
+    // Validate data structure
+    if (!data.weekly_data || !data.progress_data || !data.activity_distribution || !data.calories_trend) {
+      console.error('Missing required data fields:', {
+        hasWeeklyData: !!data.weekly_data,
+        hasProgressData: !!data.progress_data,
+        hasActivityDistribution: !!data.activity_distribution,
+        hasCaloriesTrend: !!data.calories_trend
+      });
+      throw new Error('Invalid data structure received from server');
+    }
     
     // Update activity dates for calendar
-    activityDates = new Set(activities.map(a => a.date.split('T')[0]));
+    activityDates = new Set(data.activities.map(a => a.date.split('T')[0]));
     
     // Update calendar
     renderCalendar();
     
     // Update stats
-    updateStats(stats);
+    updateStats(data.stats);
     
     // Update charts
-    updateCharts(activities, stats);
+    updateCharts(data);
     
     // Update prediction
-    const predictions = predictCalories(activities);
+    const predictions = predictCalories(data.activities);
     if (predictions) {
-      updatePredictionChart(activities, predictions);
+      updatePredictionChart(data.activities, predictions);
     }
     
   } catch (error) {
+    console.error('Error updating data:', error);
     showError('Failed to update data: ' + error.message);
   }
 }
 
 // Update statistics display
 function updateStats(stats) {
-  document.getElementById('total-activities').textContent = stats.totalActivities;
-  document.getElementById('total-duration').textContent = stats.totalDuration;
-  document.getElementById('total-distance').textContent = stats.totalDistance;
-  document.getElementById('total-calories').textContent = stats.totalCalories;
+  console.log('Updating stats with:', stats);
+  
+  const totalDuration = document.getElementById('total-duration');
+  const totalDistance = document.getElementById('total-distance');
+  const totalCalories = document.getElementById('total-calories');
+  const avgDuration = document.getElementById('avg-duration');
+  const avgDistance = document.getElementById('avg-distance');
+  const avgCalories = document.getElementById('avg-calories');
+  const activityCount = document.getElementById('activity-count');
+
+  if (totalDuration) totalDuration.textContent = Math.round(stats.total_duration);
+  if (totalDistance) totalDistance.textContent = stats.total_distance.toFixed(1);
+  if (totalCalories) totalCalories.textContent = Math.round(stats.total_calories);
+  if (avgDuration) avgDuration.textContent = Math.round(stats.avg_duration);
+  if (avgDistance) avgDistance.textContent = stats.avg_distance.toFixed(1);
+  if (avgCalories) avgCalories.textContent = Math.round(stats.avg_calories);
+  if (activityCount) activityCount.textContent = stats.count || 0;
 }
 
 // Update all charts with new data
-function updateCharts(activities, stats) {
+function updateCharts(data) {
+  console.log('Updating charts with data:', data);
+  
+  // Helper function to destroy chart if it exists
+  function destroyChart(chart) {
+    if (chart && typeof chart.destroy === 'function') {
+      chart.destroy();
+    }
+  }
+  
   // Update weekly activity chart
-  const weeklyData = processActivityData(activities);
-  charts.weekly.data.labels = weeklyData.labels;
-  charts.weekly.data.datasets[0].data = weeklyData.data;
-  charts.weekly.update();
+  if (charts.weekly) {
+    console.log('Updating weekly chart with:', data.weekly_data);
+    destroyChart(charts.weekly);
+    const weeklyCtx = document.getElementById('weeklyChart');
+    if (weeklyCtx) {
+      charts.weekly = new Chart(weeklyCtx, {
+        type: 'bar',
+        data: {
+          labels: data.weekly_data.labels,
+          datasets: [{
+            label: 'Duration (minutes)',
+            data: data.weekly_data.duration,
+            backgroundColor: 'rgba(102, 126, 234, 0.5)',
+            borderColor: 'rgba(102, 126, 234, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Duration (minutes)'
+              }
+            }
+          }
+        }
+      });
+    }
+  }
   
   // Update progress chart
-  const progressData = processProgressData(activities);
-  charts.progress.data.labels = progressData.labels;
-  charts.progress.data.datasets[0].data = progressData.data;
-  charts.progress.update();
-}
-
-// Process activity data for visualization
-function processActivityData(activities) {
-  const weeklyData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    data: [0, 0, 0, 0, 0, 0, 0]
-  };
-  
-  activities.forEach(activity => {
-    const date = new Date(activity.date);
-    const dayOfWeek = date.getDay();
-    weeklyData.data[dayOfWeek] += activity.duration;
-  });
-  
-  return weeklyData;
-}
-
-// Process progress data for visualization
-function processProgressData(activities) {
-  const progressData = {
-    labels: [],
-    data: []
-  };
-  
-  // Group activities by week
-  const weeklyGroups = {};
-  activities.forEach(activity => {
-    const date = new Date(activity.date);
-    const weekNumber = Math.floor(date.getDate() / 7);
-    if (!weeklyGroups[weekNumber]) {
-      weeklyGroups[weekNumber] = 0;
+  if (charts.progress) {
+    console.log('Updating progress chart with:', data.progress_data);
+    destroyChart(charts.progress);
+    const progressCtx = document.getElementById('progressChart');
+    if (progressCtx) {
+      charts.progress = new Chart(progressCtx, {
+        type: 'line',
+        data: {
+          labels: data.progress_data.labels,
+          datasets: [{
+            label: 'Distance (km)',
+            data: data.progress_data.distance,
+            borderColor: 'rgba(102, 126, 234, 1)',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Distance (km)'
+              }
+            }
+          }
+        }
+      });
     }
-    weeklyGroups[weekNumber] += activity.distance || 0;
-  });
-  
-  // Convert to arrays for chart
-  Object.keys(weeklyGroups).forEach(week => {
-    progressData.labels.push(`Week ${parseInt(week) + 1}`);
-    progressData.data.push(weeklyGroups[week]);
-  });
-  
-  return progressData;
+  }
+
+  // Update activity distribution chart
+  if (charts.activities) {
+    console.log('Updating activities chart with:', data.activity_distribution);
+    destroyChart(charts.activities);
+    const activitiesCtx = document.getElementById('activitiesChart');
+    if (activitiesCtx) {
+      charts.activities = new Chart(activitiesCtx, {
+        type: 'pie',
+        data: {
+          labels: data.activity_distribution.labels,
+          datasets: [{
+            data: data.activity_distribution.data,
+            backgroundColor: [
+              'rgba(102, 126, 234, 0.8)',
+              'rgba(159, 122, 234, 0.8)',
+              'rgba(236, 72, 153, 0.8)',
+              'rgba(226, 232, 240, 0.8)'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+  }
+
+  // Update calories trend chart
+  if (charts.calories) {
+    console.log('Updating calories chart with:', data.calories_trend);
+    destroyChart(charts.calories);
+    const caloriesCtx = document.getElementById('caloriesChart');
+    if (caloriesCtx) {
+      charts.calories = new Chart(caloriesCtx, {
+        type: 'line',
+        data: {
+          labels: data.calories_trend.labels,
+          datasets: [{
+            label: 'Calories',
+            data: data.calories_trend.data,
+            borderColor: 'rgba(102, 126, 234, 1)',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Calories'
+              }
+            }
+          }
+        }
+      });
+    }
+  }
 }
 
 // Process calories data for visualization
@@ -481,15 +709,14 @@ function processCaloriesData(activities) {
 // Export data in specified format
 async function exportData(format) {
   try {
-    const response = await fetch('/analytics/api/activities/export', {
+    const response = await fetch('/api/visualization/export', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         format: format,
-        startDate: currentFilters.startDate,
-        endDate: currentFilters.endDate
+        ...currentFilters
       })
     });
     
@@ -497,45 +724,23 @@ async function exportData(format) {
       throw new Error('Failed to export data');
     }
     
-    const data = await response.json();
-    if (format === 'json') {
-      downloadJSON(data, 'activities.json');
-    } else {
-      // Handle other formats here
-    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `activities.${format}`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
   } catch (error) {
-    showError(error.message);
+    showError('Failed to export data: ' + error.message);
   }
-}
-
-// Download JSON data as file
-function downloadJSON(data, filename) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// Display error message
-function showError(message) {
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'error-message';
-  errorDiv.innerHTML = `
-    <i class="bi bi-exclamation-circle"></i>
-    <span>${message}</span>
-  `;
-  document.body.appendChild(errorDiv);
-  setTimeout(() => errorDiv.remove(), 3000);
 }
 
 function updatePredictionChart(activities, predictions) {
   const ctx = document.getElementById('predictionChart').getContext('2d');
-  
+
   // Calculate current month calories
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -545,20 +750,22 @@ function updatePredictionChart(activities, predictions) {
       return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     })
     .reduce((sum, a) => sum + a.calories, 0);
-  
+
   // Update current month calories display
-  document.getElementById('current-month-calories').textContent = currentMonthCalories.toFixed(0);
-  
+  const currentMonthCaloriesElem = document.getElementById('current-month-calories');
+  if (currentMonthCaloriesElem) currentMonthCaloriesElem.textContent = currentMonthCalories.toFixed(0);
+
   // Calculate predicted total
   const predictedTotal = predictions.reduce((sum, p) => sum + p.calories, 0);
-  document.getElementById('predicted-calories').textContent = predictedTotal.toFixed(0);
-  
-  // Create or update chart
-  if (window.predictionChart) {
-    window.predictionChart.destroy();
+  const predictedCaloriesElem = document.getElementById('predicted-calories');
+  if (predictedCaloriesElem) predictedCaloriesElem.textContent = predictedTotal.toFixed(0);
+
+  // Destroy old prediction chart if exists
+  if (charts.prediction && typeof charts.prediction.destroy === 'function') {
+    charts.prediction.destroy();
   }
-  
-  window.predictionChart = new Chart(ctx, {
+
+  charts.prediction = new Chart(ctx, {
     type: 'line',
     data: {
       labels: [...activities.map(a => a.date.split('T')[0]), ...predictions.map(p => p.date)],
@@ -619,3 +826,12 @@ document.getElementById('next-month').addEventListener('click', () => {
   currentDate.setMonth(currentDate.getMonth() + 1);
   renderCalendar();
 });
+
+// Show error message
+function showError(message) {
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'error-message';
+  errorDiv.textContent = message;
+  document.body.appendChild(errorDiv);
+  setTimeout(() => errorDiv.remove(), 3000);
+}

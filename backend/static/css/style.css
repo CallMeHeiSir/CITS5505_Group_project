@@ -87,8 +87,9 @@ html, body {
 /* ============== Main Content Area ============== */
 .main-content {
   flex: 1;
-  height: 100%;
-  padding: 30px;
+  height: auto;           /* 让高度自适应内容 */
+  min-height: unset;      /* 移除最小高度限制 */
+  padding: 20px 20px 16px 20px;  /* 只在底部留16px */
   overflow-y: auto;
   background: #f0f2f5;
 }
@@ -105,7 +106,7 @@ html, body {
 .card {
   background: #fff;
   border-radius: 12px;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
@@ -156,13 +157,15 @@ html, body {
 }
 
 /* ============== Special: First Row Charts 16:9 Aspect Ratio ============== */
-.cards-row:first-of-type .card {
-  aspect-ratio: 16 / 9;
+.cards-row:first-of-type > .card {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
   padding: 16px;
   overflow: hidden;
 }
 /* Make canvas scale with width, height auto */
-.cards-row:first-of-type .card canvas {
+.cards-row:first-of-type > .card canvas {
   width: 100% !important;
   height: auto !important;
 }
@@ -362,10 +365,41 @@ html, body {
 }
 
 /* ============== Stats Grid ============== */
-.stats-grid {
+.cards-row.stats-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.stat-card-double {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  width: 100%;
+  max-width: 515px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.stat-double {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.stat-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.stat-divider {
+  width: 2px;
+  background: #eee;
+  margin: 0 16px;
 }
 
 .stat-item {
@@ -420,6 +454,18 @@ html, body {
   position: relative;
   width: 100%;
   height: 100%;
+  max-width: 400px;
+  max-height: 300px;
+  margin: 0 auto;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 400px;
+  max-height: 300px;
+  display: block;
+  margin: 0 auto;
 }
 
 /* ============== Upload Form ============== */
@@ -1022,13 +1068,35 @@ html, body {
 }
 
 .form-group input[type="number"] {
+  /* 移除所有浏览器的上下箭头 */
+  appearance: textfield;
+  -webkit-appearance: textfield;
   -moz-appearance: textfield;
 }
 
-.form-group input[type="number"]::-webkit-outer-spin-button,
-.form-group input[type="number"]::-webkit-inner-spin-button {
+/* 移除 WebKit 浏览器的上下箭头 */
+.form-group input[type="number"]::-webkit-inner-spin-button,
+.form-group input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
+}
+
+/* 确保输入框样式一致 */
+.form-group input[type="number"] {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input[type="number"]:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
 }
 
 /* ============== Form Layout ============== */
@@ -1186,6 +1254,33 @@ html, body {
     border-left: none;
     border-top: 1px solid #eee;
     padding-top: 20px;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  /* Ensure Recent Activities is visible on mobile */
+  #recent-activities {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 5px;
+  }
+
+  .activity-card {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .activity-card > div:first-child {
+    width: 100%;
+  }
+
+  .activity-card > div:last-child {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   /* Adjust tabs */
@@ -1385,4 +1480,16 @@ a.btn-gradient:hover {
 .calendar-header button:hover {
   background: #f0f4ff;
   color: #667eea;
+}
+
+@media (max-width: 900px) {
+  .cards-row.stats-row {
+    grid-template-columns: 1fr;
+  }
+  .stat-card-double {
+    /* max-width: 100%;  不再需要 */
+  }
+  .stat-divider {
+    display: none;
+  }
 }

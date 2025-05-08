@@ -38,67 +38,61 @@
       <!-- Main Content -->
       <main class="main-content">
         <div class="cards-row">
-          <div class="card" style="grid-column:1/-1;">
-            <div class="header-content">
-              <div class="header-left">
-                <h2>Upload</h2>
-                <p>Upload your fitness data files or manually add activities</p>
-                <!-- Upload Process Flow Diagram -->
-                <div class="upload-flow">
-                  <div class="flow-step">
-                    <div class="flow-icon">
-                      <i class="bi bi-file-earmark-text"></i>
-                    </div>
-                    <div class="flow-text">
-                      <p>1. Prepare Data</p>
-                      <small>Only CSV file</small>
-                    </div>
-                  </div>
-                  <div class="flow-arrow">
-                    <i class="bi bi-arrow-right"></i>
-                  </div>
-                  <div class="flow-step">
-                    <div class="flow-icon">
-                      <i class="bi bi-cloud-arrow-up"></i>
-                    </div>
-                    <div class="flow-text">
-                      <p>2. Upload</p>
-                      <small>Drag & drop or browse</small>
-                    </div>
-                  </div>
-                  <div class="flow-arrow">
-                    <i class="bi bi-arrow-right"></i>
-                  </div>
-                  <div class="flow-step">
-                    <div class="flow-icon">
-                      <i class="bi bi-check-circle"></i>
-                    </div>
-                    <div class="flow-text">
-                      <p>3. Confirm</p>
-                      <small>Review and submit</small>
-                    </div>
-                  </div>
-                  <div class="flow-arrow">
-                    <i class="bi bi-arrow-right"></i>
-                  </div>
-                  <div class="flow-step">
-                    <div class="flow-icon">
-                      <i class="bi bi-bar-chart"></i>
-                    </div>
-                    <div class="flow-text">
-                      <p>4. Visualize</p>
-                      <small>View your data</small>
-                    </div>
-                  </div>
+          <div class="card">
+            <h2>Upload</h2>
+            <p>Upload your fitness data files or manually add activities</p>
+            <!-- Upload Process Flow Diagram -->
+            <div class="upload-flow">
+              <div class="flow-step">
+                <div class="flow-icon">
+                  <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <div class="flow-text">
+                  <p>1. Prepare Data</p>
+                  <small>Only CSV file</small>
                 </div>
               </div>
-              <div class="header-right">
-                <h5>Recent Activities</h5>
-                <ul class="recent-activities-list">
-                  <!-- Recent activities will be dynamically loaded here -->
-                </ul>
+              <div class="flow-arrow">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+              <div class="flow-step">
+                <div class="flow-icon">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                </div>
+                <div class="flow-text">
+                  <p>2. Upload</p>
+                  <small>Drag & drop or browse</small>
+                </div>
+              </div>
+              <div class="flow-arrow">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+              <div class="flow-step">
+                <div class="flow-icon">
+                  <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="flow-text">
+                  <p>3. Confirm</p>
+                  <small>Review and submit</small>
+                </div>
+              </div>
+              <div class="flow-arrow">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+              <div class="flow-step">
+                <div class="flow-icon">
+                  <i class="bi bi-bar-chart"></i>
+                </div>
+                <div class="flow-text">
+                  <p>4. Visualize</p>
+                  <small>View your data</small>
+                </div>
               </div>
             </div>
+          </div>
+          <div class="card">
+            <h5>Recent Activities</h5>
+            <div id="recent-activities" style="max-height: 420px; overflow-y: auto;"></div>
           </div>
         </div>
 

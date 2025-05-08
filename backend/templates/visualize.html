@@ -53,14 +53,14 @@
             <div class="filter-group custom-dates" style="display: none;">
               <label>Custom Range</label>
               <div class="date-inputs">
-                <input type="date" id="start-date" class="form-input"/>
+                <input type="date" id="startDate" class="form-input"/>
                 <span>to</span>
-                <input type="date" id="end-date" class="form-input"/>
+                <input type="date" id="endDate" class="form-input"/>
               </div>
             </div>
             <div class="filter-group">
-              <label for="activity-type">Activity Type</label>
-              <select id="activity-type" class="form-input">
+              <label for="activityType">Activity Type</label>
+              <select id="activityType" class="form-input">
                 <option value="">All Activities</option>
                 <option value="running">Running</option>
                 <option value="cycling">Cycling</option>
@@ -73,42 +73,61 @@
             <button id="apply-filters" class="btn-gradient">Apply Filters</button>
           </div>
         </div>
+        <!-- Dashboard Share Button -->
+        <div style="display: flex; justify-content: flex-end; margin: 16px 0;">
+          <button class="btn-gradient" id="share-dashboard-btn" style="display: flex; align-items: center; gap: 8px;">
+            <i class="bi bi-share"></i> Share My Dashboard
+          </button>
+        </div>
 
         <!-- Summary Stats -->
-        <div class="cards-row">
-          <div class="card stat-card">
-            <div class="stat-icon"><i class="bi bi-lightning-charge"></i></div>
-            <div class="stat-content">
-              <h3 id="total-calories">0</h3>
-              <p>Total Calories</p>
+        <div class="cards-row stats-row">
+          <div class="card stat-card stat-card-double" style="position: relative;">
+            <button class="share-btn" title="Share this card" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;z-index:2;"><i class="bi bi-share"></i></button>
+            <div class="stat-double">
+              <div class="stat-block">
+                <div class="stat-icon"><i class="bi bi-lightning-charge"></i></div>
+                <div class="stat-content">
+                  <h3 id="total-calories">0</h3>
+                  <p>Total Calories</p>
+                </div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-block">
+                <div class="stat-icon"><i class="bi bi-geo"></i></div>
+                <div class="stat-content">
+                  <h3 id="total-distance">0</h3>
+                  <p>Total Distance (km)</p>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="card stat-card">
-            <div class="stat-icon"><i class="bi bi-geo"></i></div>
-            <div class="stat-content">
-              <h3 id="total-distance">0</h3>
-              <p>Total Distance (km)</p>
-            </div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-icon"><i class="bi bi-clock"></i></div>
-            <div class="stat-content">
-              <h3 id="total-duration">0</h3>
-              <p>Total Duration (mins)</p>
-            </div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
-            <div class="stat-content">
-              <h3 id="activity-count">0</h3>
-              <p>Activities</p>
+          <div class="card stat-card stat-card-double" style="position: relative;">
+            <button class="share-btn" title="Share this card" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;z-index:2;"><i class="bi bi-share"></i></button>
+            <div class="stat-double">
+              <div class="stat-block">
+                <div class="stat-icon"><i class="bi bi-clock"></i></div>
+                <div class="stat-content">
+                  <h3 id="total-duration">0</h3>
+                  <p>Total Duration (mins)</p>
+                </div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-block">
+                <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
+                <div class="stat-content">
+                  <h3 id="activity-count">0</h3>
+                  <p>Activities</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- New Calendar and Prediction Cards -->
         <div class="cards-row">
-          <div class="card">
+          <div class="card" style="position: relative;">
+            <button class="share-btn" title="Share this card" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;z-index:2;"><i class="bi bi-share"></i></button>
             <h5>Activity Calendar</h5>
             <div class="calendar-container">
               <div class="calendar-header">
@@ -129,8 +148,19 @@
                 <div id="calendar-days" class="calendar-days"></div>
               </div>
             </div>
+            <div class="calendar-legend" style="margin-top: 12px; display: flex; align-items: center; gap: 16px;">
+              <span style="display: flex; align-items: center;">
+                <span style="display: inline-block; width: 20px; height: 20px; background: #6366f1; border-radius: 50%; margin-right: 6px;"></span>
+                Active Day
+              </span>
+              <span style="display: flex; align-items: center;">
+                <span style="display: inline-block; width: 20px; height: 20px; border: 2px solid #6366f1; border-radius: 50%; margin-right: 6px;"></span>
+                Today
+              </span>
+            </div>
           </div>
-          <div class="card">
+          <div class="card" style="position: relative;">
+            <button class="share-btn" title="Share this card" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;z-index:2;"><i class="bi bi-share"></i></button>
             <h5>Calories Prediction</h5>
             <div class="chart-container">
               <canvas id="predictionChart"></canvas>
@@ -150,13 +180,15 @@
 
         <!-- Charts -->
         <div class="cards-row">
-          <div class="card">
+          <div class="card" style="position: relative;">
+            <button class="share-btn" title="Share this card" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;z-index:2;"><i class="bi bi-share"></i></button>
             <h5>Activity Duration by Day</h5>
             <div class="chart-container">
               <canvas id="weeklyChart"></canvas>
             </div>
           </div>
-          <div class="card">
+          <div class="card" style="position: relative;">
+            <button class="share-btn" title="Share this card" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;z-index:2;"><i class="bi bi-share"></i></button>
             <h5>Distance Progress</h5>
             <div class="chart-container">
               <canvas id="progressChart"></canvas>
@@ -165,30 +197,19 @@
         </div>
 
         <div class="cards-row">
-          <div class="card">
+          <div class="card" style="position: relative;">
+            <button class="share-btn" title="Share this card" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;z-index:2;"><i class="bi bi-share"></i></button>
             <h5>Activity Distribution</h5>
             <div class="chart-container">
               <canvas id="activitiesChart"></canvas>
             </div>
           </div>
-          <div class="card">
+          <div class="card" style="position: relative;">
+            <button class="share-btn" title="Share this card" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:1.2em;color:#6366f1;z-index:2;"><i class="bi bi-share"></i></button>
             <h5>Calories Trend</h5>
             <div class="chart-container">
               <canvas id="caloriesChart"></canvas>
             </div>
-          </div>
-        </div>
-
-        <!-- Export Options -->
-        <div class="card">
-          <h5>Export Data</h5>
-          <div class="export-options">
-            <button onclick="exportData('csv')" class="btn-text">
-              <i class="bi bi-file-earmark-text"></i> Export as CSV
-            </button>
-            <button onclick="exportData('json')" class="btn-text">
-              <i class="bi bi-file-earmark-code"></i> Export as JSON
-            </button>
           </div>
         </div>
       </main>
