@@ -122,7 +122,7 @@ def change_personal_information():
 
         db.session.commit()
         flash('Information updated successfully!', 'success')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.change_personal_information'))
 
     return render_template('change_personal_information.html', user=current_user)
 
@@ -132,6 +132,10 @@ def change_password():
         current_password = request.form.get('current_password')
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
+        
+        if not all([current_password, new_password, confirm_password]):
+            flash('All fields are required', 'danger')
+            return redirect(url_for('auth.change_password'))
 
         if not current_user.check_password(current_password):
             flash('Current password is incorrect', 'danger')
@@ -144,6 +148,6 @@ def change_password():
         current_user.set_password(new_password)
         db.session.commit()
         flash('Password changed successfully!', 'success')
-        return redirect(url_for('settings'))
+        return redirect(url_for('login'))
 
     return render_template('change_password.html')

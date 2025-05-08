@@ -12,11 +12,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 </head>
 <body>
-  <!-- 左上角的 Logout 链接 -->
-  <div class="top-logout">
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
-  </div>
-
   <div class="app-container">
     <div class="content">
       <!-- Sidebar -->
@@ -39,14 +34,52 @@
 
       <!-- Main Content -->
       <main class="main-content">
-        <div class="cards-row">
-          <div class="card" style="grid-column:1/-1;">
-            <h2>Settings</h2>
-            <div>
-              <a href="{{ url_for('auth.change_personal_information') }}" class="btn-gradient" style="margin-right: 10px;">Edit Personal Information</a>
-              <a href="{{ url_for('auth.change_password') }}" class="btn-gradient">Change Password</a>
-            </div>
+        <div class="card" style="padding: 24px;">
+          <div>
+            <a href="{{ url_for('auth.change_personal_information') }}" class="btn-gradient" style="margin-right: 10px;">Edit Personal Information</a>
+            <a href="{{ url_for('auth.change_password') }}" class="btn-gradient">Change Password</a>
           </div>
+          <div class="top-logout">
+            <a href="{{ url_for('auth.logout') }}" class="btn-gradient">Logout</a>
+          </div>
+          <!-- 个人信息 -->
+          <section style="text-align: center; margin-bottom: 24px;">
+              <img src="https://via.placeholder.com/120" alt="Profile Picture" class="profile-img" style="margin-bottom: 12px;">
+              <h2>John Doe</h2>
+              <p class="text-muted">john@example.com</p>
+              <p id="bioText" style="margin-top: 10px;">"No pain, no gain!"</p>
+              <button class="btn-gradient" id="editBioBtn" style="margin-top: 8px; font-size: 0.8rem;">✏️ Edit Bio</button>
+          </section>
+
+          <!-- 积分和等级 -->
+          <section style="margin-bottom: 24px;">
+              <h3>My Points & Level</h3>
+              <div class="stat-item" style="margin-top: 12px;">
+                  <span class="stat-value" id="pointsValue">1280</span>
+                  <span class="stat-label">Points</span>
+              </div>
+              <div style="margin-top: 8px; font-weight: bold;" id="levelText">🏆 Level 3 - Master</div>
+          </section>
+
+          <!-- 我的勋章 -->
+          <section style="margin-bottom: 24px;">
+              <h3>My Badges</h3>
+              <div class="stats-grid" style="margin-top: 12px;">
+                  <div class="card badge-card" data-message="Completed 10 challenges!">
+                      🥇
+                      <h5>Challenge Master</h5>
+                  </div>
+                  <div class="card badge-card" data-message="Top contributor in the forum!">
+                      📝
+                      <h5>Top Contributor</h5>
+                  </div>
+              </div>
+          </section>
+
+          <!-- 邀请好友 -->
+          <section style="text-align: center; margin-top: 32px;">
+              <a href="{{ url_for('friends') }}" class="btn-gradient" style="padding: 12px 24px;">👥 Invite Friends to Join Challenges</a>
+          </section>
         </div>
       </main>
     </div>
