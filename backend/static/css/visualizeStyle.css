@@ -92,6 +92,7 @@ html, body {
   font-weight: 500;
 }
 
+/* 添加到 visualizeStyle.css */
 .top-logout {
   margin-top: auto;
   padding: 12px 20px;
@@ -100,15 +101,36 @@ html, body {
 }
 
 .top-logout a {
-  color: #667eea;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .top-logout a:hover {
-  text-decoration: underline;
-  color: #764ba2;
+  text-decoration: none;
+}
+
+.tab-btn {
+  padding: 10px 24px;
+  font-size: 1rem;
+  border: none;
+  background: none;
+  color: #666;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: #667eea;
+  background: #f0f4ff;
+}
+
+.tab-btn.active {
+  color: #fff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 /* ============== Main Content Area ============== */
