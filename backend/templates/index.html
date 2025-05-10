@@ -9,13 +9,9 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/indexStyle.css') }}"/>
 </head>
 <body>
-  <!-- 左上角的 Logout 链接 -->
-  <div class="top-logout">
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
-  </div>
   <div class="app-container">
     <div class="content">
       <!-- Sidebar -->
@@ -26,13 +22,18 @@
         <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
         <a href="{{ url_for('forum') }}" class="side-item {% if request.endpoint == 'forum' %}active{% endif %}"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
         <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+        <!-- 用户头像和用户名 -->
         <div class="user-profile">
-          <!-- 显示用户头像 -->
           {% if current_user.avatar %}
             <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
           {% else %}
             <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
           {% endif %}
+          <span class="username">{{ current_user.username }}</span>
+        </div>
+        <!-- 单独的 logout 链接 -->
+        <div class="top-logout">
+          <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
       </nav>
 
