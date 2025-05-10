@@ -22,8 +22,8 @@
         <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
         <a href="{{ url_for('forum') }}" class="side-item {% if request.endpoint == 'forum' %}active{% endif %}"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
         <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
-        <!-- 用户头像和用户名 -->
         <div class="user-profile">
+          <!-- 显示用户头像 -->
           {% if current_user.avatar %}
             <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
           {% else %}
@@ -31,9 +31,8 @@
           {% endif %}
           <span class="username">{{ current_user.username }}</span>
         </div>
-        <!-- 单独的 logout 链接 -->
         <div class="top-logout">
-          <a href="{{ url_for('auth.logout') }}">Logout</a>
+          <a href="{{ url_for('auth.logout') }}" class="tab-btn active">Logout</a>
         </div>
       </nav>
 
@@ -42,66 +41,68 @@
         <div class="cards-row">
           <div class="card" style="grid-column:1/-1;">
             <h2>Welcome to Fitness Dashboard</h2>
-            <!-- 插入 Daily Check-In -->
-            <div class="cards-row">
-              <div class="card" style="grid-column: 1/-1;">
-                <section style="margin-bottom: 24px;">
-                  <h3>Daily Check-In</h3>
-                  <div class="progress-bar" style="margin-top: 8px;">
-                    <div class="progress-fill" id="checkInProgress" style="width: 50%;"></div>
+            <!-- Daily Check-In -->
+            <section class="daily-check-in">
+              <h3>Daily Check-In</h3>
+              <div class="check-in-days">
+                Consecutive Days: <strong id="streakDays">5</strong> 🔥
+              </div>
+              <button class="btn-gradient" id="checkInBtn">✅ Check In</button>
+            </section>
+            <!-- 新布局：左右两列 -->
+            <div class="cards-row cards-row-columns">
+              <!-- 左侧列：Health Tips 和 Recent activities -->
+              <div class="column-left">
+                <!-- Health Tips -->
+                <div class="card card-health-tips">
+                  <h5>Health Tips</h5>
+                  <ul class="tips-list">
+                    <li><a href="https://www.healthline.com/nutrition/27-health-and-nutrition-tips" target="_blank">27 Health and Nutrition Tips</a></li>
+                    <li><a href="https://www.who.int/news-room/fact-sheets/detail/healthy-diet" target="_blank">WHO: Healthy Diet</a></li>
+                    <li><a href="https://www.cdc.gov/physicalactivity/basics/index.htm" target="_blank">CDC: Physical Activity Basics</a></li>
+                  </ul>
+                </div>
+                <!-- Recent activities -->
+                <div class="card card-recent-activities">
+                  <h5>Recent activities</h5>
+                  <div class="stats-grid">
+                    <div class="stat-item">
+                      <span class="stat-value">2.5 km</span>
+                      <span class="stat-label">Distance</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-value">30:00</span>
+                      <span class="stat-label">Duration</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-value">250</span>
+                      <span class="stat-label">Calories</span>
+                    </div>
                   </div>
-                  <div style="margin-top: 8px;">
-                    Consecutive Days: <strong id="streakDays">5</strong> 🔥
-                  </div>
-                  <button class="btn-gradient" id="checkInBtn" style="margin-top: 12px;">✅ Check In</button>
-                </section>
+                </div>
               </div>
-            </div>
-            <div class="cards-row">
-              <!-- Health Tips -->
-              <div class="card">
-                <h5>Health Tips</h5>
-                <ul class="tips-list">
-                  <li><a href="https://www.healthline.com/nutrition/27-health-and-nutrition-tips" target="_blank">27 Health and Nutrition Tips</a></li>
-                  <li><a href="https://www.who.int/news-room/fact-sheets/detail/healthy-diet" target="_blank">WHO: Healthy Diet</a></li>
-                  <li><a href="https://www.cdc.gov/physicalactivity/basics/index.htm" target="_blank">CDC: Physical Activity Basics</a></li>
-                </ul>
+              <!-- 右侧列：My Friends -->
+              <div class="column-right">
+                <div class="card card-my-friends">
+                  <h5>My Friends</h5>
+                  <select class="friends-dropdown">
+                    <option value="friend1">John Doe</option>
+                    <option value="friend2">Jane Smith</option>
+                    <option value="friend3">Alice Johnson</option>
+                    <option value="friend4">Bob Brown</option>
+                    <option value="friend5">Charlie Brown</option>
+                    <option value="friend6">David Wilson</option>
+                    <option value="friend7">Eve Davis</option>
+                    <option value="friend8">Frank Miller</option>
+                    <option value="friend9">Grace Lee</option>
+                  </select>
+                </div>
               </div>
-              <!-- My Friends -->
-              <div class="card">
-                <h5>My Friends</h5>
-                <select class="friends-dropdown">
-                  <option value="friend1">John Doe</option>
-                  <option value="friend2">Jane Smith</option>
-                  <option value="friend3">Alice Johnson</option>
-                  <option value="friend4">Bob Brown</option>
-                  <option value="friend5">Charlie Brown</option>
-                  <option value="friend6">David Wilson</option>
-                  <option value="friend7">Eve Davis</option>
-                  <option value="friend8">Frank Miller</option>
-                  <option value="friend9">Grace Lee</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 第二个 cards-row -->
-        <div class="cards-row">
-          <!-- Recent activities -->
-          <div class="card">
-            <h5>Recent activities</h5>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <span class="stat-value">2.5 km</span>
-                <span class="stat-label">Distance</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">30:00</span>
-                <span class="stat-label">Duration</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">250</span>
-                <span class="stat-label">Calories</span>
+              <!-- Progress Bar 覆盖 Health Tips 和 My Friends -->
+              <div class="progress-bar-container">
+                <div class="progress-bar">
+                  <div class="progress-fill" id="checkInProgress" style="width: 50%;"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -111,5 +112,6 @@
   </div>
 
   <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93d6b1c398cb180f',t:'MTc0Njg1MTM1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
