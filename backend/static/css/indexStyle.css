@@ -171,9 +171,35 @@ html, body {
     color: #666;
     font-size: 0.9rem;
   }
-  
-  .text-muted {
-    color: #888;
-    font-size: 0.85rem;
+
+  /* ============== Gradient Button ============== */
+  .btn-gradient {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.1), -4px -4px 8px rgba(255,255,255,0.7);
+    transition: opacity .2s;
+  }
+
+  .btn-gradient:hover {
+    opacity: 0.9;
+  }
+
+  /* ============== Progress Bar ============== */
+  .progress-bar {
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    transition: width .3s ease;
   }
   

@@ -42,6 +42,21 @@
         <div class="cards-row">
           <div class="card" style="grid-column:1/-1;">
             <h2>Welcome to Fitness Dashboard</h2>
+            <!-- 插入 Daily Check-In -->
+            <div class="cards-row">
+              <div class="card" style="grid-column: 1/-1;">
+                <section style="margin-bottom: 24px;">
+                  <h3>Daily Check-In</h3>
+                  <div class="progress-bar" style="margin-top: 8px;">
+                    <div class="progress-fill" id="checkInProgress" style="width: 50%;"></div>
+                  </div>
+                  <div style="margin-top: 8px;">
+                    Consecutive Days: <strong id="streakDays">5</strong> 🔥
+                  </div>
+                  <button class="btn-gradient" id="checkInBtn" style="margin-top: 12px;">✅ Check In</button>
+                </section>
+              </div>
+            </div>
             <div class="cards-row">
               <!-- Health Tips -->
               <div class="card">
@@ -52,7 +67,6 @@
                   <li><a href="https://www.cdc.gov/physicalactivity/basics/index.htm" target="_blank">CDC: Physical Activity Basics</a></li>
                 </ul>
               </div>
-    
               <!-- My Friends -->
               <div class="card">
                 <h5>My Friends</h5>
@@ -68,11 +82,14 @@
                   <option value="friend9">Grace Lee</option>
                 </select>
               </div>
-        
+            </div>
+          </div>
+        </div>
+        <!-- 第二个 cards-row -->
         <div class="cards-row">
-          <!-- Quick Stats -->
+          <!-- Recent activities -->
           <div class="card">
-            <h5>Today's Activity</h5>
+            <h5>Recent activities</h5>
             <div class="stats-grid">
               <div class="stat-item">
                 <span class="stat-value">2.5 km</span>
@@ -87,21 +104,6 @@
                 <span class="stat-label">Calories</span>
               </div>
             </div>
-          </div>
-          
-          <!-- Recent Activities -->
-          <div class="card">
-            <h5>Recent Activities</h5>
-            <ul class="activity-list">
-              <li>
-                <span class="activity-info">Morning Run</span>
-                <small class="text-muted">2 hours ago</small>
-              </li>
-              <li>
-                <span class="activity-info">Yoga Session</span>
-                <small class="text-muted">Yesterday</small>
-              </li>
-            </ul>
           </div>
         </div>
       </main>
