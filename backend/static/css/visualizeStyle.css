@@ -1,0 +1,458 @@
+/* ============== Global Styles ============== */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* ============== Main Layout ============== */
+.content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* ============== Sidebar ============== */
+.side-nav {
+  width: 250px;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+}
+
+.side-nav .logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 20px 40px 20px;
+  padding: 0 10px;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.side-nav .side-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #555;
+  padding: 12px 20px;
+  margin: 4px 12px;
+  border-radius: 8px;
+  transition: all .2s;
+}
+
+.side-nav .side-item:hover {
+  background: #f0f4ff;
+  color: #667eea;
+}
+
+.side-nav .side-item.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.side-nav .side-item i {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+}
+
+.user-profile {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #eee;
+  margin-top: 20px;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.username {
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* 添加到 visualizeStyle.css */
+.top-logout {
+  margin-top: auto;
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+  text-align: left;
+}
+
+.top-logout a {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.top-logout a:hover {
+  text-decoration: none;
+}
+
+.tab-btn {
+  padding: 10px 24px;
+  font-size: 1rem;
+  border: none;
+  background: none;
+  color: #666;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: #667eea;
+  background: #f0f4ff;
+}
+
+.tab-btn.active {
+  color: #fff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* ============== Main Content Area ============== */
+.main-content {
+  flex: 1;
+  height: auto;
+  min-height: unset;
+  padding: 20px 20px 16px 20px;
+  overflow-y: auto;
+  background: #f0f2f5;
+}
+
+/* ============== Card Grid ============== */
+.cards-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* ============== Common Card ============== */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card h5 {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* ============== Filter Section ============== */
+.filter-section {
+  margin-bottom: 24px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filter-group {
+  flex: 1;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.filter-group select,
+.filter-group input[type="date"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.date-inputs {
+  display: flex;
+  gap: 12px;
+}
+
+.date-inputs span {
+  line-height: 36px;
+  color: #666;
+}
+
+#apply-filters {
+  margin-top: 16px;
+}
+
+/* ============== Gradient Button ============== */
+.btn-gradient {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.1), -4px -4px 8px rgba(255,255,255,0.7);
+  transition: opacity .2s;
+}
+
+.btn-gradient:hover {
+  opacity: 0.9;
+}
+
+/* ============== Stats Grid ============== */
+.cards-row.stats-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.stat-card-double {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  width: 100%;
+  max-width: 515px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.stat-double {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.stat-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.stat-divider {
+  width: 2px;
+  background: #eee;
+  margin: 0 16px;
+}
+
+/* ============== Share Button ============== */
+.share-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  color: #6366f1;
+  z-index: 2;
+}
+
+/* ============== Chart Container ============== */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 400px;
+  max-height: 300px;
+  margin: 0 auto;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 400px;
+  max-height: 300px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ============== Calendar Styles ============== */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.calendar-header h4 {
+  margin: 0 12px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.calendar-header button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.calendar-header button:hover {
+  background: #f0f4ff;
+  color: #667eea;
+}
+
+.calendar-grid {
+  margin-top: 16px;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-legend {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ============== Prediction Stats ============== */
+.prediction-stats {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prediction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prediction-item .label {
+  color: #666;
+}
+
+.prediction-item .value {
+  font-weight: 500;
+  color: #333;
+}
+
+/* ============== Responsive Design ============== */
+@media screen and (max-width: 900px) {
+  .cards-row.stats-row {
+    grid-template-columns: 1fr;
+  }
+  .stat-divider {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .side-nav {
+    width: 60px;
+    overflow: hidden;
+  }
+
+  .side-nav .logo {
+    display: none;
+  }
+
+  .side-nav .side-item span {
+    display: none;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+
+  .cards-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .filter-row {
+    flex-direction: column;
+  }
+
+  .date-inputs {
+    flex-direction: column;
+  }
+
+  .date-inputs span {
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .btn-gradient {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .side-nav {
+    width: 50px;
+  }
+
+  .side-nav .side-item {
+    padding: 12px;
+    margin: 4px 8px;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+}
+
+/* Fix for iOS input zoom */
+@media screen and (max-width: 768px) {
+  input[type="date"],
+  select {
+    font-size: 16px !important;
+  }
+}
