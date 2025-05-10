@@ -1486,9 +1486,6 @@ a.btn-gradient:hover {
   .cards-row.stats-row {
     grid-template-columns: 1fr;
   }
-  .stat-card-double {
-    /* max-width: 100%;  不再需要 */
-  }
   .stat-divider {
     display: none;
   }
