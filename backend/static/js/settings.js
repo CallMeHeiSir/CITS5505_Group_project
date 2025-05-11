@@ -1,68 +1,48 @@
-// Initialize settings functionality when the DOM is loaded
+// profile.js
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Get form elements
-  const profileForm = document.querySelector('.settings-form');
-  const photoButton = profileForm.querySelector('.profile-upload button');
-  const saveButton = profileForm.querySelector('button:last-child');
-  const usernameInput = profileForm.querySelector('input[type="text"]');
-  const emailInput = profileForm.querySelector('input[type="email"]');
 
-  // Handle profile photo change
-  photoButton.addEventListener('click', function() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    
-    input.onchange = function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          profileForm.querySelector('.profile-img').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    };
+  const bioText = document.getElementById('bioText');
+  const editBioBtn = document.getElementById('editBioBtn');
+  const checkInBtn = document.getElementById('checkInBtn');
+  const checkInProgress = document.getElementById('checkInProgress');
+  const streakDays = document.getElementById('streakDays');
 
-    input.click();
+  // 编辑个性签名
+  editBioBtn.addEventListener('click', function() {
+    const newBio = prompt("Enter your new bio:");
+    if (newBio) {
+      bioText.innerText = `"${newBio}"`;
+      alert('Bio updated!');
+    }
   });
 
-  // Handle profile information save
-  saveButton.addEventListener('click', function() {
-    const username = usernameInput.value.trim();
-    const email = emailInput.value.trim();
+  // 打卡功能
+  checkInBtn.addEventListener('click', function() {
+    let progress = parseInt(checkInProgress.style.width);
+    let days = parseInt(streakDays.innerText);
 
-    if (!username || !email) {
-      alert('Please fill in all required fields');
+    if (progress >= 100) {
+      alert('Already fully checked in for this cycle!');
       return;
     }
 
-    // TODO: Send update request to backend
-    console.log('Save profile:', { username, email });
+    progress += 10;
+    days += 1;
+    if (progress > 100) progress = 100;
 
-    // Simulate successful save
-    alert('Profile updated successfully!');
+    checkInProgress.style.width = progress + '%';
+    streakDays.innerText = days;
+
+    alert('Check-in successful!');
   });
 
-  // Handle preference changes
-  document.querySelectorAll('.settings-form select').forEach(select => {
-    select.addEventListener('change', function() {
-      // TODO: Send update request to backend
-      console.log('Preference changed:', { 
-        name: this.previousElementSibling.textContent,
-        value: this.value 
-      });
+  // 点击勋章展示详情
+  document.querySelectorAll('.badge-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const message = this.getAttribute('data-message');
+      alert('🏅 ' + message);
     });
   });
 
-  // Handle privacy settings changes
-  document.querySelectorAll('.checkbox-label input').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      // TODO: Send update request to backend
-      console.log('Privacy setting changed:', {
-        setting: this.parentElement.textContent.trim(),
-        enabled: this.checked
-      });
-    });
-  });
-}); 
+});

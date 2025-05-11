@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 为每个密码输入框添加切换功能
     togglePasswordVisibility('current_password', 'togglePassword');
-    togglePasswordVisibility('new_password', 'togglePassword');
+    togglePasswordVisibility('new_password', 'toggleNewPassword');
     togglePasswordVisibility('confirm_password', 'toggleConfirmPassword');
 });
+

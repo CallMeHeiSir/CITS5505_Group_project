@@ -8,6 +8,14 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # 邮箱服务配置
+    MAIL_SERVER="smtp.gmail.com"
+    MAIL_PORT=587 
+    MAIL_USE_TLS=True
+    MAIL_USERNAME="guoj2896@gmail.com"
+    MAIL_PASSWORD="bjedrdudyzesqnsn"
+    MAIL_DEFAULT_SENDER="guoj2896@gmail.com"
 
 class DevelopmentConfig(Config):
     DEBUG = True
