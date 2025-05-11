@@ -1,0 +1,276 @@
+/* ============== Global Styles ============== */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* ============== Main Layout ============== */
+.content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* ============== Sidebar ============== */
+.side-nav {
+  width: 250px;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+}
+
+.side-nav .logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 20px 40px 20px;
+  padding: 0 10px;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.side-nav .side-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #555;
+  padding: 12px 20px;
+  margin: 4px 12px;
+  border-radius: 8px;
+  transition: all .2s;
+}
+
+.side-nav .side-item:hover {
+  background: #f0f4ff;
+  color: #667eea;
+}
+
+.side-nav .side-item.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.side-nav .side-item i {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+}
+
+.side-nav .user-profile {
+  margin-top: auto;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #eee;
+}
+
+.side-nav .user-profile i {
+  font-size: 2rem;
+  color: #888;
+}
+
+/* Logout Button */
+.top-logout {
+  margin-top: auto;
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+  text-align: left;
+}
+
+.top-logout a {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.top-logout a:hover {
+  text-decoration: none;
+}
+
+.tab-btn {
+  padding: 10px 24px;
+  font-size: 1rem;
+  border: none;
+  background: none;
+  color: #666;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: #667eea;
+  background: #f0f4ff;
+}
+
+.tab-btn.active {
+  color: #fff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* ============== Main Content Area ============== */
+.main-content {
+  flex: 1;
+  height: auto;
+  min-height: unset;
+  padding: 20px 20px 16px 20px;
+  overflow-y: auto;
+  background: #f0f2f5;
+}
+
+/* ============== Common Card ============== */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card h5 {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* ============== Gradient Button ============== */
+.btn-gradient {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.1), -4px -4px 8px rgba(255,255,255,0.7);
+  transition: opacity .2s;
+}
+
+.btn-gradient:hover {
+  opacity: 0.9;
+}
+
+a.btn-gradient {
+  text-decoration: none;
+}
+
+a.btn-gradient:hover {
+  text-decoration: none;
+}
+
+/* ============== Form Styles (new_friend.html) ============== */
+.settings-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  outline: none;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border-color .2s;
+}
+
+.form-input:focus {
+  border-color: #667eea;
+}
+
+/* ============== Forum Posts (friends.html) ============== */
+.forum-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ============== Responsive Design ============== */
+@media screen and (max-width: 768px) {
+  /* Adjust main layout */
+  .side-nav {
+    width: 60px;
+    overflow: hidden;
+  }
+
+  .side-nav .logo {
+    display: none;
+  }
+
+  .side-nav .side-item span {
+    display: none;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+
+  /* Adjust form inputs */
+  .form-input {
+    padding: 12px;
+    font-size: 16px; /* Prevent zoom on mobile */
+  }
+
+  /* Adjust buttons */
+  .btn-gradient {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .side-nav {
+    width: 50px;
+  }
+
+  .side-nav .side-item {
+    padding: 12px;
+    margin: 4px 8px;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+}
+
+/* Fix for iOS input zoom */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  select {
+    font-size: 16px !important;
+  }
+}
