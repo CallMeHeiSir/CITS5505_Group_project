@@ -146,6 +146,8 @@ html, body {
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .card h5 {
@@ -194,6 +196,40 @@ a.btn-gradient:hover {
   font-size: 0.85rem;
 }
 
+/* ============== Form Styles ============== */
+.settings-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  outline: none;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border-color .2s;
+}
+
+.form-input:focus {
+  border-color: #667eea;
+}
+
 /* ============== Flash Messages ============== */
 .flash-messages {
   width: 100%;
@@ -238,23 +274,6 @@ a.btn-gradient:hover {
   color: #333;
 }
 
-/* ============== Form Styles (保留以备后续使用) ============== */
-.form-input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  outline: none;
-  font-size: 0.95rem;
-  background: #fff;
-  transition: border-color .2s;
-}
-
-.form-input:focus {
-  border-color: #667eea;
-}
-
 /* ============== Responsive Design ============== */
 @media (max-width: 768px) {
   .side-nav {
@@ -297,6 +316,16 @@ a.btn-gradient:hover {
 
   .top-logout a {
     font-size: 0.8rem;
+  }
+
+  .form-input {
+    font-size: 16px;
+  }
+
+  .btn-gradient {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
   }
 }
 
