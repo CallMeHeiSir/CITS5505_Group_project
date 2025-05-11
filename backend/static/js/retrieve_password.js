@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
             passwordError.style.display = 'none';
         }
     });
-
     // 切换密码显示/隐藏功能
     const togglePasswordVisibility = (inputId, toggleIconId) => {
         const input = document.getElementById(inputId);
@@ -30,8 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 为每个密码输入框添加切换功能
-    togglePasswordVisibility('current_password', 'togglePassword');
     togglePasswordVisibility('new_password', 'toggleNewPassword');
     togglePasswordVisibility('confirm_new_password', 'toggleConfirmPassword');
 });
-

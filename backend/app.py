@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
-from extensions import db, login_manager
+from extensions import db, login_manager, mail
 from sqlalchemy.orm import DeclarativeBase
 import os
 
@@ -23,6 +23,14 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制上传文件大小为16MB
+ # 邮件配置从环境变量加载
+    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'yes']
+    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+    
     
     # 自动创建头像文件夹
     if not os.path.exists(app.config['AVATAR_FOLDER']):
@@ -30,6 +38,7 @@ def create_app():
     
     # 初始化扩展
     db.init_app(app)
+    mail.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     
@@ -39,6 +48,7 @@ def create_app():
         # 导入模型
         from models.user import User
         from models.activity_log import ActivityLog
+        from models.verification_code import VerificationCode
         
         # 创建数据库表
         db.create_all()
