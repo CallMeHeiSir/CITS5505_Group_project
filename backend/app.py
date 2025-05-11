@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from extensions import db, login_manager, mail
 from sqlalchemy.orm import DeclarativeBase
+from flask_login import login_required
 import os
 
 # 加载环境变量
@@ -88,9 +89,6 @@ def create_app():
         @app.route('/login')
         def login():
             return redirect(url_for('auth.login'))
-        @app.route('/settings')
-        def settings():
-            return render_template('settings.html')
         @app.route('/new_issue')
         def new_issue():
             return render_template('new_issue.html')
@@ -124,7 +122,10 @@ def create_app():
         @app.route('/share')
         def share():
             return render_template('share.html')
-        
+        @app.route('/settings')
+        @login_required
+        def settings():
+            return render_template('settings.html')
         @login_manager.user_loader
         def load_user(user_id):
             return db.session.get(User, int(user_id))
