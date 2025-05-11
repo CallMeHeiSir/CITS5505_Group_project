@@ -33,20 +33,28 @@ def login():
     if request.method == 'POST':
         from models.user import User
         from models.verification_code import VerificationCode
+        from datetime import datetime, timedelta
         
         username = request.form.get('username')
         email = request.form.get('email')
-        code= request.form.get('verificationCode')
+        code = request.form.get('verificationCode')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
         
         user = User.query.filter_by(username=username).first()
+        
+        # 检查用户是否存在
         if not user or user.email != email:
             flash('Invalid username or email', 'danger')
             return redirect(url_for('auth.login'))
         
+        # 检查账户是否被锁定
+        if user.lock_until and user.lock_until > datetime.utcnow():
+            remaining_time = (user.lock_until - datetime.utcnow()).seconds
+            flash(f'Account is locked. Try again in {remaining_time // 60} minutes.', 'danger')
+            return redirect(url_for('auth.login'))
+        
         # 验证验证码
-        verificationCode =  VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
+        verificationCode = VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
         if not verificationCode or verificationCode.code != code:
             flash('Invalid or expired verification code.', 'danger')
             return redirect(url_for('auth.login'))
@@ -59,13 +67,20 @@ def login():
         # 删除验证码
         verificationCode.code = None
         
+        # 检查密码
         if user and user.check_password(password):
-           login_user(user)
-           flash('Login successful!', 'success')  # 添加成功提示
-           return redirect(url_for('index'))
+            # 登录成功，重置失败次数
+            user.failed_attempts = 0
+            user.lock_until = None
+            db.session.commit()
+            
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('index'))
         else:
-           flash('Invalid username or password', 'danger')
-           return redirect(url_for('auth.login'))
+            flash('Invalid username or password', 'danger')
+            db.session.commit()
+            return redirect(url_for('auth.login'))
     
     return render_template('login.html')
 
@@ -195,7 +210,7 @@ def change_password():
     if request.method == 'POST':
         current_password = request.form.get('current_password')
         new_password = request.form.get('new_password')
-        confirm_password = request.form.get('confirm_password')
+        confirm_password = request.form.get('confirm_new_password')
         
         if not all([current_password, new_password, confirm_password]):
             flash('All fields are required', 'danger')
@@ -212,17 +227,32 @@ def change_password():
         current_user.set_password(new_password)
         db.session.commit()
         flash('Password changed successfully!', 'success')
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
 
     return render_template('change_password.html')
 
-@auth.route('/mail/test', methods=['GET', 'POST'])
-def mail_test():
-        message = Message(
-        subject='Test Email',  # 确保标题中没有非 ASCII 字符
-        sender='guoj2896@gmail.com',
-        recipients=['jzguo99@outlook.com'],
-        body='This is a test email sent from Flask application.'  # 使用 Unicode 字符串
-    )
-        mail.send(message)
-        return 'Email sent successfully!'
+@auth.route('/retrieve_password', methods=['GET', 'POST'])
+def retrieve_password():
+    if request.method == 'POST':
+        from models.user import User
+        
+        username = request.form.get('username')
+        email = request.form.get('email')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_new_password')
+
+        user = User.query.filter_by(username=username).first()
+        if not user or user.email != email:
+            flash('Invalid username or email', 'danger')
+            return redirect(url_for('auth.retrieve_password'))
+
+        if new_password != confirm_password:
+            flash('New passwords do not match', 'danger')
+            return redirect(url_for('auth.retrieve_password'))
+
+        user.set_password(new_password)
+        db.session.commit()
+        flash('Password retrieved successfully!', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('retrieve_password.html')

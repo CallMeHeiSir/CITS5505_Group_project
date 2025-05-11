@@ -12,10 +12,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 </head>
 <body>
-  <!-- 左上角的 Logout 链接 -->
-  <div class="top-logout">
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
-  </div>
   <div class="app-container">
     <div class="content">
       <nav class="side-nav">
@@ -39,6 +35,9 @@
       <main class="main-content">
         <div class="cards-row">
           <div class="card">
+            <div class="top-logout">
+            <a href="{{ url_for('auth.logout') }}" class="btn-gradient">Logout</a>
+            </div>
             <h2>Upload</h2>
             <p>Upload your fitness data files or manually add activities</p>
             <!-- Upload Process Flow Diagram -->

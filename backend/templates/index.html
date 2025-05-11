@@ -26,10 +26,6 @@
     {% endif %}
   {% endwith %}
   
-  <!-- 左上角的 Logout 链接 -->
-  <div class="top-logout">
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
-  </div>
   <div class="app-container">
     <div class="content">
       <!-- Sidebar -->
@@ -54,6 +50,9 @@
       <main class="main-content">
         <div class="cards-row">
           <div class="card" style="grid-column:1/-1;">
+            <div class="top-logout">
+            <a href="{{ url_for('auth.logout') }}" class="btn-gradient">Logout</a>
+            </div>
             <h2>Welcome to Fitness Dashboard</h2>
             <div class="cards-row">
               <!-- Health Tips -->

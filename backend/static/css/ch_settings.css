@@ -58,3 +58,15 @@ body {
   .flash-close:hover {
     color: #333;
   }
+
+  /* 错误提示样式 */
+.invalid-feedback {
+  display: none;
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.is-invalid ~ .invalid-feedback {
+  display: block;
+}
