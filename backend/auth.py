@@ -1,39 +1,35 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from extensions import db,mail
+from extensions import db, mail
 from flask_mail import Message
 from sqlalchemy import select
-from datetime import datetime  # 用于处理日期和时间
-import os  # 用于操作文件路径
+from datetime import datetime
+import os
 import random
-import string  # 用于生成随机字符串
+import string
 
 auth = Blueprint('auth', __name__)
-
 
 @auth.route('/send_verification_code', methods=['POST'])
 def send_verification_code():
     from models.verification_code import VerificationCode
     
     email = request.form.get('email')
-    # 生成新的验证码
     code = ''.join(random.choices(string.digits, k=6))
     new_code = VerificationCode(email=email, code=code)
     db.session.add(new_code)
     db.session.commit()
 
-    # 发送验证码邮件
     body_content = f"Your Verification Code is:{code}, Valid for 5 minutes."
-    message = Message(subject="Your Verification Code",recipients=[email],body=body_content)
+    message = Message(subject="Your Verification Code", recipients=[email], body=body_content)
     mail.send(message)
     return redirect(url_for('auth.register'))
-   
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         from models.user import User
         from models.verification_code import VerificationCode
-        
         
         username = request.form.get('username')
         email = request.form.get('email')
@@ -42,24 +38,19 @@ def login():
         
         user = User.query.filter_by(username=username).first()
         
-        # 检查用户是否存在
         if not user or user.email != email:
             flash('Invalid username or email', 'danger')
             return redirect(url_for('auth.login'))
         
-        # 验证验证码
         verificationCode = VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
         if not verificationCode or verificationCode.code != code:
             flash('Invalid or expired verification code.', 'danger')
             return redirect(url_for('auth.login'))
 
-        # 检查验证码是否过期
         if verificationCode.is_expired():
             flash('Verification code has expired. Please request a new one.', 'danger')
             return redirect(url_for('auth.login'))
-
         
-        # 检查密码
         if user and user.check_password(password):
             db.session.commit()
             login_user(user)
@@ -75,7 +66,7 @@ def login():
 def logout():
     logout_user()
     flash('You have been logged out.', 'success')
-    return redirect(url_for('welcome'))  # 注销后跳转到 welcome 页面
+    return redirect(url_for('welcome'))
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -99,34 +90,28 @@ def register():
             avatar_path = os.path.join(current_app.config['AVATAR_FOLDER'], avatar_filename)
             avatar.save(avatar_path)
         
-        # 将 birthdate 转换为 datetime.date 对象
         try:
             birthdate = datetime.strptime(birthdate, '%Y-%m-%d').date()
         except ValueError:
             flash('Invalid birthdate format. Please use YYYY-MM-DD.', 'danger')
             return redirect(url_for('auth.register'))
         
-        # 验证验证码
-        verificationCode =  VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
+        verificationCode = VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
         if not verificationCode or verificationCode.code != code:
             flash('Invalid or expired verification code.', 'danger')
             return redirect(url_for('auth.register'))
 
-        # 检查验证码是否过期
         if verificationCode.is_expired():
             flash('Verification code has expired. Please request a new one.', 'danger')
             return redirect(url_for('auth.register'))
 
-        # 删除验证码
         verificationCode.code = None
         
-        # 检查用户名是否已存在
         stmt = select(User).where(User.username == username)
         if db.session.execute(stmt).scalar_one_or_none():
             flash('Username already exists', 'danger')
             return redirect(url_for('auth.register'))
         
-        # 检查邮箱是否已存在
         stmt = select(User).where(User.email == email)
         if db.session.execute(stmt).scalar_one_or_none():
             flash('Email already exists', 'danger')
@@ -149,46 +134,43 @@ def register():
         flash('Registration successful', 'success')
         return redirect(url_for('auth.login'))
     
-    return render_template('register.html') 
+    return render_template('register.html')
 
-@auth.route('/change_personal_information', methods=['GET', 'POST'])
+@auth.route('/change_personal_information', methods=['POST'])
 @login_required
 def change_personal_information():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        phone = request.form.get('phone')
-        gender = request.form.get('gender')
-        birthdate = request.form.get('birthdate')
-        address = request.form.get('address')
-        avatar = request.files.get('avatar')
+    from models.user import User  # 导入 User 模型
 
-        # 将 birthdate 转换为 datetime.date 对象
-        try:
-            birthdate = datetime.strptime(birthdate, '%Y-%m-%d').date()
-        except ValueError:
-            flash('Invalid birthdate format. Please use YYYY-MM-DD.', 'danger')
-            return redirect(url_for('auth.change_personal_information'))
+    username = request.form.get('username')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    gender = request.form.get('gender')
+    birthdate = request.form.get('birthdate')
+    address = request.form.get('address')
 
-        # 更新用户信息
-        current_user.username = username
-        current_user.email = email
-        current_user.phone = phone
-        current_user.gender = gender
-        current_user.birthdate = birthdate
-        current_user.address = address
+    try:
+        birthdate = datetime.strptime(birthdate, '%Y-%m-%d').date()
+    except ValueError:
+        flash('Invalid birthdate format. Please use YYYY-MM-DD.', 'danger')
+        return redirect(url_for('settings'))
 
-        if avatar:
-            avatar_filename = avatar.filename
-            avatar_path = os.path.join(current_app.config['AVATAR_FOLDER'], avatar_filename)
-            avatar.save(avatar_path)
-            current_user.avatar = avatar_filename
+    if User.query.filter_by(username=username).filter(User.id != current_user.id).first():
+        flash('Username already exists', 'danger')
+        return redirect(url_for('settings'))
+    if User.query.filter_by(email=email).filter(User.id != current_user.id).first():
+        flash('Email already exists', 'danger')
+        return redirect(url_for('settings'))
 
-        db.session.commit()
-        flash('Information updated successfully!', 'success')
-        return redirect(url_for('auth.change_personal_information'))
+    current_user.username = username
+    current_user.email = email
+    current_user.phone = phone
+    current_user.gender = gender
+    current_user.birthdate = birthdate
+    current_user.address = address
 
-    return render_template('change_personal_information.html', user=current_user)
+    db.session.commit()
+    flash('Information updated successfully!', 'success')
+    return redirect(url_for('settings'))
 
 @auth.route('/change_password', methods=['GET', 'POST'])
 @login_required
@@ -242,3 +224,35 @@ def retrieve_password():
         return redirect(url_for('auth.login'))
 
     return render_template('retrieve_password.html')
+
+@auth.route('/update_avatar', methods=['POST'])
+@login_required
+def update_avatar():
+    avatar = request.files.get('avatar')
+    if not avatar or not avatar.filename:
+        flash('No file uploaded or invalid file.', 'danger')
+        return jsonify({'success': False, 'message': 'No file uploaded or invalid file'}), 400
+
+    if current_user.avatar:
+        old_avatar_path = os.path.join(current_app.config['AVATAR_FOLDER'], current_user.avatar)
+        if os.path.exists(old_avatar_path):
+            try:
+                os.remove(old_avatar_path)
+            except OSError as e:
+                flash(f'Failed to delete old avatar: {str(e)}', 'danger')
+                return jsonify({'success': False, 'message': f'Failed to delete old avatar: {str(e)}'}), 500
+
+    try:
+        avatar_filename = avatar.filename
+        avatar_path = os.path.join(current_app.config['AVATAR_FOLDER'], avatar_filename)
+        avatar.save(avatar_path)
+    except Exception as e:
+        flash(f'Failed to save avatar: {str(e)}', 'danger')
+        return jsonify({'success': False, 'message': f'Failed to save avatar: {str(e)}'}), 500
+
+    current_user.avatar = avatar_filename
+    db.session.commit()
+
+    flash('Avatar updated successfully!', 'success')
+    avatar_url = url_for('static', filename='avatars/' + avatar_filename)
+    return jsonify({'success': True, 'avatar_url': avatar_url})

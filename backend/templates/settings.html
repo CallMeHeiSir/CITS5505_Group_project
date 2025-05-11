@@ -50,10 +50,12 @@
           <!-- 个人信息 -->
           <section style="text-align: center; margin-bottom: 24px;">
             {% if current_user.avatar %}
-              <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="Profile Picture" class="profile-img" style="margin-bottom: 12px;">
+              <img id="profileAvatar" src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="Profile Picture" class="profile-img" style="margin-bottom: 12px;">
             {% else %}
-              <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Profile Picture" class="profile-img" style="margin-bottom: 12px;">
+              <img id="profileAvatar" src="{{ url_for('static', filename='avatars/default.png') }}" alt="Profile Picture" class="profile-img" style="margin-bottom: 12px;">
             {% endif %}
+            <!-- 隐藏的文件输入框 -->
+            <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display: none;">
             <h2>{{ current_user.username }}</h2>
             <p class="text-muted">{{ current_user.email }}</p>
             <p id="bioText" style="margin-top: 10px;">"No pain, no gain!"</p>
@@ -91,10 +93,6 @@
               <div class="form-group">
                 <label for="address" class="form-label">Address:</label>
                 <input type="text" id="address" name="address" class="form-input" placeholder="Enter your address" value="{{ current_user.address or '' }}">
-              </div>
-              <div class="form-group">
-                <label for="avatar" class="form-label">Avatar:</label>
-                <input type="file" id="avatar" name="avatar" class="form-input" accept="image/*">
               </div>
               <div class="form-group">
                 <button type="submit" class="btn-gradient">Save Changes</button>
