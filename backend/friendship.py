@@ -12,12 +12,15 @@ friendship_bp = Blueprint('friendship', __name__)
 def search_users():
     """搜索用户"""
     query = request.args.get('query', '')
+    current_app.logger.info(f"Search query: {query}")
+    current_app.logger.info(f"Current user ID: {current_user.id}")
+    
     if not query:
         return jsonify({"success": False, "error": "Search query is required"}), 400
         
     try:
-        # 搜索用户名或邮箱匹配的用户
-        users = User.query.filter(
+        # 构建搜索查询
+        search_query = User.query.filter(
             and_(
                 or_(
                     User.username.ilike(f'%{query}%'),
@@ -25,29 +28,77 @@ def search_users():
                 ),
                 User.id != current_user.id  # 排除当前用户
             )
-        ).limit(10).all()
+        )
         
-        # 检查是否已经是好友
+        # 打印SQL查询
+        current_app.logger.info(f"SQL Query: {search_query}")
+        
+        # 执行查询
+        users = search_query.limit(10).all()
+        current_app.logger.info(f"Found {len(users)} users matching query")
+        
+        # 打印找到的用户
+        for user in users:
+            current_app.logger.info(f"Found user: ID={user.id}, Username={user.username}, Email={user.email}")
+        
+        # 检查是否已经是好友或有待处理的请求
         user_list = []
         for user in users:
-            is_friend = db.session.query(friendship).filter(
+            current_app.logger.info(f"Processing user: {user.username}")
+            # 检查好友关系状态
+            friendship_status = db.session.query(friendship).filter(
                 or_(
                     and_(friendship.c.user_id == current_user.id, friendship.c.friend_id == user.id),
                     and_(friendship.c.user_id == user.id, friendship.c.friend_id == current_user.id)
                 )
-            ).first() is not None
+            ).first()
             
-            user_list.append({
+            status = None
+            if friendship_status:
+                status = friendship_status.status
+                current_app.logger.info(f"Friendship status with {user.username}: {status}")
+            
+            user_data = {
                 'id': user.id,
                 'username': user.username,
                 'email': user.email,
-                'is_friend': is_friend
-            })
+                'is_friend': status == 'accepted',
+                'has_pending': status == 'pending'
+            }
+            user_list.append(user_data)
+            current_app.logger.info(f"Added user to response: {user_data}")
             
+        current_app.logger.info(f"Returning {len(user_list)} users")
         return jsonify({"success": True, "users": user_list})
     except Exception as e:
         current_app.logger.error(f"Error searching users: {str(e)}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
         return jsonify({"success": False, "error": "Failed to search users"}), 500
+
+@friendship_bp.route('/api/friends/test_search', methods=['GET'])
+@login_required
+def test_search():
+    """测试搜索功能"""
+    query = request.args.get('query', '')
+    current_app.logger.info(f"Test search query: {query}")
+    
+    try:
+        # 直接搜索用户名
+        username_matches = User.query.filter(User.username.ilike(f'%{query}%')).all()
+        # 直接搜索邮箱
+        email_matches = User.query.filter(User.email.ilike(f'%{query}%')).all()
+        
+        result = {
+            "query": query,
+            "username_matches": [{"id": u.id, "username": u.username, "email": u.email} for u in username_matches],
+            "email_matches": [{"id": u.id, "username": u.username, "email": u.email} for u in email_matches]
+        }
+        
+        return jsonify({"success": True, "result": result})
+    except Exception as e:
+        current_app.logger.error(f"Error in test search: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @friendship_bp.route('/api/friends/request', methods=['POST'])
 @login_required
@@ -65,7 +116,7 @@ def send_friend_request():
         if not friend:
             return jsonify({"success": False, "error": "User not found"}), 404
             
-        # 检查是否已经是好友
+        # 检查是否已经有好友关系或待处理的请求
         existing_friendship = db.session.query(friendship).filter(
             or_(
                 and_(friendship.c.user_id == current_user.id, friendship.c.friend_id == friend_id),
@@ -74,15 +125,23 @@ def send_friend_request():
         ).first()
         
         if existing_friendship:
-            return jsonify({
-                "success": False, 
-                "error": "Already friends"
-            }), 400
+            if existing_friendship.status == 'accepted':
+                return jsonify({
+                    "success": False, 
+                    "error": "Already friends"
+                }), 400
+            elif existing_friendship.status == 'pending':
+                return jsonify({
+                    "success": False, 
+                    "error": "Friend request already sent"
+                }), 400
             
-        # 创建好友关系
+        # 创建好友请求
         db.session.execute(friendship.insert().values(
             user_id=current_user.id,
-            friend_id=friend_id
+            friend_id=friend_id,
+            status='pending',
+            created_at=datetime.utcnow()
         ))
         db.session.commit()
         

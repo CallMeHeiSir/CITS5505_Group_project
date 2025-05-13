@@ -10,7 +10,7 @@ from sqlalchemy import or_, and_
 
 share_bp = Blueprint('share', __name__)
 
-@share_bp.route('/api/shares/available-charts', methods=['GET'])
+@share_bp.route('/shares/available-charts', methods=['GET'])
 @login_required
 def get_available_charts():
     """Get list of charts available for sharing"""
@@ -35,7 +35,7 @@ def get_available_charts():
         current_app.logger.error(f"Error getting available charts: {str(e)}")
         return jsonify({"success": False, "error": "Failed to get available charts"}), 500
 
-@share_bp.route('/api/shares/friends', methods=['GET'])
+@share_bp.route('/shares/friends', methods=['GET'])
 @login_required
 def get_friends():
     """Get user's friends list"""
@@ -63,7 +63,7 @@ def get_friends():
         current_app.logger.error(f"Error getting friends list: {str(e)}")
         return jsonify({"success": False, "error": "Failed to get friends list"}), 500
 
-@share_bp.route('/api/shares', methods=['POST'])
+@share_bp.route('/shares', methods=['POST'])
 @login_required
 def create_share():
     """Create a new share"""
@@ -84,6 +84,7 @@ def create_share():
             created_at=datetime.utcnow()
         )
         db.session.add(share)
+        db.session.flush()  # Flush to get the share.id
         
         # Create recipient record
         share_recipient = ShareRecipient(
@@ -111,7 +112,7 @@ def create_share():
         current_app.logger.error(f"Error creating share: {str(e)}")
         return jsonify({"success": False, "error": "Failed to create share"}), 500
 
-@share_bp.route('/api/shares/received', methods=['GET'])
+@share_bp.route('/shares/received', methods=['GET'])
 @login_required
 def get_received_shares():
     """Get shares received by the current user"""
@@ -135,7 +136,7 @@ def get_received_shares():
         current_app.logger.error(f"Error getting received shares: {str(e)}")
         return jsonify({"success": False, "error": "Failed to get received shares"}), 500
 
-@share_bp.route('/api/shares/sent', methods=['GET'])
+@share_bp.route('/shares/sent', methods=['GET'])
 @login_required
 def get_sent_shares():
     """Get shares sent by the current user"""
@@ -159,7 +160,7 @@ def get_sent_shares():
         current_app.logger.error(f"Error getting sent shares: {str(e)}")
         return jsonify({"success": False, "error": "Failed to get sent shares"}), 500
 
-@share_bp.route('/api/shares/<int:share_id>', methods=['DELETE'])
+@share_bp.route('/shares/<int:share_id>', methods=['DELETE'])
 @login_required
 def withdraw_share(share_id):
     """Withdraw a share"""

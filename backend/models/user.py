@@ -8,7 +8,9 @@ from extensions import db, login_manager
 # 好友关系表
 friendship = db.Table('friendships',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-    db.Column('friend_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    db.Column('friend_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('status', db.String(20), default='pending'),  # pending, accepted, rejected
+    db.Column('created_at', db.DateTime, default=datetime.utcnow)
 )
 
 class User(UserMixin, db.Model):

@@ -5,21 +5,30 @@ class Share(db.Model):
     __tablename__ = 'shares'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    chart_id = db.Column(db.String(100), nullable=False)
-    chart_title = db.Column(db.String(200), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    from_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    to_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    chart_type = db.Column(db.String(50), nullable=False)
+    chart_data = db.Column(db.JSON, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
     # 关系
-    user = db.relationship('User', backref=db.backref('shares', lazy=True))
-    recipients = db.relationship('ShareRecipient', backref='share', lazy=True)
+    from_user = db.relationship('User', foreign_keys=[from_user_id], backref='shares_sent')
+    to_user = db.relationship('User', foreign_keys=[to_user_id], backref='shares_received')
     
+    def __init__(self, from_user_id, to_user_id, chart_type, chart_data, created_at=None):
+        self.from_user_id = from_user_id
+        self.to_user_id = to_user_id
+        self.chart_type = chart_type
+        self.chart_data = chart_data
+        self.created_at = created_at or datetime.utcnow()
+
     def to_dict(self):
         return {
             'id': self.id,
-            'user_id': self.user_id,
-            'chart_id': self.chart_id,
-            'chart_title': self.chart_title,
+            'from_user_id': self.from_user_id,
+            'to_user_id': self.to_user_id,
+            'chart_type': self.chart_type,
+            'chart_data': self.chart_data,
             'created_at': self.created_at.isoformat(),
             'isOwner': True  # 在API层面会根据当前用户动态设置这个值
         }

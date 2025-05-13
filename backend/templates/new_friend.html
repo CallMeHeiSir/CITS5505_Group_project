@@ -3,64 +3,155 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add New Friend - Fitness Dashboard</title>
-    <!-- Bootstrap Icons -->
+    <title>Add Friend - Fitness Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/share.css') }}" />
+    <style>
+        .search-results {
+            margin-top: 20px;
+        }
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: white;
+        }
+        .user-info {
+            flex: 1;
+        }
+        .username {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .email {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .user-actions {
+            margin-left: 16px;
+        }
+        .search-container {
+            margin-bottom: 24px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 24px;
+            color: #666;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .notification.success {
+            background: #4caf50;
+            color: white;
+        }
+        .notification.error {
+            background: #f44336;
+            color: white;
+        }
+        /* Additional layout styles */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: var(--background-color);
+        }
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            background-color: var(--background-color);
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+    </style>
 </head>
-
 <body>
+    <div class="app-container">
+        <div class="content">
+            <!-- Sidebar -->
+            <nav class="side-nav">
+                <div class="logo">Fitness Dashboard</div>
+                <a href="{{ url_for('index') }}" class="side-item {% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="bi bi-house-fill"></i><span>Home</span>
+                </a>
+                <a href="{{ url_for('upload') }}" class="side-item {% if request.endpoint == 'upload' %}active{% endif %}">
+                    <i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span>
+                </a>
+                <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}">
+                    <i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span>
+                </a>
+                <a href="{{ url_for('share') }}" class="side-item {% if request.endpoint == 'share' %}active{% endif %}">
+                    <i class="bi bi-share-fill"></i><span>Share</span>
+                </a>
+                <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}">
+                    <i class="bi bi-gear-fill"></i><span>Settings</span>
+                </a>
+                <div class="user-profile">
+                    {% if current_user.avatar %}
+                        <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+                    {% else %}
+                        <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
+                    {% endif %}
+                    <span class="username">{{ current_user.username }}</span>
+                </div>
+                <div class="top-logout">
+                    <a href="{{ url_for('auth.logout') }}" class="tab-btn active">Logout</a>
+                </div>
+            </nav>
 
-<div class="app-container">
-    <div class="content">
-
-        <!-- 侧边栏 Sidebar -->
-        <nav class="side-nav">
-            <div class="logo">Fitness Dashboard</div>
-            <a href="{{ url_for('index') }}" class="side-item"><i class="bi bi-house-fill"></i><span>Home</span></a>
-            <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-            <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-            <a href="{{ url_for('forum') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
-            <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
-            <div class="user-profile">
-                <i class="bi bi-person-circle"></i>
-            </div>
-        </nav>
-
-        <!-- 主内容区 Main Content -->
-        <main class="main-content">
-
-            <!-- 添加好友卡片 -->
-            <div class="card" style="padding: 24px; max-width: 600px; margin: 0 auto;">
-
-                <!-- 添加好友表单 -->
-                <section>
-                    <h2>Add New Friend</h2>
-                    <form class="settings-form" id="addFriendForm" style="margin-top: 20px;">
-
-                        <div class="form-group">
-                            <label for="friendName">Friend's Name</label>
-                            <input type="text" class="form-input" id="friendName" placeholder="Enter friend's name" required />
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="card" style="padding: 24px; max-width: 800px; margin: 0 auto;">
+                    <section class="share-section">
+                        <div class="section-header">
+                            <h2><i class="bi bi-people-fill"></i> Find Friends</h2>
                         </div>
-
-                        <div class="form-group">
-                            <label for="friendEmail">Friend's Email</label>
-                            <input type="email" class="form-input" id="friendEmail" placeholder="Enter friend's email" required />
+                        <div class="search-container">
+                            <input type="text" 
+                                   id="searchInput" 
+                                   class="search-input" 
+                                   placeholder="Search by username or email..." />
                         </div>
-
-                        <button type="submit" class="btn-gradient" style="margin-top: 20px;">Send Friend Request</button>
-                    </form>
-                </section>
-
-            </div>
-
-        </main>
-
+                        <div id="searchResults" class="search-results">
+                            <!-- Search results will be populated here -->
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
     </div>
-</div>
 
-<!-- 引入新的new_friend.js -->
-<script src="{{ url_for('static', filename='js/new_friend.js') }}"></script>
-
+    <script src="{{ url_for('static', filename='js/new_friend.js') }}"></script>
 </body>
 </html>

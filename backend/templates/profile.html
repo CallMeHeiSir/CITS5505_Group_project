@@ -16,13 +16,31 @@
         <!-- 侧边栏 Sidebar -->
         <nav class="side-nav">
             <div class="logo">Fitness Dashboard</div>
-            <a href="{{ url_for('index') }}" class="side-item"><i class="bi bi-house-fill"></i><span>Home</span></a>
-            <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-            <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-            <a href="{{ url_for('forum') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Forum</span></a>
-            <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+            <a href="{{ url_for('index') }}" class="side-item {% if request.endpoint == 'index' %}active{% endif %}">
+                <i class="bi bi-house-fill"></i>Home
+            </a>
+            <a href="{{ url_for('upload') }}" class="side-item {% if request.endpoint == 'upload' %}active{% endif %}">
+                <i class="bi bi-cloud-arrow-up-fill"></i>Upload
+            </a>
+            <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}">
+                <i class="bi bi-bar-chart-line-fill"></i>Visualize
+            </a>
+            <a href="{{ url_for('share') }}" class="side-item {% if request.endpoint == 'share' %}active{% endif %}">
+                <i class="bi bi-share-fill"></i>Share
+            </a>
+            <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}">
+                <i class="bi bi-gear-fill"></i>Settings
+            </a>
             <div class="user-profile">
-                <i class="bi bi-person-circle"></i>
+                {% if current_user.avatar %}
+                    <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+                {% else %}
+                    <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
+                {% endif %}
+                <span class="username">{{ current_user.username }}</span>
+            </div>
+            <div class="top-logout">
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
             </div>
         </nav>
 
@@ -66,10 +84,6 @@
                 <section style="margin-bottom: 24px;">
                     <h3>My Badges</h3>
                     <div class="stats-grid" style="margin-top: 12px;">
-                        <div class="card badge-card" data-message="Completed 10 challenges!">
-                            🥇
-                            <h5>Challenge Master</h5>
-                        </div>
                         <div class="card badge-card" data-message="Top contributor in the forum!">
                             📝
                             <h5>Top Contributor</h5>
@@ -77,9 +91,9 @@
                     </div>
                 </section>
 
-                <!-- 邀请好友 -->
+                <!-- 添加好友 -->
                 <section style="text-align: center; margin-top: 32px;">
-                    <a href="{{ url_for('friends') }}" class="btn-gradient" style="padding: 12px 24px;">👥 Invite Friends to Join Challenges</a>
+                    <a href="{{ url_for('friends') }}" class="btn-gradient" style="padding: 12px 24px;">👥 Add Friends</a>
                 </section>
 
             </div>

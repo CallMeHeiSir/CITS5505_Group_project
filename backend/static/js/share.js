@@ -4,12 +4,26 @@ const API = {
     FRIENDS: '/api/shares/friends',
     SHARES: '/api/shares',
     RECEIVED: '/api/shares/received',
-    SENT: '/api/shares/sent'
+    SENT: '/api/shares/sent',
+    ANALYTICS: '/analytics/api/activities/summary',
+    PREDICTIONS: '/analytics/api/analytics/predictions'
 };
 
 // Constants and Data Management
 const currentUser = "You";
 const sharesKey = "privateShares";
+
+// Chart types mapping
+const CHART_TYPES = {
+    'total-stats': 'Total Statistics',
+    'activity-calendar': 'Activity Calendar',
+    'calories-prediction': 'Calories Prediction',
+    'activity-duration': 'Activity Duration by Day',
+    'distance-progress': 'Distance Progress',
+    'activity-distribution': 'Activity Distribution',
+    'calories-trend': 'Calories Trend',
+    'dashboard': 'Complete Dashboard'
+};
 
 // Available charts (sample data - should be replaced with actual data from backend)
 const availableCharts = [
@@ -40,35 +54,40 @@ async function initializeSelects() {
             fetch(API.FRIENDS)
         ]);
 
+        if (!chartsResponse.ok || !friendsResponse.ok) {
+            throw new Error('Failed to fetch data');
+        }
+
         const chartsData = await chartsResponse.json();
         const friendsData = await friendsResponse.json();
 
-        if (!chartsResponse.ok) throw new Error(chartsData.error || 'Failed to load charts');
-        if (!friendsResponse.ok) throw new Error(friendsData.error || 'Failed to load friends');
-
-        const chartSelect = document.querySelector('.form-select:first-of-type');
-        const friendSelect = document.querySelector('.form-select:last-of-type');
+        const chartSelect = document.getElementById('chartSelect');
+        const friendSelect = document.getElementById('friendSelect');
 
         // Populate chart select
-        chartSelect.innerHTML = '<option value="">Select a chart to share</option>';
-        chartsData.charts.forEach(chart => {
-            const option = document.createElement('option');
-            option.value = chart.id;
-            option.textContent = chart.title;
-            chartSelect.appendChild(option);
-        });
+        if (chartsData.success && chartsData.charts) {
+            chartSelect.innerHTML = '<option value="">Choose a chart...</option>';
+            chartsData.charts.forEach(chart => {
+                const option = document.createElement('option');
+                option.value = chart.id;
+                option.textContent = chart.title;
+                chartSelect.appendChild(option);
+            });
+        }
 
         // Populate friend select
-        friendSelect.innerHTML = '<option value="">Select a friend to share with</option>';
-        friendsData.friends.forEach(friend => {
-            const option = document.createElement('option');
-            option.value = friend.id;
-            option.textContent = friend.name;
-            friendSelect.appendChild(option);
-        });
+        if (friendsData.success && friendsData.friends) {
+            friendSelect.innerHTML = '<option value="">Choose a friend...</option>';
+            friendsData.friends.forEach(friend => {
+                const option = document.createElement('option');
+                option.value = friend.id;
+                option.textContent = friend.name;
+                friendSelect.appendChild(option);
+            });
+        }
     } catch (error) {
         console.error('Error initializing selects:', error);
-        alert('Failed to load charts or friends list. Please try again later.');
+        showNotification('Failed to load data. Please try again later.', 'error');
     }
 }
 
@@ -80,24 +99,25 @@ async function loadAndRenderShares() {
             fetch(API.SENT)
         ]);
 
+        if (!receivedResponse.ok || !sentResponse.ok) {
+            throw new Error('Failed to fetch shares');
+        }
+
         const receivedData = await receivedResponse.json();
         const sentData = await sentResponse.json();
 
-        if (!receivedResponse.ok) throw new Error(receivedData.error || 'Failed to load received shares');
-        if (!sentResponse.ok) throw new Error(sentData.error || 'Failed to load sent shares');
-
-        renderReceivedShares(receivedData.shares);
-        renderSentShares(sentData.shares);
+        renderReceivedShares(receivedData.success ? receivedData.shares : []);
+        renderSentShares(sentData.success ? sentData.shares : []);
     } catch (error) {
         console.error('Error loading shares:', error);
-        alert('Failed to load shares. Please try again later.');
+        showNotification('Failed to load shares. Please try again later.', 'error');
     }
 }
 
 // Render received shares
 function renderReceivedShares(shares) {
-    const container = document.querySelector('.shares-section:nth-of-type(2) .shares-content');
-
+    const container = document.getElementById('receivedShares');
+    
     if (!shares || shares.length === 0) {
         container.innerHTML = '<div class="no-shares">No shares received yet.</div>';
         return;
@@ -106,11 +126,11 @@ function renderReceivedShares(shares) {
     container.innerHTML = shares.map(share => `
         <div class="share-item">
             <div class="share-item-header">
-                <div class="share-title">${share.chartTitle}</div>
-                <div class="share-meta">Shared by ${share.fromUser} • ${formatDate(share.time)}</div>
+                <div class="share-title">${escapeHtml(share.chartTitle)}</div>
+                <div class="share-meta">Shared by ${escapeHtml(share.fromUser)} • ${formatDate(share.time)}</div>
             </div>
             <div class="share-actions">
-                <button class="action-button view-chart" data-chart-id="${share.chartId}">
+                <button class="action-button view-chart" data-chart-id="${escapeHtml(share.chartId)}" data-chart-type="${escapeHtml(share.chartType)}">
                     <i class="bi bi-eye"></i>
                     View Chart
                 </button>
@@ -121,8 +141,8 @@ function renderReceivedShares(shares) {
 
 // Render sent shares
 function renderSentShares(shares) {
-    const container = document.querySelector('.shares-section:nth-of-type(3) .shares-content');
-
+    const container = document.getElementById('sentShares');
+    
     if (!shares || shares.length === 0) {
         container.innerHTML = '<div class="no-shares">You haven\'t shared anything yet.</div>';
         return;
@@ -131,15 +151,15 @@ function renderSentShares(shares) {
     container.innerHTML = shares.map(share => `
         <div class="share-item">
             <div class="share-item-header">
-                <div class="share-title">${share.chartTitle}</div>
-                <div class="share-meta">Shared with ${share.toUser} • ${formatDate(share.time)}</div>
+                <div class="share-title">${escapeHtml(share.chartTitle)}</div>
+                <div class="share-meta">Shared with ${escapeHtml(share.toUser)} • ${formatDate(share.time)}</div>
             </div>
             <div class="share-actions">
-                <button class="action-button view-chart" data-chart-id="${share.chartId}">
+                <button class="action-button view-chart" data-chart-id="${escapeHtml(share.chartId)}" data-chart-type="${escapeHtml(share.chartType)}">
                     <i class="bi bi-eye"></i>
                     View Chart
                 </button>
-                <button class="action-button withdraw" data-share-id="${share.id}">
+                <button class="action-button withdraw" data-share-id="${escapeHtml(share.id)}">
                     <i class="bi bi-x"></i>
                     Withdraw
                 </button>
@@ -151,69 +171,104 @@ function renderSentShares(shares) {
 // Setup event listeners
 function setupEventListeners() {
     // Form submission
-    document.getElementById('shareForm').addEventListener('submit', handleShareSubmit);
+    const shareForm = document.getElementById('shareForm');
+    if (shareForm) {
+        shareForm.addEventListener('submit', handleShareSubmit);
+    }
 
     // Section toggles
-    document.getElementById('receivedToggle').addEventListener('click', function() {
-        this.closest('.shares-section').classList.toggle('collapsed');
-        this.querySelector('.bi-chevron-down').classList.toggle('rotated');
-    });
+    const receivedToggle = document.getElementById('receivedToggle');
+    const sentToggle = document.getElementById('sentToggle');
 
-    document.getElementById('sentToggle').addEventListener('click', function() {
-        this.closest('.shares-section').classList.toggle('collapsed');
-        this.querySelector('.bi-chevron-down').classList.toggle('rotated');
-    });
+    if (receivedToggle) {
+        receivedToggle.addEventListener('click', function() {
+            const content = document.getElementById('receivedShares');
+            const icon = this.querySelector('.bi-chevron-down');
+            toggleSection(content, icon);
+        });
+    }
+
+    if (sentToggle) {
+        sentToggle.addEventListener('click', function() {
+            const content = document.getElementById('sentShares');
+            const icon = this.querySelector('.bi-chevron-down');
+            toggleSection(content, icon);
+        });
+    }
 
     // Delegate click events for dynamic buttons
     document.addEventListener('click', function(e) {
-        if (e.target.closest('.action-button.withdraw')) {
-            handleWithdraw(e.target.closest('.action-button.withdraw'));
-        }
-        if (e.target.closest('.action-button.view-chart')) {
-            handleViewChart(e.target.closest('.action-button.view-chart'));
+        const withdrawBtn = e.target.closest('.action-button.withdraw');
+        const viewChartBtn = e.target.closest('.action-button.view-chart');
+
+        if (withdrawBtn) {
+            handleWithdraw(withdrawBtn);
+        } else if (viewChartBtn) {
+            handleViewChart(viewChartBtn);
         }
     });
+}
+
+// Toggle section visibility
+function toggleSection(content, icon) {
+    if (content) {
+        content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        icon.classList.toggle('rotated');
+    }
 }
 
 // Handle share form submission
 async function handleShareSubmit(e) {
     e.preventDefault();
-    const form = e.target;
-    const chartSelect = form.querySelector('.form-select:first-of-type');
-    const friendSelect = form.querySelector('.form-select:last-of-type');
+    
+    const chartSelect = document.getElementById('chartSelect');
+    const friendSelect = document.getElementById('friendSelect');
 
-    const chartId = chartSelect.value;
+    const chartType = chartSelect.value;
     const recipientId = friendSelect.value;
-    const chartTitle = chartSelect.options[chartSelect.selectedIndex].text;
 
-    if (!chartId || !recipientId) {
-        alert('Please select both a chart and a friend to share with.');
+    if (!chartType || !recipientId) {
+        showNotification('Please select both a chart and a friend to share with.', 'error');
         return;
     }
 
     try {
-        const response = await fetch(API.SHARES, {
+        // Fetch the data for the selected chart
+        let data;
+        if (chartType === 'calories-prediction') {
+            const response = await fetch(API.PREDICTIONS);
+            data = await response.json();
+        } else {
+            const response = await fetch(API.ANALYTICS);
+            data = await response.json();
+        }
+
+        if (!data.success) {
+            throw new Error('Failed to fetch chart data');
+        }
+
+        // Create share request
+        const shareResponse = await fetch(API.SHARES, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                chartId,
-                chartTitle,
-                recipientId
+                chartType,
+                friendId: recipientId,
+                data: data.data
             })
         });
 
-        const data = await response.json();
+        if (!shareResponse.ok) {
+            throw new Error('Failed to share chart');
+        }
 
-        if (!response.ok) throw new Error(data.error || 'Failed to create share');
-
-        alert('Share created successfully!');
-        form.reset();
-        await loadAndRenderShares();
+        showNotification('Chart shared successfully!', 'success');
+        loadAndRenderShares(); // Refresh the shares list
     } catch (error) {
-        console.error('Error creating share:', error);
-        alert('Failed to create share. Please try again later.');
+        console.error('Error sharing chart:', error);
+        showNotification('Failed to share chart. Please try again later.', 'error');
     }
 }
 
@@ -232,241 +287,224 @@ async function handleWithdraw(button) {
 
         const data = await response.json();
 
-        if (!response.ok) throw new Error(data.error || 'Failed to withdraw share');
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to withdraw share');
+        }
 
-        alert('Share withdrawn successfully.');
+        showNotification('Share withdrawn successfully.', 'success');
         await loadAndRenderShares();
     } catch (error) {
         console.error('Error withdrawing share:', error);
-        alert('Failed to withdraw share. Please try again later.');
+        showNotification('Failed to withdraw share. Please try again later.', 'error');
     }
 }
 
 // Handle viewing a chart
 async function handleViewChart(button) {
     const chartId = button.dataset.chartId;
+    const chartType = button.dataset.chartType;
     
     try {
-        // Get the visualization data from the API
-        const response = await fetch('/api/visualization/activities', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                // Send empty filters to get all data
-                startDate: null,
-                endDate: null,
-                activityType: null
-            })
-        });
+        // Fetch data based on chart type
+        let data;
+        if (chartType === 'calories-prediction') {
+            const response = await fetch(API.PREDICTIONS);
+            data = await response.json();
+        } else {
+            const response = await fetch(API.ANALYTICS);
+            data = await response.json();
+        }
 
-        if (!response.ok) {
+        if (!data.success) {
             throw new Error('Failed to fetch chart data');
         }
 
-        const data = await response.json();
-        
-        // Create modal for displaying the chart
-        const modal = document.createElement('div');
-        modal.className = 'chart-modal';
-        modal.innerHTML = `
-            <div class="chart-modal-content">
-                <div class="chart-modal-header">
-                    <h3>${getChartTitle(chartId)}</h3>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <div class="chart-modal-body">
-                    <canvas id="chartCanvas"></canvas>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // Add event listener to close button
-        modal.querySelector('.close-modal').addEventListener('click', () => {
-            modal.remove();
-        });
-        
-        // Create the chart based on chart type
-        const ctx = document.getElementById('chartCanvas').getContext('2d');
-        createChart(ctx, chartId, data);
-        
+        showChartModal(chartId, chartType, data.data);
     } catch (error) {
         console.error('Error viewing chart:', error);
-        alert('Failed to load chart data. Please try again later.');
+        showNotification('Failed to load chart. Please try again later.', 'error');
     }
+}
+
+// Show chart modal
+function showChartModal(chartId, chartType, data) {
+    const modal = document.createElement('div');
+    modal.className = 'chart-modal';
+    modal.innerHTML = `
+        <div class="chart-modal-content">
+            <div class="chart-modal-header">
+                <h3>${CHART_TYPES[chartType] || 'Chart View'}</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="chart-modal-body">
+                <canvas id="chartCanvas"></canvas>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    modal.querySelector('.close-modal').addEventListener('click', () => {
+        modal.remove();
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    const ctx = document.getElementById('chartCanvas').getContext('2d');
+    createChart(ctx, chartType, data);
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
 
 // Helper function to get chart title
 function getChartTitle(chartId) {
-    switch (chartId) {
-        case 'weekly_activity':
-            return 'Weekly Activity Summary';
-        case 'monthly_progress':
-            return 'Monthly Progress';
-        case 'activity_distribution':
-            return 'Activity Distribution';
-        case 'calories_trend':
-            return 'Calories Trend';
-        case 'activity_stats':
-            return 'Activity Statistics';
-        default:
-            return 'Chart';
-    }
-}
-
-// Helper function to create appropriate chart
-function createChart(ctx, chartId, data) {
-    switch (chartId) {
-        case 'weekly_activity':
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.weekly_data.labels,
-                    datasets: [
-                        {
-                            label: 'Duration (minutes)',
-                            data: data.weekly_data.duration,
-                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
-                        },
-                        {
-                            label: 'Distance (km)',
-                            data: data.weekly_data.distance,
-                            backgroundColor: 'rgba(75, 192, 192, 0.5)'
-                        },
-                        {
-                            label: 'Calories',
-                            data: data.weekly_data.calories,
-                            backgroundColor: 'rgba(255, 99, 132, 0.5)'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            break;
-            
-        case 'monthly_progress':
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.progress_data.labels,
-                    datasets: [
-                        {
-                            label: 'Distance (km)',
-                            data: data.progress_data.distance,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
-                        },
-                        {
-                            label: 'Duration (minutes)',
-                            data: data.progress_data.duration,
-                            borderColor: 'rgb(54, 162, 235)',
-                            tension: 0.1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            break;
-            
-        case 'activity_distribution':
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: data.activity_distribution.labels,
-                    datasets: [{
-                        data: data.activity_distribution.data,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.5)',
-                            'rgba(54, 162, 235, 0.5)',
-                            'rgba(255, 206, 86, 0.5)',
-                            'rgba(75, 192, 192, 0.5)',
-                            'rgba(153, 102, 255, 0.5)'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
-            break;
-            
-        case 'calories_trend':
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.calories_trend.labels,
-                    datasets: [{
-                        label: 'Calories Burned',
-                        data: data.calories_trend.data,
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            break;
-            
-        case 'activity_stats':
-            // For stats, we'll create a custom display
-            ctx.canvas.style.display = 'none';
-            const modalBody = ctx.canvas.parentElement;
-            modalBody.innerHTML = `
-                <div class="stats-container">
-                    <div class="stat-item">
-                        <h4>Total Activities</h4>
-                        <p>${data.stats.count}</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>Total Duration</h4>
-                        <p>${Math.round(data.stats.total_duration)} minutes</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>Total Distance</h4>
-                        <p>${data.stats.total_distance.toFixed(2)} km</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>Total Calories</h4>
-                        <p>${Math.round(data.stats.total_calories)} kcal</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>Average Duration</h4>
-                        <p>${Math.round(data.stats.avg_duration)} minutes</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>Average Distance</h4>
-                        <p>${data.stats.avg_distance.toFixed(2)} km</p>
-                    </div>
-                </div>
-            `;
-            break;
-    }
+    const titles = {
+        'weekly_activity': 'Weekly Activity Summary',
+        'monthly_progress': 'Monthly Progress',
+        'activity_distribution': 'Activity Distribution',
+        'calories_trend': 'Calories Trend',
+        'activity_stats': 'Activity Statistics'
+    };
+    return titles[chartId] || 'Chart';
 }
 
 // Helper function to format date
 function formatDate(isoString) {
     return new Date(isoString).toLocaleString();
+}
+
+// Helper function to escape HTML
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Helper function to create appropriate chart
+function createChart(ctx, chartType, data) {
+    let chartConfig;
+    
+    switch (chartType) {
+        case 'total-stats':
+            chartConfig = createTotalStatsChart(data);
+            break;
+        case 'activity-calendar':
+            chartConfig = createActivityCalendarChart(data);
+            break;
+        case 'calories-prediction':
+            chartConfig = createCaloriesPredictionChart(data);
+            break;
+        case 'activity-duration':
+            chartConfig = createActivityDurationChart(data);
+            break;
+        case 'distance-progress':
+            chartConfig = createDistanceProgressChart(data);
+            break;
+        case 'activity-distribution':
+            chartConfig = createActivityDistributionChart(data);
+            break;
+        case 'calories-trend':
+            chartConfig = createCaloriesTrendChart(data);
+            break;
+        case 'dashboard':
+            return createDashboard(ctx, data);
+        default:
+            throw new Error('Unknown chart type');
+    }
+
+    return new Chart(ctx, chartConfig);
+}
+
+// Create specific chart configurations
+function createTotalStatsChart(data) {
+    return {
+        type: 'bar',
+        data: {
+            labels: ['Calories', 'Distance (km)', 'Duration (mins)', 'Activities'],
+            datasets: [{
+                label: 'Total Stats',
+                data: [
+                    data.totalCalories,
+                    data.totalDistance,
+                    data.totalDuration,
+                    data.totalActivities
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    };
+}
+
+// Create activity calendar chart
+function createActivityCalendarChart(data) {
+    // Implementation for activity calendar visualization
+    // This would be a heatmap-style calendar view
+}
+
+// Create calories prediction chart
+function createCaloriesPredictionChart(data) {
+    // Implementation for calories prediction visualization
+}
+
+// Create activity duration chart
+function createActivityDurationChart(data) {
+    // Implementation for activity duration by day
+}
+
+// Create distance progress chart
+function createDistanceProgressChart(data) {
+    // Implementation for distance progress
+}
+
+// Create activity distribution chart
+function createActivityDistributionChart(data) {
+    // Implementation for activity distribution
+}
+
+// Create calories trend chart
+function createCaloriesTrendChart(data) {
+    // Implementation for calories trend
+}
+
+// Create complete dashboard
+function createDashboard(container, data) {
+    // Implementation for complete dashboard view
 } 
