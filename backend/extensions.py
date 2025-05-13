@@ -5,4 +5,4 @@ from flask_mail import Mail
 # 定义扩展实例
 db = SQLAlchemy()
 login_manager = LoginManager()
-mail= Mail()
+mail = Mail()

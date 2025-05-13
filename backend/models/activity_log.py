@@ -1,10 +1,10 @@
-from app import db
+from extensions import db
 from datetime import datetime
 
 class ActivityLog(db.Model):
     __tablename__ = 'activity_log'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     activity_type = db.Column(db.String(50), nullable=False)
     date = db.Column(db.Date, nullable=False)
     duration = db.Column(db.Integer)

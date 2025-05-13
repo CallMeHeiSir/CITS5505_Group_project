@@ -1,28 +1,45 @@
 from app import create_app, db
 from models.user import User
+from models.activity_log import ActivityLog
+from models.verification_code import VerificationCode
+from models.share import Share, ShareRecipient
 from sqlalchemy import select
 import os
 
 app = create_app()
 
 with app.app_context():
-    # 创建数据库表
+    # 创建所有表
     db.create_all()
     
-    # 检查是否已存在初始用户
-    stmt = select(User).where(User.username == 'test')
-    test_user = db.session.execute(stmt).scalar_one_or_none()
+    # 检查是否需要创建测试用户
+    if User.query.filter_by(username='testuser').first() is None:
+        # 创建测试用户
+        test_user = User(
+            username='testuser',
+            email='test@example.com'
+        )
+        test_user.set_password('testpass')
+        
+        # 创建第二个测试用户（用于测试好友功能）
+        test_user2 = User(
+            username='testuser2',
+            email='test2@example.com'
+        )
+        test_user2.set_password('testpass')
+        
+        # 添加用户到数据库
+        db.session.add(test_user)
+        db.session.add(test_user2)
+        
+        # 建立好友关系
+        test_user.add_friend(test_user2)
+        
+        try:
+            db.session.commit()
+            print("Created test users and established friendship")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error creating test users: {e}")
     
-    if not test_user:
-        # 创建初始用户
-        user = User(username='test', email='test@example.com')
-        # 从环境变量读取用户密码
-        test_password = os.getenv('TEST_USER_PASSWORD')
-        if not test_password:
-            raise ValueError("TEST_USER_PASSWORD environment variable is not set")
-        user.set_password(test_password)
-        db.session.add(user)
-        db.session.commit()
-        print('Initial user created successfully!')
-    else:
-        print('Initial user already exists!') 
+    print("Database setup completed") 

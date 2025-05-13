@@ -5,6 +5,7 @@ from models.activity_log import ActivityLog
 from extensions import db
 import numpy as np
 import traceback
+from flask_login import current_user
 
 visualization = Blueprint('visualization', __name__)
 
@@ -18,7 +19,7 @@ def get_visualization_data():
         activity_type = data.get('activityType')
 
         # 构建查询
-        query = ActivityLog.query
+        query = ActivityLog.query.filter(ActivityLog.user_id == current_user.id)
         if start_date:
             query = query.filter(ActivityLog.date >= start_date)
         if end_date:

@@ -113,7 +113,7 @@ function renderCalendar() {
   function pad(n) { return n < 10 ? '0' + n : n; }
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
+  
   // Update month header
   const monthHeader = document.getElementById('current-month');
   if (monthHeader) {
@@ -124,21 +124,21 @@ function renderCalendar() {
   if (prevBtn) prevBtn.style.display = '';
   const nextBtn = document.getElementById('next-month');
   if (nextBtn) nextBtn.style.display = '';
-
+  
   // Get first day of month
   const firstDay = new Date(year, month, 1);
   const startingDay = firstDay.getDay();
-
+  
   // Get last day of month
   const lastDay = new Date(year, month + 1, 0);
   const totalDays = lastDay.getDate();
-
+  
   // Get days from previous month
   const prevMonthLastDay = new Date(year, month, 0).getDate();
-
+  
   const calendarDays = document.getElementById('calendar-days');
   calendarDays.innerHTML = '';
-
+  
   // Create a grid for the month (6 rows, 7 columns)
   let dayCount = 0;
   for (let week = 0; week < 6; week++) {
@@ -184,11 +184,11 @@ function renderCalendar() {
       const hasActivity = activityDates.has(dateStr);
 
       // 高亮今天
-      const today = new Date();
+  const today = new Date();
       const isToday =
         isCurrentMonth &&
         dateNum === today.getDate() &&
-        month === today.getMonth() &&
+        month === today.getMonth() && 
         year === today.getFullYear();
 
       if (hasActivity && isToday) {
@@ -224,15 +224,15 @@ function renderCalendar() {
 // Prediction functionality
 function predictCalories(activities) {
   if (activities.length < 1) return null;
-
+  
   // 用最近7天的均值（或全部均值）
   const recent = activities.slice(-7);
   const avg = recent.reduce((sum, a) => sum + a.calories, 0) / recent.length;
   const maxVal = avg * 1.08;
-
+  
   const predictions = [];
   const lastDate = new Date(activities[activities.length - 1].date);
-
+  
   for (let i = 0; i < 30; i++) {
     const date = new Date(lastDate);
     date.setDate(lastDate.getDate() + i);
@@ -240,13 +240,13 @@ function predictCalories(activities) {
     // 线性插值：从avg平滑递增到maxVal
     const t = i / 29; // 0~1
     const predicted = avg + (maxVal - avg) * t;
-
+    
     predictions.push({
       date: date.toISOString().split('T')[0],
       calories: predicted
     });
   }
-
+  
   return predictions;
 }
 
@@ -313,47 +313,47 @@ function initializeCharts() {
   const weeklyCtx = document.getElementById('weeklyChart');
   if (weeklyCtx) {
     charts.weekly = new Chart(weeklyCtx, {
-      type: 'bar',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Duration (minutes)',
-          data: [],
-          backgroundColor: 'rgba(102, 126, 234, 0.5)',
-          borderColor: 'rgba(102, 126, 234, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Duration (minutes)'
-            }
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Duration (minutes)',
+        data: [],
+        backgroundColor: 'rgba(102, 126, 234, 0.5)',
+        borderColor: 'rgba(102, 126, 234, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Duration (minutes)'
           }
         }
       }
-    });
+    }
+  });
   }
   
   // Distance progress chart
   const progressCtx = document.getElementById('progressChart');
   if (progressCtx) {
     charts.progress = new Chart(progressCtx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Distance (km)',
-          data: [],
-          borderColor: 'rgba(102, 126, 234, 1)',
-          backgroundColor: 'rgba(102, 126, 234, 0.1)',
-          fill: true
-        }]
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Distance (km)',
+        data: [],
+        borderColor: 'rgba(102, 126, 234, 1)',
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        fill: true
+      }]
       },
       options: {
         responsive: true,
@@ -367,8 +367,8 @@ function initializeCharts() {
             }
           }
         }
-      }
-    });
+    }
+  });
   }
 
   // Activity distribution chart
@@ -483,11 +483,11 @@ async function updateData() {
       },
       body: JSON.stringify(currentFilters)
     });
-
+    
     if (!response.ok) {
       throw new Error('Failed to fetch data');
     }
-
+    
     const data = await response.json();
     console.log('Received data:', data);
     
@@ -740,7 +740,7 @@ async function exportData(format) {
 
 function updatePredictionChart(activities, predictions) {
   const ctx = document.getElementById('predictionChart').getContext('2d');
-
+  
   // Calculate current month calories
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -750,21 +750,21 @@ function updatePredictionChart(activities, predictions) {
       return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     })
     .reduce((sum, a) => sum + a.calories, 0);
-
+  
   // Update current month calories display
   const currentMonthCaloriesElem = document.getElementById('current-month-calories');
   if (currentMonthCaloriesElem) currentMonthCaloriesElem.textContent = currentMonthCalories.toFixed(0);
-
+  
   // Calculate predicted total
   const predictedTotal = predictions.reduce((sum, p) => sum + p.calories, 0);
   const predictedCaloriesElem = document.getElementById('predicted-calories');
   if (predictedCaloriesElem) predictedCaloriesElem.textContent = predictedTotal.toFixed(0);
-
+  
   // Destroy old prediction chart if exists
   if (charts.prediction && typeof charts.prediction.destroy === 'function') {
     charts.prediction.destroy();
   }
-
+  
   charts.prediction = new Chart(ctx, {
     type: 'line',
     data: {

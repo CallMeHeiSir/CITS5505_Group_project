@@ -203,7 +203,7 @@ def calculate_trend(activities, metric):
         'slope': float(slope),
         'intercept': float(intercept),
         'r_squared': float(r_squared)
-    }
+    } 
 
 @analytics.route('/api/activities/add', methods=['POST'])
 @login_required
