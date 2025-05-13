@@ -7,9 +7,35 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.env
+.venv/
 venv/
 ENV/
 env/
+env.bak/
+venv.bak/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+.webassets-cache
+*.db
+*.sqlite3
+
+# Distribution / packaging
 build/
 develop-eggs/
 dist/
@@ -21,21 +47,41 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Database
-instance/
-*.db
-*.sqlite3
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+# Logs
+*.log
+logs/
+log/
 
-# OS
-.DS_Store
-Thumbs.db 
+# Media files
+backend/static/avatars/*
+!backend/static/avatars/default.png
+
+# Database and test data
+backend/instance/
+backend/migrations/versions/
+backend/setup_db.py
+backend/show_db.py
+backend/test_data.py
+backend/test_users.py
+backend/*.db
+backend/migrations/update_schema.py
+
+# Development files
+backend/config.dev.py
+backend/config.test.py 
