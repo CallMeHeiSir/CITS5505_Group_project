@@ -18,11 +18,13 @@ def create_app():
     from .main import main as main_blueprint
     from .analytics import analytics as analytics_blueprint
     from .visualization import visualization as visualization_blueprint
+    from .share import share_bp  # Import the share blueprint
 
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(main_blueprint)
     app.register_blueprint(analytics_blueprint, url_prefix='/analytics')
     app.register_blueprint(visualization_blueprint, url_prefix='/api/visualization')
+    app.register_blueprint(share_bp, url_prefix='/api')  # Register the share blueprint
 
     print(app.url_map)  # 打印所有路由，方便调试
 
