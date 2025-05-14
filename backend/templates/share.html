@@ -3,92 +3,136 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Fitness Dashboard - Share</title>
+  <title>Share - Fitness Dashboard</title>
   <!-- Bootstrap Icons -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <!-- Select2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+  <!-- Quill Editor CSS -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/shareStyle.css') }}"/>
 </head>
 <body>
   <div class="app-container">
-    <!-- Top Navigation -->
-    <div class="top-nav">
-      <div class="logo">Fitness Dashboard</div>
-      <div class="menu">
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('upload') }}">Upload</a>
-        <a href="{{ url_for('visualize') }}">Visualize</a>
-        <a href="{{ url_for('share') }}" class="active">Share</a>
-      </div>
-      <div class="user-icon">
-        <i class="bi bi-person-circle"></i>
-      </div>
-    </div>
-
     <div class="content">
-      <!-- Sidebar -->
+      <!-- 侧边栏 Sidebar -->
       <nav class="side-nav">
-        <a href="{{ url_for('index') }}" class="side-item"><i class="bi bi-house-fill"></i><span>Home</span></a>
-        <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-        <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-        <a href="{{ url_for('share') }}" class="side-item active"><i class="bi bi-share-fill"></i><span>Share</span></a>
+        <div class="logo">Fitness Dashboard</div>
+        <a href="{{ url_for('index') }}" class="side-item {% if request.endpoint == 'index' %}active{% endif %}">
+          <i class="bi bi-house-fill"></i><span>Home</span>
+        </a>
+        <a href="{{ url_for('upload') }}" class="side-item {% if request.endpoint == 'upload' %}active{% endif %}">
+          <i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span>
+        </a>
+        <a href="{{ url_for('visualize') }}" class="side-item {% if request.endpoint == 'visualize' %}active{% endif %}">
+          <i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span>
+        </a>
+        <a href="{{ url_for('share') }}" class="side-item {% if request.endpoint == 'share' %}active{% endif %}">
+          <i class="bi bi-chat-dots-fill"></i><span>Share</span>
+        </a>
+        <a href="{{ url_for('settings') }}" class="side-item {% if request.endpoint == 'settings' %}active{% endif %}">
+          <i class="bi bi-gear-fill"></i><span>Settings</span>
+        </a>
+        <div class="user-profile">
+          {% if current_user.avatar %}
+            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="User Avatar" class="user-avatar"/>
+          {% else %}
+            <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
+          {% endif %}
+        </div>
       </nav>
 
-      <!-- Main Content -->
+      <!-- 主内容区 Main Content -->
       <main class="main-content">
-        <div class="cards-row">
-          <div class="card" style="grid-column:1/-1;">
-            <h5>Share Your Data</h5>
-            <div class="share-options">
-              <select class="form-input">
-                <option value="">Select data to share</option>
-                <option value="run">Running Data</option>
-                <option value="swim">Swimming Data</option>
-                <option value="cycle">Cycling Data</option>
+        <div class="share-container">
+          <!-- Create New Share Section -->
+          <div class="share-section">
+            <h2 class="section-title">
+              <i class="bi bi-share-fill"></i>
+              Create New Share
+              <button class="toggle-btn"><i class="bi bi-chevron-down"></i></button>
+            </h2>
+            <div class="share-content">
+              <!-- Text editor section -->
+              <div class="form-group">
+                <label>
+                  <i class="bi bi-pencil-fill"></i>
+                  Share your thoughts
+                </label>
+                <textarea id="share-text" class="share-textarea" placeholder="Write your thoughts about the chart here..."></textarea>
+              </div>
+
+              <select class="form-select" id="chart-select">
+                <option value="" disabled selected>Select a chart to share</option>
+                <option value="sleep">Sleep Tracker</option>
+                <option value="activity">Activity Tracker</option>
+                <option value="nutrition">Nutrition Tracker</option>
               </select>
-              <input type="text" placeholder="Enter username to share with" class="form-input"/>
-              <button class="btn-gradient">Share</button>
+              
+              <select class="form-select" id="friend-select">
+                <option value="" disabled selected class="select-placeholder">Select a friend to share with</option>
+                <option value="bob">Bob</option>
+                <option value="alice">Alice</option>
+                <option value="charlie">Charlie</option>
+              </select>
+
+              <button class="share-button" id="share-analysis">
+                Share Analysis
+              </button>
             </div>
           </div>
-        </div>
 
-        <div class="cards-row">
-          <!-- Shared With Me -->
-          <div class="card">
-            <h5>Shared With Me</h5>
-            <ul class="share-list">
-              <li>
-                <span class="share-info">Jacob's Running Data</span>
-                <small class="text-muted">Shared 2h ago</small>
-              </li>
-              <li>
-                <span class="share-info">Sarah's Swimming Stats</span>
-                <small class="text-muted">Shared 1d ago</small>
-              </li>
-            </ul>
+          <!-- Shares Received Section -->
+          <div class="share-section">
+            <h2 class="section-title">
+              <i class="bi bi-inbox-fill"></i>
+              Shares Received
+              <button class="toggle-btn"><i class="bi bi-chevron-down"></i></button>
+            </h2>
+            <div class="share-content">
+              <div class="empty-state">No shares received yet.</div>
+            </div>
           </div>
 
-          <!-- My Shared Data -->
-          <div class="card">
-            <h5>My Shared Data</h5>
-            <ul class="share-list">
-              <li>
-                <span class="share-info">Running Data with Mike</span>
-                <small class="text-muted">Shared 3h ago</small>
-              </li>
-              <li>
-                <span class="share-info">Cycling Stats with Emma</span>
-                <small class="text-muted">Shared 1d ago</small>
-              </li>
-            </ul>
+          <!-- Shares Sent Section -->
+          <div class="share-section">
+            <h2 class="section-title">
+              <i class="bi bi-send-fill"></i>
+              Shares Sent
+              <button class="toggle-btn"><i class="bi bi-chevron-down"></i></button>
+            </h2>
+            <div class="share-content">
+              <div class="share-record">
+                <div class="record-header">
+                  <h3>Sleep Tracker</h3>
+                  <span class="share-info">Shared with Bob • 11/05/2025, 00:50:43</span>
+                </div>
+                <p class="record-description">You shared this chart with Bob.</p>
+                <div class="record-actions">
+                  <button class="action-btn view-btn">
+                    <i class="bi bi-graph-up"></i>
+                    View Chart
+                  </button>
+                  <button class="action-btn withdraw-btn">
+                    <i class="bi bi-x-lg"></i>
+                    Withdraw
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
     </div>
   </div>
 
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <script src="{{ url_for('static', filename='js/share.js') }}"></script>
 </body>
 </html> 
