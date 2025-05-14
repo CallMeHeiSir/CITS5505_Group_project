@@ -233,13 +233,28 @@ function showSuccess(message) {
       
       try {
         const formData = new FormData(activityForm);
-        const response = await fetch('/upload', {
+        const data = {
+          activityType: formData.get('activity_type'),
+          date: formData.get('date'),
+          duration: formData.get('duration'),
+          distance: formData.get('distance'),
+          reps: formData.get('reps'),
+          height: formData.get('height'),
+          weight: formData.get('weight'),
+          age: formData.get('age'),
+          location: formData.get('location')
+        };
+        
+        const response = await fetch('/analytics/api/activities/add', {
           method: 'POST',
-          body: formData
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
         });
         
         const result = await response.json();
-        if (result.success) {
+        if (result.status === 'success') {
           showSuccess(result.message);
           activityForm.reset();
           loadRecentActivities(); // 刷新活动历史

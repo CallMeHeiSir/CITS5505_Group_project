@@ -75,34 +75,10 @@ def create_app():
         @app.route('/index')
         def index():
             return render_template('index.html')
-        @app.route('/upload', methods=['GET', 'POST'])
+        @app.route('/upload', methods=['GET'])
         @login_required
         def upload():
             form = ActivityForm()
-            if request.method == 'POST':
-                if form.validate_on_submit():
-                    try:
-                        activity = ActivityLog(
-                            user_id=current_user.id,
-                            activity_type=form.activity_type.data,
-                            date=form.date.data,
-                            duration=form.duration.data,
-                            distance=form.distance.data,
-                            reps=form.reps.data,
-                            height=form.height.data,
-                            weight=form.weight.data,
-                            age=form.age.data,
-                            location=form.location.data
-                        )
-                        db.session.add(activity)
-                        db.session.commit()
-                        return jsonify({'success': True, 'message': 'Activity added successfully!'})
-                    except Exception as e:
-                        db.session.rollback()
-                        return jsonify({'success': False, 'message': str(e)})
-                else:
-                    errors = {field: form.errors[field][0] for field in form.errors}
-                    return jsonify({'success': False, 'message': 'Validation failed', 'errors': errors})
             return render_template('upload.html', form=form)
         @app.route('/visualize')
         def visualize():
