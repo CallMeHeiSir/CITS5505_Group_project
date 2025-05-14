@@ -25,6 +25,8 @@
     <h1>Edit Personal Information</h1>
     <br>
     <form id="user-info-form" method="post" class="text-center" enctype="multipart/form-data">
+        <!-- CSRF Token -->
+        <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}">
         <div class="mb-3 input-group">
             <label for="username" class="form-label">Username:</label>
             <span class="input-group-text"><i class="bi bi-person"></i></span>
