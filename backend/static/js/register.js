@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registerForm');
     const sendCodeButton = document.getElementById('sendCodeButton');
     const registerButton = document.getElementById('registerButton');
+     const csrfToken = document.getElementById('csrf_token').value;
 
     // 点击“Send Code”按钮时，发送验证码请求
     sendCodeButton.addEventListener('click', (event) => {
@@ -141,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (countdown <= 0) {
             clearInterval(timer);
-            sendCodeButton.disabled = false;
+            sendCodeButton.disabled = true;
             sendCodeButton.textContent = 'Send Code';
         }
     }, 1000);
@@ -149,6 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // 发送验证码请求到后端
         fetch('/auth/send_verification_code', {
             method: 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken, // 添加 CSRF 令牌到请求头
+            },
             body: formData,
         })
             .then(response => {
