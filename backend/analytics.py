@@ -260,6 +260,14 @@ def add_activity():
             'message': str(e)
         }), 400
 
+def parse_date_multi(date_str):
+    for fmt in ("%Y-%m-%d", "%Y/%m/%d", "%Y-%-m-%-d", "%Y/%-m/%-d", "%Y/%m/%-d", "%Y/%-m/%d"):  # 兼容多种格式
+        try:
+            return datetime.strptime(date_str, fmt).date()
+        except Exception:
+            continue
+    raise ValueError(f"Invalid date format: {date_str}. Expected formats: YYYY-MM-DD, YYYY/M/D, YYYY/MM/DD, etc.")
+
 @analytics.route('/api/activities/upload', methods=['POST'])
 @login_required
 def upload_activities():
@@ -330,12 +338,11 @@ def upload_activities():
                 for field in required_columns:
                     if not row.get(field) or row[field].strip() == '':
                         raise ValueError(f"Missing required field: {field}")
-                
-                # 验证日期格式
+                # 验证日期格式（多格式兼容）
                 try:
-                    date = datetime.strptime(row['date'], '%Y-%m-%d').date()
-                except ValueError:
-                    raise ValueError(f"Invalid date format: {row['date']}. Expected format: YYYY-MM-DD")
+                    date = parse_date_multi(row['date'])
+                except ValueError as e:
+                    raise ValueError(str(e))
                 
                 # 验证数值字段
                 try:
