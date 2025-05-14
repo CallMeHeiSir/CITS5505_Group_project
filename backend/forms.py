@@ -18,15 +18,42 @@ class MultiFormatDateField(DateField):
 
 class ActivityForm(FlaskForm):
     activity_type = SelectField('Activity Type', choices=[
+        # 有氧运动
         ('running', 'Running'),
         ('cycling', 'Cycling'),
         ('swimming', 'Swimming'),
         ('walking', 'Walking'),
         ('hiking', 'Hiking'),
-        ('yoga', 'Yoga'),
+        ('dancing', 'Dancing'),
+        ('jumping', 'Jumping Rope'),
+        ('climbing', 'Rock Climbing'),
+        ('skating', 'Skating'),
+        ('skiing', 'Skiing'),
+        
+        # 力量训练
         ('pushup', 'Push-up'),
         ('situp', 'Sit-up'),
         ('pullup', 'Pull-up'),
+        ('squats', 'Squats'),
+        ('plank', 'Plank'),
+        ('lunges', 'Lunges'),
+        ('deadlift', 'Deadlift'),
+        ('bench_press', 'Bench Press'),
+        
+        # 柔韧性训练
+        ('yoga', 'Yoga'),
+        ('pilates', 'Pilates'),
+        ('stretching', 'Stretching'),
+        
+        # 球类运动
+        ('basketball', 'Basketball'),
+        ('tennis', 'Tennis'),
+        ('badminton', 'Badminton'),
+        ('volleyball', 'Volleyball'),
+        ('football', 'Football'),
+        ('golf', 'Golf'),
+        
+        # 其他
         ('other', 'Other')
     ], validators=[DataRequired()])
     

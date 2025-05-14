@@ -17,41 +17,69 @@ class ActivityLog(db.Model):
     location = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # 卡路里计算系数（每分钟消耗的卡路里）
+    # Calorie calculation factors (calories per minute)
     CALORIE_FACTORS = {
-        'running': 10,      # 跑步：10卡/分钟
-        'cycling': 8,       # 骑行：8卡/分钟
-        'swimming': 9,      # 游泳：9卡/分钟
-        'walking': 5,       # 步行：5卡/分钟
-        'hiking': 7,        # 徒步：7卡/分钟
-        'yoga': 4,          # 瑜伽：4卡/分钟
-        'pushup': 6,        # 俯卧撑：6卡/分钟
-        'situp': 5,         # 仰卧起坐：5卡/分钟
-        'pullup': 7,        # 引体向上：7卡/分钟
-        'other': 5          # 其他：5卡/分钟
+        # Cardio exercises
+        'running': 10,      # Running: 10 cal/min
+        'cycling': 8,       # Cycling: 8 cal/min
+        'swimming': 9,      # Swimming: 9 cal/min
+        'walking': 5,       # Walking: 5 cal/min
+        'hiking': 7,        # Hiking: 7 cal/min
+        'dancing': 6,       # Dancing: 6 cal/min
+        'jumping': 8,       # Jumping Rope: 8 cal/min
+        'climbing': 9,      # Rock Climbing: 9 cal/min
+        'skating': 7,       # Skating: 7 cal/min
+        'skiing': 8,        # Skiing: 8 cal/min
+        
+        # Strength training
+        'pushup': 6,        # Push-ups: 6 cal/min
+        'situp': 5,         # Sit-ups: 5 cal/min
+        'pullup': 7,        # Pull-ups: 7 cal/min
+        'squats': 6,        # Squats: 6 cal/min
+        'plank': 4,         # Plank: 4 cal/min
+        'lunges': 5,        # Lunges: 5 cal/min
+        'deadlift': 8,      # Deadlift: 8 cal/min
+        'bench_press': 7,   # Bench Press: 7 cal/min
+        
+        # Flexibility training
+        'yoga': 4,          # Yoga: 4 cal/min
+        'pilates': 4,       # Pilates: 4 cal/min
+        'stretching': 3,    # Stretching: 3 cal/min
+        
+        # Ball sports
+        'basketball': 8,    # Basketball: 8 cal/min
+        'tennis': 7,        # Tennis: 7 cal/min
+        'badminton': 6,     # Badminton: 6 cal/min
+        'volleyball': 6,    # Volleyball: 6 cal/min
+        'football': 9,      # Football: 9 cal/min
+        'golf': 4,          # Golf: 4 cal/min
+        
+        # Others
+        'other': 5          # Other: 5 cal/min
     }
 
     def calculate_calories(self):
-        """计算活动消耗的卡路里"""
+        """Calculate calories burned during the activity"""
         base_calories = 0
         
-        # 根据活动类型获取基础消耗系数
-        factor = self.CALORIE_FACTORS.get(self.activity_type, 5)
+        # Get base consumption factor based on activity type
+        # If activity type is not in our list, use 'other' factor (5 cal/min)
+        factor = self.CALORIE_FACTORS.get(self.activity_type, self.CALORIE_FACTORS['other'])
         
-        # 基础消耗 = 时间 * 系数
+        # Base consumption = time * factor
         if self.duration:
             base_calories = self.duration * factor
         
-        # 根据距离或次数增加消耗
+        # Add consumption based on distance or reps
         if self.distance:
-            # 距离消耗 = 距离(km) * 体重(kg) * 0.1
+            # Distance consumption = distance(km) * weight(kg) * 0.1
             base_calories += self.distance * self.weight * 0.1
         
         if self.reps:
-            # 次数消耗 = 次数 * 体重(kg) * 0.05
+            # Reps consumption = reps * weight(kg) * 0.05
             base_calories += self.reps * self.weight * 0.05
         
-        # 考虑年龄因素：年龄越大，消耗越少
+        # Consider age factor: older people burn fewer calories
         age_factor = 1.0
         if self.age:
             if self.age > 50:
@@ -59,5 +87,5 @@ class ActivityLog(db.Model):
             elif self.age > 40:
                 age_factor = 0.95
         
-        # 最终卡路里 = 基础消耗 * 年龄系数
+        # Final calories = base consumption * age factor
         return int(base_calories * age_factor) 

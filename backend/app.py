@@ -76,9 +76,13 @@ def create_app():
         @app.route('/index')
         def index():
             return render_template('index.html')
-        @app.route('/upload')
+          
+        @app.route('/upload', methods=['GET'])
+        @login_required
         def upload():
-            return render_template('upload.html')
+            form = ActivityForm()
+            return render_template('upload.html', form=form)
+
         @app.route('/visualize')
         def visualize():
             return render_template('visualize.html')

@@ -233,13 +233,28 @@ function showSuccess(message) {
       
       try {
         const formData = new FormData(activityForm);
-        const response = await fetch('/upload', {
+        const data = {
+          activityType: formData.get('activity_type'),
+          date: formData.get('date'),
+          duration: formData.get('duration'),
+          distance: formData.get('distance'),
+          reps: formData.get('reps'),
+          height: formData.get('height'),
+          weight: formData.get('weight'),
+          age: formData.get('age'),
+          location: formData.get('location')
+        };
+        
+        const response = await fetch('/analytics/api/activities/add', {
           method: 'POST',
-          body: formData
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
         });
         
         const result = await response.json();
-        if (result.success) {
+        if (result.status === 'success') {
           showSuccess(result.message);
           activityForm.reset();
           loadRecentActivities(); // 刷新活动历史
@@ -256,12 +271,19 @@ function showSuccess(message) {
   // Handle activity type change
   if (activityTypeSelect && distanceGroup && repsGroup) {
     activityTypeSelect.addEventListener('change', () => {
+      const aerobicTypes = [
+        'running', 'cycling', 'swimming', 'walking', 'hiking',
+        'dancing', 'jumping', 'climbing', 'skating', 'skiing'
+      ];
+      const strengthTypes = [
+        'pushup', 'situp', 'pullup', 'squats', 'plank',
+        'lunges', 'deadlift', 'bench_press'
+      ];
       const selectedType = activityTypeSelect.value;
-      
-      if (['running', 'cycling', 'swimming', 'walking', 'hiking'].includes(selectedType)) {
+      if (aerobicTypes.includes(selectedType)) {
         distanceGroup.style.display = 'block';
         repsGroup.style.display = 'none';
-      } else if (['pushup', 'situp', 'pullup'].includes(selectedType)) {
+      } else if (strengthTypes.includes(selectedType)) {
         distanceGroup.style.display = 'none';
         repsGroup.style.display = 'block';
       } else {
@@ -318,22 +340,39 @@ function showSuccess(message) {
   }
 
 function getActivityIcon(type) {
-    switch(type) {
-      case 'running': return '<i class="bi bi-person-fill"></i>';
-      case 'cycling': return '<i class="bi bi-bicycle"></i>';
-      case 'swimming': return '<i class="bi bi-droplet"></i>';
-      case 'walking': return '<i class="bi bi-person"></i>';
-      case 'hiking': return '<i class="bi bi-tree"></i>';
-      case 'yoga': return '<i class="bi bi-flower2"></i>';
-      case 'pushup': return '<i class="bi bi-arrow-up-circle"></i>';
-      case 'situp': return '<i class="bi bi-arrow-repeat"></i>';
-      case 'pullup': return '<i class="bi bi-arrows-angle-expand"></i>';
-      case 'basketball': return '<i class="bi bi-basket"></i>';
-      case 'squats': return '<i class="bi bi-chevron-bar-up"></i>';
-      case 'plank': return '<i class="bi bi-dash-lg"></i>';
-      default: return '<i class="bi bi-activity"></i>';
-    }
+  switch(type) {
+    case 'running': return '<i class="bi bi-person-fill"></i>';
+    case 'cycling': return '<i class="bi bi-bicycle"></i>';
+    case 'swimming': return '<i class="bi bi-droplet"></i>';
+    case 'walking': return '<i class="bi bi-person"></i>';
+    case 'hiking': return '<i class="bi bi-tree"></i>';
+    case 'dancing': return '<i class="bi bi-music-note-beamed"></i>';
+    case 'jumping': return '<i class="bi bi-arrow-up-circle"></i>';
+    case 'climbing': return '<i class="bi bi-graph-up"></i>';
+    case 'skating': return '<i class="bi bi-snow"></i>';
+    case 'skiing': return '<i class="bi bi-snow2"></i>';
+    case 'pushup':
+    case 'situp':
+    case 'pullup':
+    case 'squats':
+    case 'plank':
+    case 'lunges':
+    case 'deadlift':
+    case 'bench_press':
+      return '<i class="bi bi-activity"></i>';
+    case 'yoga': return '<i class="bi bi-flower2"></i>';
+    case 'pilates': return '<i class="bi bi-flower2"></i>';
+    case 'stretching': return '<i class="bi bi-flower2"></i>';
+    case 'basketball': return '<i class="bi bi-basket"></i>';
+    case 'tennis': return '<i class="bi bi-emoji-sunglasses"></i>';
+    case 'badminton': return '<i class="bi bi-wind"></i>';
+    case 'volleyball': return '<i class="bi bi-emoji-laughing"></i>';
+    case 'football': return '<i class="bi bi-emoji-neutral"></i>';
+    case 'golf': return '<i class="bi bi-flag"></i>';
+    case 'other': return '<i class="bi bi-activity"></i>';
+    default: return '<i class="bi bi-activity"></i>';
   }
+}
 
   function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
