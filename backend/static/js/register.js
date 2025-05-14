@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (countdown <= 0) {
             clearInterval(timer);
-            sendCodeButton.disabled = true;
+            sendCodeButton.disabled = false;
             sendCodeButton.textContent = 'Send Code';
         }
     }, 1000);
