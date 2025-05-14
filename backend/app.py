@@ -83,7 +83,8 @@ def create_app():
             return render_template('index.html')
         @app.route('/upload')
         def upload():
-            return render_template('upload.html')
+            form = ActivityForm()
+            return render_template('upload.html', form=form)
         @app.route('/visualize')
         def visualize():
             return render_template('visualize.html')
