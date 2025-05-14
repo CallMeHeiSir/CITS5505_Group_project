@@ -14,7 +14,7 @@ visualization = Blueprint('visualization', __name__)
 def get_visualization_data():
     try:
         data = request.get_json()
-        print('前端传参:', data)
+        # print('前端传参:', data)
         start_date = datetime.strptime(data.get('startDate'), '%Y-%m-%d') if data.get('startDate') else None
         end_date = datetime.strptime(data.get('endDate'), '%Y-%m-%d') if data.get('endDate') else None
         activity_type = data.get('activityType')
@@ -29,15 +29,9 @@ def get_visualization_data():
             query = query.filter(ActivityLog.activity_type == activity_type)
 
         activities = query.all()
-        print('Found activities:', len(activities))
+        # print('Found activities:', len(activities))
         if activities:
-            print('Sample activity:', {
-                'date': activities[0].date,
-                'type': activities[0].activity_type,
-                'duration': activities[0].duration,
-                'distance': activities[0].distance,
-                'calories': activities[0].calories
-            })
+            pass
 
         # 处理数据用于可视化
         visualization_data = {
@@ -98,7 +92,7 @@ def process_weekly_data(activities):
         'distance': [weekly_data[week]['distance'] for week in sorted_weeks],
         'calories': [weekly_data[week]['calories'] for week in sorted_weeks]
     }
-    print('Weekly data:', result)
+    # print('Weekly data:', result)
     return result
 
 def process_progress_data(activities):
@@ -120,7 +114,7 @@ def process_progress_data(activities):
         'distance': [progress_data[month]['distance'] for month in sorted_months],
         'duration': [progress_data[month]['duration'] for month in sorted_months]
     }
-    print('Progress data:', result)
+    # print('Progress data:', result)
     return result
 
 def process_activity_distribution(activities):
@@ -138,7 +132,7 @@ def process_activity_distribution(activities):
         'labels': list(activity_types.keys()),
         'data': list(activity_types.values())
     }
-    print('Activity distribution:', result)
+    # print('Activity distribution:', result)
     return result
 
 def process_calories_trend(activities):
@@ -157,7 +151,7 @@ def process_calories_trend(activities):
         'labels': sorted_dates,
         'data': [calories_data[date] for date in sorted_dates]
     }
-    print('Calories trend:', result)
+    # print('Calories trend:', result)
     return result
 
 def calculate_stats(activities):

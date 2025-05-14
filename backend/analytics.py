@@ -237,7 +237,10 @@ def add_activity():
             height=int(data['height']),
             weight=int(data['weight']),
             age=int(data['age']),
-            location=data['location']
+            location=data['location'],
+            shared_from=data.get('shared_from'),
+            visualization_type=data.get('visualization_type'),
+            share_message=data.get('share_message')
         )
         
         # 计算卡路里
