@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
 from models.user import User
-from models.activity_records import ActivityRecord
+from activity_records import ActivityRecord
 from models.friendship import Friendship
 from flask_login import login_required, current_user
 from datetime import datetime
