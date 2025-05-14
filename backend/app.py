@@ -3,7 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from extensions import db, login_manager, mail
 from sqlalchemy.orm import DeclarativeBase
-from flask_wtf.csrf import CSRFProtect
+from forms import ActivityForm
+from flask_login import login_required, current_user
 import os
 
 # 加载环境变量
@@ -24,7 +25,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制上传文件大小为16MB
-    # 邮件配置从环境变量加载
+ # 邮件配置从环境变量加载
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'yes']
@@ -32,8 +33,6 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
     
-    # 启用 CSRF 保护
-    csrf = CSRFProtect(app)
     
     # 自动创建头像文件夹
     if not os.path.exists(app.config['AVATAR_FOLDER']):
@@ -76,13 +75,35 @@ def create_app():
         @app.route('/index')
         def index():
             return render_template('index.html')
-          
-        @app.route('/upload', methods=['GET'])
+        @app.route('/upload', methods=['GET', 'POST'])
         @login_required
         def upload():
             form = ActivityForm()
+            if request.method == 'POST':
+                if form.validate_on_submit():
+                    try:
+                        activity = ActivityLog(
+                            user_id=current_user.id,
+                            activity_type=form.activity_type.data,
+                            date=form.date.data,
+                            duration=form.duration.data,
+                            distance=form.distance.data,
+                            reps=form.reps.data,
+                            height=form.height.data,
+                            weight=form.weight.data,
+                            age=form.age.data,
+                            location=form.location.data
+                        )
+                        db.session.add(activity)
+                        db.session.commit()
+                        return jsonify({'success': True, 'message': 'Activity added successfully!'})
+                    except Exception as e:
+                        db.session.rollback()
+                        return jsonify({'success': False, 'message': str(e)})
+                else:
+                    errors = {field: form.errors[field][0] for field in form.errors}
+                    return jsonify({'success': False, 'message': 'Validation failed', 'errors': errors})
             return render_template('upload.html', form=form)
-
         @app.route('/visualize')
         def visualize():
             return render_template('visualize.html')
