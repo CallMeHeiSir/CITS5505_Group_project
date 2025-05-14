@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const chartSelect = document.getElementById('chart-select');
   const friendSelect = document.getElementById('friend-select');
 
+  // Load friends list
+  loadFriendsList();
+
   // Initialize toggle buttons
   const toggleButtons = document.querySelectorAll('.toggle-btn');
   toggleButtons.forEach(button => {
@@ -23,6 +26,32 @@ document.addEventListener('DOMContentLoaded', function() {
   shareButton.addEventListener('click', handleShare);
 });
 
+// Load friends list from backend
+function loadFriendsList() {
+  fetch('/api/friend/friends')
+    .then(response => response.json())
+    .then(data => {
+      if (data.friends) {
+        const friendSelect = document.getElementById('friend-select');
+        // Clear existing options except the placeholder
+        while (friendSelect.options.length > 1) {
+          friendSelect.remove(1);
+        }
+        // Add friend options
+        data.friends.forEach(friend => {
+          const option = document.createElement('option');
+          option.value = friend.id;
+          option.textContent = friend.username;
+          friendSelect.appendChild(option);
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error loading friends list:', error);
+      alert('Failed to load friends list. Please try again later.');
+    });
+}
+
 function handleShare() {
   const textarea = document.getElementById('share-text');
   const chartSelect = document.getElementById('chart-select');
@@ -31,7 +60,8 @@ function handleShare() {
   
   const content = textarea.value.trim();
   const selectedChart = chartSelect.value;
-  const selectedFriend = friendSelect.value;
+  const selectedFriendId = friendSelect.value;
+  const selectedFriendName = friendSelect.options[friendSelect.selectedIndex].text;
 
   // Validate inputs
   if (!content) {
@@ -46,7 +76,7 @@ function handleShare() {
     return;
   }
 
-  if (!selectedFriend) {
+  if (!selectedFriendId) {
     alert('Please select a friend to share with.');
     friendSelect.focus();
     return;
@@ -57,38 +87,60 @@ function handleShare() {
   shareButton.textContent = 'Sharing...';
   shareButton.disabled = true;
 
-  // Create new share record
-  const shareRecord = {
-    id: Date.now(), // 用时间戳作为唯一ID
-    content: content,
-    chartName: chartSelect.options[chartSelect.selectedIndex].text,
-    friendName: friendSelect.options[friendSelect.selectedIndex].text,
-    timestamp: new Date().toISOString()
-  };
+  // Send share request to backend
+  fetch('/api/share/activity', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      activity_id: selectedChart,
+      share_to_user_id: selectedFriendId,
+      message: content,
+      visualization_type: selectedChart
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      // Create new share record for UI
+      const shareRecord = {
+        id: Date.now(),
+        content: content,
+        chartName: chartSelect.options[chartSelect.selectedIndex].text,
+        friendName: selectedFriendName,
+        timestamp: new Date().toISOString()
+      };
 
-  // Simulate network delay (in real app this would be an API call)
-  setTimeout(() => {
-    // Add to localStorage
-    const sentShares = JSON.parse(localStorage.getItem('sentShares') || '[]');
-    sentShares.unshift(shareRecord); // Add new share to the beginning
-    localStorage.setItem('sentShares', JSON.stringify(sentShares));
+      // Add to localStorage
+      const sentShares = JSON.parse(localStorage.getItem('sentShares') || '[]');
+      sentShares.unshift(shareRecord);
+      localStorage.setItem('sentShares', JSON.stringify(sentShares));
 
-    // Update UI
-    updateSentShares();
+      // Update UI
+      updateSentShares();
 
-    // Reset form
-    textarea.value = '';
-    chartSelect.value = '';
-    friendSelect.value = '';
+      // Reset form
+      textarea.value = '';
+      chartSelect.value = '';
+      friendSelect.value = '';
 
+      // Show success message
+      alert('Successfully shared!');
+    } else {
+      alert(data.message || 'Failed to share. Please try again.');
+    }
+  })
+  .catch(error => {
+    console.error('Error sharing:', error);
+    alert('Failed to share. Please try again later.');
+  })
+  .finally(() => {
     // Reset button
     shareButton.style.opacity = '1';
     shareButton.textContent = 'Share Analysis';
     shareButton.disabled = false;
-
-    // Show success message
-    alert('Successfully shared!');
-  }, 1000);
+  });
 }
 
 function updateSentShares() {
