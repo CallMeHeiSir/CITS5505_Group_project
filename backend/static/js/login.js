@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
          // 禁用按钮并开始倒计时
     let countdown = 60; // 倒计时秒数
-    sendCodeButton.disabled = false;
+    sendCodeButton.disabled = true; // 禁用按钮
     sendCodeButton.textContent = `Resend (${countdown}s)`;
 
     const timer = setInterval(() => {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (countdown <= 0) {
             clearInterval(timer);
-            sendCodeButton.disabled = true;
+            sendCodeButton.disabled = false; // 启用按钮
             sendCodeButton.textContent = 'Send Code';
         }
     }, 1000);
