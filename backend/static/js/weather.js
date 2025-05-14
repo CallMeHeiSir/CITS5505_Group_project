@@ -1,24 +1,65 @@
 $(document).ready(function () {
-  // 使用 OpenWeatherMap API
-  const apiKey = 'cb0ba94d7eca9d003747e57c48e2f8db'; // OpenWeatherMap API Key, Do not delete unless you want to break the weather function
-  // 获取用户位置（可选）
-  const city = 'Perth'; // 可根据需求动态获取用户位置
-  const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+  // 将 Open-Meteo 的天气代码转换为描述
+  function getWeatherDescription(code) {
+    const weatherCodes = {
+      0: 'Clear sky',
+      1: 'Mainly clear',
+      2: 'Partly cloudy',
+      3: 'Overcast',
+      45: 'Fog',
+      51: 'Light drizzle',
+      61: 'Light rain',
+      63: 'Moderate rain',
+      80: 'Showers',
+      95: 'Thunderstorm'
+    };
+    return weatherCodes[code] || 'Unknown';
+  }
 
-  $.ajax({
-    url: apiUrl,
-    method: 'GET',
-    dataType: 'json',
-    success: function (data) {
-      // 更新天气信息
-      $('#weather-location').text(data.name);
-      $('#weather-temp').text(`${Math.round(data.main.temp)}°C`);
-      $('#weather-desc').text(data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1));
-    },
-    error: function () {
-      $('#weather-location').text('Weather unavailable');
-      $('#weather-temp').text('');
-      $('#weather-desc').text('Unable to fetch weather data');
-    }
+  // 获取天气数据的函数
+  function fetchWeather(latitude, longitude, cityName) {
+    const apiUrl = `/weather/${latitude}/${longitude}/${encodeURIComponent(cityName)}`;
+
+    $.ajax({
+      url: apiUrl,
+      method: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        if (data.error) {
+          $('#weather-location').text('Weather unavailable');
+          $('#weather-temp').text('');
+          $('#weather-desc').text('Unable to fetch weather data');
+        } else {
+          $('#weather-location').text(cityName);
+          const temperature = data.current_weather.temperature;
+          $('#weather-temp').text(`${Math.round(temperature)}°C`);
+          const weatherCode = data.current_weather.weathercode;
+          const weatherDesc = getWeatherDescription(weatherCode);
+          $('#weather-desc').text(weatherDesc);
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        $('#weather-location').text('Weather unavailable');
+        $('#weather-temp').text('');
+        $('#weather-desc').text('Unable to fetch weather data');
+        console.error('AJAX error:', textStatus, errorThrown);
+      }
+    });
+  }
+
+  // 页面加载时，获取默认城市天气
+  const defaultCity = $('#city-select').val().split(',');
+  const defaultLat = defaultCity[0];
+  const defaultLon = defaultCity[1];
+  const defaultCityName = defaultCity[2];
+  fetchWeather(defaultLat, defaultLon, defaultCityName);
+
+  // 用户选择城市时，更新天气
+  $('#city-select').on('change', function () {
+    const selectedCity = $(this).val().split(',');
+    const lat = selectedCity[0];
+    const lon = selectedCity[1];
+    const cityName = selectedCity[2];
+    fetchWeather(lat, lon, cityName);
   });
 });

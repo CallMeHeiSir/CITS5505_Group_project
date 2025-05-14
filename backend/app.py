@@ -6,6 +6,7 @@ from sqlalchemy.orm import DeclarativeBase
 from forms import ActivityForm
 from flask_login import login_required, current_user
 import os
+import requests
 
 # 加载环境变量
 load_dotenv()
@@ -13,8 +14,6 @@ load_dotenv()
 # 创建基础模型类
 class Base(DeclarativeBase):
     pass
-
-
 
 def create_app():
     app = Flask(__name__)
@@ -25,14 +24,13 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制上传文件大小为16MB
- # 邮件配置从环境变量加载
+    # 邮件配置从环境变量加载
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'yes']
     app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
-    
     
     # 自动创建头像文件夹
     if not os.path.exists(app.config['AVATAR_FOLDER']):
@@ -43,8 +41,6 @@ def create_app():
     mail.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
-    
-    
     
     with app.app_context():
         # 导入模型
@@ -152,6 +148,16 @@ def create_app():
         @app.route('/share')
         def share():
             return render_template('share.html')
+        @app.route('/weather/<lat>/<lon>/<city>')
+        def get_weather(lat, lon, city):
+            url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true'
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                return jsonify(response.json())
+            except requests.RequestException as e:
+                app.logger.error(f'Weather API error: {str(e)}')
+                return jsonify({'error': 'Unable to fetch weather data'}), 500
         
         @login_manager.user_loader
         def load_user(user_id):
@@ -162,4 +168,4 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     print(app.url_map)
-    app.run(debug=True) 
+    app.run(debug=True)
