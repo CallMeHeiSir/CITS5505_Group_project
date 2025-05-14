@@ -270,11 +270,13 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeDateFilter() {
   const today = new Date();
   const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-  const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+  const lastYear = new Date(today);
+  lastYear.setDate(today.getDate() - 365);
 
   const startDateInput = document.getElementById('startDate');
   const endDateInput = document.getElementById('endDate');
   const dateRangeSelect = document.getElementById('date-range');
+  const customDatesGroup = document.querySelector('.custom-dates');
 
   // 默认选中"Last Month"
   dateRangeSelect.value = 'month';
@@ -284,23 +286,47 @@ function initializeDateFilter() {
   currentFilters.startDate = lastMonth.toISOString().split('T')[0];
   currentFilters.endDate = today.toISOString().split('T')[0];
 
+  // 默认隐藏 custom range
+  if (customDatesGroup) customDatesGroup.style.display = 'none';
+
   dateRangeSelect.addEventListener('change', function() {
     if (this.value === 'week') {
       const lastWeek = new Date(today);
       lastWeek.setDate(today.getDate() - 7);
       startDateInput.value = lastWeek.toISOString().split('T')[0];
       endDateInput.value = today.toISOString().split('T')[0];
+      if (customDatesGroup) customDatesGroup.style.display = 'none';
     } else if (this.value === 'month') {
       startDateInput.value = lastMonth.toISOString().split('T')[0];
       endDateInput.value = today.toISOString().split('T')[0];
+      if (customDatesGroup) customDatesGroup.style.display = 'none';
     } else if (this.value === 'year') {
-      // 优化为去年1月1日到去年12月31日
-      const lastYearStart = new Date(today.getFullYear() - 1, 0, 1);
-      const lastYearEnd = new Date(today.getFullYear() - 1, 11, 31);
-      startDateInput.value = lastYearStart.toISOString().split('T')[0];
-      endDateInput.value = lastYearEnd.toISOString().split('T')[0];
+      const lastYear = new Date(today);
+      lastYear.setDate(today.getDate() - 365);
+      startDateInput.value = lastYear.toISOString().split('T')[0];
+      endDateInput.value = today.toISOString().split('T')[0];
+      if (customDatesGroup) customDatesGroup.style.display = 'none';
     } else if (this.value === 'custom') {
-      // 不自动修改，用户自选
+      // custom range: 自动填充为所有运动数据的最早和最晚日期
+      if (customDatesGroup) customDatesGroup.style.display = '';
+      fetch('/api/visualization/activities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.activities && data.activities.length > 0) {
+          // activities 已按时间排序，取最早和最晚
+          const dates = data.activities.map(a => a.date.split('T')[0]).sort();
+          startDateInput.value = dates[0];
+          endDateInput.value = dates[dates.length - 1];
+        } else {
+          // 没有数据，默认今天
+          startDateInput.value = today.toISOString().split('T')[0];
+          endDateInput.value = today.toISOString().split('T')[0];
+        }
+      });
     }
   });
 }
