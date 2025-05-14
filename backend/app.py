@@ -10,6 +10,8 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
 import requests
+from models.check_in_log import CheckInLog
+from checkin import checkin_bp
 
 # Load environment variables
 load_dotenv()
@@ -56,6 +58,8 @@ def create_app():
     csrf.exempt('friend.send_friend_request')
     csrf.exempt('friend.handle_friend_request')
     csrf.exempt('friend.search_users')
+    csrf.exempt('checkin.daily_checkin')
+
     
     with app.app_context():
         # Import models
@@ -78,6 +82,8 @@ def create_app():
         app.register_blueprint(visualization_blueprint, url_prefix='/api/visualization')
         app.register_blueprint(activity_records_blueprint)
         app.register_blueprint(friend_bp, url_prefix='/api/friend')
+        app.register_blueprint(checkin_bp)
+
         
         # Page routes
         @app.route('/')
