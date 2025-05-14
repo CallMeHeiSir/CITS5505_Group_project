@@ -139,85 +139,83 @@ function renderCalendar() {
   const calendarDays = document.getElementById('calendar-days');
   calendarDays.innerHTML = '';
 
-  // Create a grid for the month (6 rows, 7 columns)
+  // 只生成需要的格子数（5行或6行）
+  let totalCells = startingDay + totalDays;
+  let cellCount = totalCells <= 35 ? 35 : 42;
+
   let dayCount = 0;
-  for (let week = 0; week < 6; week++) {
-    const weekRow = document.createElement('div');
-    weekRow.style.display = 'flex';
+  for (let i = 0; i < cellCount; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'calendar-day';
+    cell.style.textAlign = 'center';
+    cell.style.padding = '8px 0';
 
-    for (let day = 0; day < 7; day++) {
-      const cell = document.createElement('div');
-      cell.className = 'calendar-day';
-      cell.style.flex = '1';
-      cell.style.textAlign = 'center';
-      cell.style.padding = '8px 0';
+    let dateNum, dateStr, isCurrentMonth = true;
+    const week = Math.floor(i / 7);
+    const day = i % 7;
 
-      let dateNum, dateStr, isCurrentMonth = true;
-
-      if (week === 0 && day < startingDay) {
-        // 上月
-        dateNum = prevMonthLastDay - (startingDay - day - 1);
-        cell.classList.add('other-month');
-        isCurrentMonth = false;
-        let prevMonth = month === 0 ? 12 : month;
-        let prevYear = month === 0 ? year - 1 : year;
-        dateStr = `${prevYear}-${pad(prevMonth)}-${pad(dateNum)}`;
-      } else if (dayCount >= totalDays) {
-        // 下月
-        dateNum = dayCount - totalDays + 1;
-        cell.classList.add('other-month');
-        isCurrentMonth = false;
-        let nextMonth = month === 11 ? 1 : month + 2;
-        let nextYear = month === 11 ? year + 1 : year;
-        dateStr = `${nextYear}-${pad(nextMonth)}-${pad(dateNum)}`;
-        dayCount++;
-      } else {
-        // 本月
-        dateNum = dayCount + 1;
-        dateStr = `${year}-${pad(month + 1)}-${pad(dateNum)}`;
-        dayCount++;
-      }
-
-      cell.textContent = dateNum;
-
-      // 判断有无运动
-      const hasActivity = activityDates.has(dateStr);
-
-      // 高亮今天
-      const today = new Date();
-      const isToday =
-        isCurrentMonth &&
-        dateNum === today.getDate() &&
-        month === today.getMonth() &&
-        year === today.getFullYear();
-
-      if (hasActivity && isToday) {
-        // 今天且有运动
-        cell.style.background = '#6366f1';
-        cell.style.color = '#fff';
-        cell.style.fontWeight = 'bold';
-        cell.style.border = '2px solid #374151';
-        cell.style.borderRadius = '50%';
-      } else if (hasActivity) {
-        // 有运动
-        cell.style.background = '#6366f1';
-        cell.style.color = '#fff';
-        cell.style.fontWeight = 'bold';
-        cell.style.borderRadius = '50%';
-      } else if (isToday) {
-        // 仅今天
-        cell.style.border = '2px solid #6366f1';
-        cell.style.borderRadius = '50%';
-      }
-
-      // 灰色显示其他月
-      if (!isCurrentMonth) {
-        cell.style.opacity = '0.4';
-      }
-
-      weekRow.appendChild(cell);
+    if (week === 0 && day < startingDay) {
+      // 上月
+      dateNum = prevMonthLastDay - (startingDay - day - 1);
+      cell.classList.add('other-month');
+      isCurrentMonth = false;
+      let prevMonth = month === 0 ? 12 : month;
+      let prevYear = month === 0 ? year - 1 : year;
+      dateStr = `${prevYear}-${pad(prevMonth)}-${pad(dateNum)}`;
+    } else if (dayCount >= totalDays) {
+      // 下月
+      dateNum = dayCount - totalDays + 1;
+      cell.classList.add('other-month');
+      isCurrentMonth = false;
+      let nextMonth = month === 11 ? 1 : month + 2;
+      let nextYear = month === 11 ? year + 1 : year;
+      dateStr = `${nextYear}-${pad(nextMonth)}-${pad(dateNum)}`;
+      dayCount++;
+    } else {
+      // 本月
+      dateNum = dayCount + 1;
+      dateStr = `${year}-${pad(month + 1)}-${pad(dateNum)}`;
+      dayCount++;
     }
-    calendarDays.appendChild(weekRow);
+
+    cell.textContent = dateNum;
+
+    // 判断有无运动
+    const hasActivity = activityDates.has(dateStr);
+
+    // 高亮今天
+    const today = new Date();
+    const isToday =
+      isCurrentMonth &&
+      dateNum === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear();
+
+    if (hasActivity && isToday) {
+      // 今天且有运动
+      cell.style.background = '#6366f1';
+      cell.style.color = '#fff';
+      cell.style.fontWeight = 'bold';
+      cell.style.border = '2px solid #374151';
+      cell.style.borderRadius = '50%';
+    } else if (hasActivity) {
+      // 有运动
+      cell.style.background = '#6366f1';
+      cell.style.color = '#fff';
+      cell.style.fontWeight = 'bold';
+      cell.style.borderRadius = '50%';
+    } else if (isToday) {
+      // 仅今天
+      cell.style.border = '2px solid #6366f1';
+      cell.style.borderRadius = '50%';
+    }
+
+    // 灰色显示其他月
+    if (!isCurrentMonth) {
+      cell.style.opacity = '0.4';
+    }
+
+    calendarDays.appendChild(cell);
   }
 }
 
