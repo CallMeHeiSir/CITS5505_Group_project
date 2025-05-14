@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from extensions import db, login_manager, mail
 from sqlalchemy.orm import DeclarativeBase
+from flask_wtf.csrf import CSRFProtect
 from forms import ActivityForm
 from flask_login import login_required, current_user
 import os
@@ -33,7 +34,9 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
     
-    
+
+    # 启用 CSRF 保护
+    csrf = CSRFProtect(app)
     # 自动创建头像文件夹
     if not os.path.exists(app.config['AVATAR_FOLDER']):
         os.makedirs(app.config['AVATAR_FOLDER'], exist_ok=True)
