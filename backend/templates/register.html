@@ -40,6 +40,8 @@
         <a href="{{ url_for('auth.logout') }}" class="btn-gradient">Logout</a>
       {% else %}
         <form id="registerForm" action="#" method="POST" enctype="multipart/form-data">
+          <!-- CSRF Token -->
+          <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}">
           <!-- Username -->
           <div class="form-group">
             <label for="username">Username</label>
