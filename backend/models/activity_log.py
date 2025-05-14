@@ -16,6 +16,9 @@ class ActivityLog(db.Model):
     age = db.Column(db.Integer)
     location = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    shared_from = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    visualization_type = db.Column(db.String(50), nullable=True)
+    share_message = db.Column(db.Text, nullable=True)
 
     # 卡路里计算系数（每分钟消耗的卡路里）
     CALORIE_FACTORS = {
