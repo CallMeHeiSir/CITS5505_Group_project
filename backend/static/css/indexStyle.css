@@ -330,3 +330,39 @@ html, body {
     font-size: 0.8rem;
   }
 }
+
+/* 天气 */
+.weather-section {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.weather-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weather-content h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.weather-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.weather-content #weather-temp {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #667eea;
+}
+
+.weather-content #weather-desc {
+  font-style: italic;
+}
