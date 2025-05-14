@@ -4,65 +4,72 @@ document.addEventListener('DOMContentLoaded', function() {
   const loginForm = document.getElementById('login-form');
   const registerForm = document.getElementById('register-form');
 
-  // Handle login form submission
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      // Get email and password from the form
       const email = this.querySelector('input[type="email"]').value;
       const password = this.querySelector('input[type="password"]').value;
-
-      // TODO: Send login request to backend
       console.log('Login attempt:', { email, password });
-      
-      // Simulate successful login by redirecting to upload page
       window.location.href = 'upload.html';
     });
   }
 
-  // Handle registration form submission
   if (registerForm) {
     registerForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      // Get user registration details from the form
       const username = this.querySelector('input[type="text"]').value;
       const email = this.querySelector('input[type="email"]').value;
       const password = this.querySelector('input[type="password"]').value;
-
-      // TODO: Send registration request to backend
       console.log('Register attempt:', { username, email, password });
-      
-      // Simulate successful registration
       alert('Registration successful! Please login.');
       this.reset();
     });
   }
 
-  // 打卡功能
   const checkInBtn = document.getElementById('checkInBtn');
   const checkInProgress = document.getElementById('checkInProgress');
   const streakDays = document.getElementById('streakDays');
 
+  // ✅ 自动从后端加载 streak 天数和进度条
+  function loadStreakStatus() {
+    fetch('/api/checkin/status')
+      .then(res => res.json())
+      .then(data => {
+        const maxStreak = 5;
+        streakDays.innerText = data.streak;
+        let progress = Math.min(data.streak / maxStreak, 1) * 100;
+        checkInProgress.style.width = progress + '%';
+      })
+      .catch(err => console.error('Failed to load streak:', err));
+  }
+
   if (checkInBtn && checkInProgress && streakDays) {
-    checkInBtn.addEventListener('click', function() {
-      console.log('Check In button clicked');
-      let progress = parseInt(checkInProgress.style.width);
-      let days = parseInt(streakDays.innerText);
-
-      if (progress >= 100) {
-        alert('Already fully checked in for this cycle!');
-        return;
-      }
-
-      progress += 10;
-      days += 1;
-      if (progress > 100) progress = 100;
-
-      checkInProgress.style.width = progress + '%';
-      streakDays.innerText = days;
-
-      alert('Check-in successful!');
+    // 打卡点击事件
+    checkInBtn.addEventListener('click', function () {
+      fetch('/api/checkin', {
+        method: 'POST'
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            streakDays.innerText = data.streak;
+            const maxStreak = 5;
+            let progress = Math.min(data.streak / maxStreak, 1) * 100;
+            checkInProgress.style.width = progress + '%';
+            alert('✅ Check-in successful!');
+          } else {
+            alert(data.message || 'Already checked in today.');
+          }
+        })
+        .catch(err => {
+          console.error('Check-in error:', err);
+          alert('Check-in failed.');
+        });
     });
+
+    // ✅ 页面初始加载时调用
+    loadStreakStatus();
+
   } else {
     console.error('Check-in elements not found:', {
       checkInBtn,
