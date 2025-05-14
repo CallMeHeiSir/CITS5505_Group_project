@@ -7,6 +7,7 @@ from flask_wtf.csrf import CSRFProtect
 from forms import ActivityForm
 from flask_login import login_required, current_user
 import os
+import requests
 # Load environment variables
 load_dotenv()
 
@@ -133,6 +134,16 @@ def create_app():
         @app.route('/share')
         def share():
             return render_template('share.html')
+        @app.route('/weather/<lat>/<lon>/<city>')
+        def get_weather(lat, lon, city):
+            url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true'
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                return jsonify(response.json())
+            except requests.RequestException as e:
+                app.logger.error(f'Weather API error: {str(e)}')
+                return jsonify({'error': 'Unable to fetch weather data'}), 500
         
         @login_manager.user_loader
         def load_user(user_id):
