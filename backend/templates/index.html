@@ -10,6 +10,7 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/indexStyle.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/friends.css') }}"/>
 </head>
 <body>
   <div class="app-container">
@@ -84,18 +85,33 @@
               <!-- 右侧列：My Friends -->
               <div class="column-right">
                 <div class="card card-my-friends">
-                  <h5>My Friends</h5>
-                  <select class="friends-dropdown">
-                    <option value="friend1">John Doe</option>
-                    <option value="friend2">Jane Smith</option>
-                    <option value="friend3">Alice Johnson</option>
-                    <option value="friend4">Bob Brown</option>
-                    <option value="friend5">Charlie Brown</option>
-                    <option value="friend6">David Wilson</option>
-                    <option value="friend7">Eve Davis</option>
-                    <option value="friend8">Frank Miller</option>
-                    <option value="friend9">Grace Lee</option>
-                  </select>
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Friends</h5>
+                    <span id="requestCount" class="request-count" style="display: none;">0</span>
+                  </div>
+                  <div class="tabs">
+                    <button class="tab active" data-tab="friends" onclick="switchTab('friends')">My Friends</button>
+                    <button class="tab" data-tab="requests" onclick="switchTab('requests')">Requests</button>
+                    <button class="tab" data-tab="search" onclick="switchTab('search')">Find Friends</button>
+                  </div>
+                  <div id="friendsContent" class="tab-content active">
+                    <div id="friendsList" class="friends-list">
+                      <!-- Friends will be loaded here -->
+                    </div>
+                  </div>
+                  <div id="requestsContent" class="tab-content">
+                    <div id="requestsList" class="friends-list">
+                      <!-- Friend requests will be loaded here -->
+                    </div>
+                  </div>
+                  <div id="searchContent" class="tab-content">
+                    <div class="search-container">
+                      <input type="text" id="searchInput" class="search-input" placeholder="Search by username or email">
+                    </div>
+                    <div id="searchResults" class="friends-list">
+                      <!-- Search results will be loaded here -->
+                    </div>
+                  </div>
                 </div>
               </div>
               <!-- Progress Bar 覆盖 Health Tips 和 My Friends -->
@@ -112,6 +128,7 @@
   </div>
 
   <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/friends.js') }}"></script>
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93d6b1c398cb180f',t:'MTc0Njg1MTM1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
