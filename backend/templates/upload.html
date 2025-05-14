@@ -108,6 +108,9 @@
               <div class="tab-content active" id="file-upload">
                 <div class="upload-description">
                   <p>Upload your fitness data in CSV format. <a href="{{ url_for('static', filename='user_data_templates/fitness_data_template.csv') }}" download class="template-link">Download template</a></p>
+                  <p style="color:#888;font-size:0.95em;">
+                    <b>Tip:</b> Date format should be <code>YYYY-MM-DD</code> (e.g. 2024-05-01). Also supports <code>YYYY/M/D</code> and <code>YYYY/MM/DD</code>.
+                  </p>
                 </div>
                 <form class="upload-form" id="upload-form" enctype="multipart/form-data">
                   <div class="upload-zone" id="drop-zone">
@@ -122,68 +125,84 @@
 
               <!-- Manual Entry Tab -->
               <div class="tab-content" id="manual-entry">
-                <form class="activity-form" id="activity-form">
+                <form class="activity-form" id="activity-form" method="POST">
+                  {{ form.csrf_token }}
                   <div class="form-group">
-                    <label>Activity Type</label>
-                    <select class="form-input" name="activity_type" id="activity_type" required>
-                      <option value="">Select activity type</option>
-                      <option value="running">Running</option>
-                      <option value="cycling">Cycling</option>
-                      <option value="swimming">Swimming</option>
-                      <option value="walking">Walking</option>
-                      <option value="hiking">Hiking</option>
-                      <option value="yoga">Yoga</option>
-                      <option value="pushup">Push-up</option>
-                      <option value="situp">Sit-up</option>
-                      <option value="pullup">Pull-up</option>
-                      <option value="other">Other</option>
-                    </select>
+                    {{ form.activity_type.label }}
+                    {{ form.activity_type(class="form-input") }}
+                    {% if form.activity_type.errors %}
+                      <div class="error-message">{{ form.activity_type.errors[0] }}</div>
+                    {% endif %}
                   </div>
 
                   <div class="form-row">
                     <div class="form-group">
-                      <label>Date</label>
-                      <input type="date" class="form-input" name="date" required/>
+                      {{ form.date.label }}
+                      {{ form.date(class="form-input") }}
+                      {% if form.date.errors %}
+                        <div class="error-message">{{ form.date.errors[0] }}</div>
+                      {% endif %}
                     </div>
 
                     <div class="form-group">
-                      <label>Duration (minutes)</label>
-                      <input type="number" class="form-input" name="duration" min="1" required/>
+                      {{ form.duration.label }}
+                      {{ form.duration(class="form-input") }}
+                      {% if form.duration.errors %}
+                        <div class="error-message">{{ form.duration.errors[0] }}</div>
+                      {% endif %}
                     </div>
                   </div>
 
                   <div class="form-row">
                     <div class="form-group" id="distance-group">
-                      <label>Distance (km)</label>
-                      <input type="number" class="form-input" name="distance" min="0" step="0.1"/>
+                      {{ form.distance.label }}
+                      {{ form.distance(class="form-input") }}
+                      {% if form.distance.errors %}
+                        <div class="error-message">{{ form.distance.errors[0] }}</div>
+                      {% endif %}
                     </div>
                     <div class="form-group" id="reps-group">
-                      <label>Reps (count)</label>
-                      <input type="number" class="form-input" name="reps" min="0"/>
+                      {{ form.reps.label }}
+                      {{ form.reps(class="form-input") }}
+                      {% if form.reps.errors %}
+                        <div class="error-message">{{ form.reps.errors[0] }}</div>
+                      {% endif %}
                     </div>
                   </div>
 
                   <div class="form-row">
                     <div class="form-group">
-                      <label>Height (cm)</label>
-                      <input type="number" class="form-input" name="height" min="0" required/>
+                      {{ form.height.label }}
+                      {{ form.height(class="form-input") }}
+                      {% if form.height.errors %}
+                        <div class="error-message">{{ form.height.errors[0] }}</div>
+                      {% endif %}
                     </div>
 
                     <div class="form-group">
-                      <label>Weight (kg)</label>
-                      <input type="number" class="form-input" name="weight" min="0" required/>
+                      {{ form.weight.label }}
+                      {{ form.weight(class="form-input") }}
+                      {% if form.weight.errors %}
+                        <div class="error-message">{{ form.weight.errors[0] }}</div>
+                      {% endif %}
                     </div>
                   </div>
 
                   <div class="form-row">
                     <div class="form-group">
-                      <label>Age</label>
-                      <input type="number" class="form-input" name="age" min="0" required/>
+                      {{ form.age.label }}
+                      {{ form.age(class="form-input") }}
+                      {% if form.age.errors %}
+                        <div class="error-message">{{ form.age.errors[0] }}</div>
+                      {% endif %}
                     </div>
 
                     <div class="form-group">
-                      <label>Location</label>
-                      <input type="text" class="form-input" name="location" required/>
+                      {{ form.location.label }}
+                      {{ form.location(class="form-input") }}
+                      {% if form.location.errors %}
+                        <div class="error-message">{{ form.location.errors[0] }}</div>
+                      {% endif %}
                     </div>
                   </div>
 

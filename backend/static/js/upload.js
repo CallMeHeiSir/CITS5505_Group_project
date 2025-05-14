@@ -229,40 +229,26 @@ function showSuccess(message) {
   // Handle activity form submission
   if (activityForm) {
     activityForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-      const formData = {
-        activityType: activityForm.querySelector('[name="activity_type"]').value,
-        date: activityForm.querySelector('[name="date"]').value,
-        duration: parseInt(activityForm.querySelector('[name="duration"]').value),
-        distance: activityForm.querySelector('[name="distance"]').value ? parseFloat(activityForm.querySelector('[name="distance"]').value) : null,
-        reps: activityForm.querySelector('[name="reps"]').value ? parseInt(activityForm.querySelector('[name="reps"]').value) : null,
-        height: parseInt(activityForm.querySelector('[name="height"]').value),
-        weight: parseInt(activityForm.querySelector('[name="weight"]').value),
-        age: parseInt(activityForm.querySelector('[name="age"]').value),
-        location: activityForm.querySelector('[name="location"]').value
-      };
-      console.log('Submitting activity data:', formData);
-    try {
-        const response = await fetch('/analytics/api/activities/add', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-          body: JSON.stringify(formData)
-      });
+      e.preventDefault();
+      
+      try {
+        const formData = new FormData(activityForm);
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
         const result = await response.json();
-        console.log('Server response:', result);
-        if (response.ok) {
-          showSuccess(`Activity added successfully! Calories burned: ${result.calories}`);
-      activityForm.reset();
-          activityForm.querySelector('[name="date"]').valueAsDate = new Date();
+        if (result.success) {
+          showSuccess(result.message);
+          activityForm.reset();
           loadRecentActivities(); // 刷新活动历史
         } else {
-          showError(result.message || 'Failed to add activity');
-    }
+          showError(result.message);
+        }
       } catch (error) {
         console.error('Error submitting activity:', error);
-        showError('Failed to connect to server');
+        showError('Failed to submit activity');
       }
     });
   }

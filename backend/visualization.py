@@ -5,10 +5,12 @@ from models.activity_log import ActivityLog
 from extensions import db
 import numpy as np
 import traceback
+from flask_login import login_required, current_user
 
 visualization = Blueprint('visualization', __name__)
 
 @visualization.route('/activities', methods=['POST'])
+@login_required
 def get_visualization_data():
     try:
         data = request.get_json()
@@ -17,8 +19,8 @@ def get_visualization_data():
         end_date = datetime.strptime(data.get('endDate'), '%Y-%m-%d') if data.get('endDate') else None
         activity_type = data.get('activityType')
 
-        # 构建查询
-        query = ActivityLog.query
+        # 构建查询（加上用户隔离）
+        query = ActivityLog.query.filter_by(user_id=current_user.id)
         if start_date:
             query = query.filter(ActivityLog.date >= start_date)
         if end_date:
