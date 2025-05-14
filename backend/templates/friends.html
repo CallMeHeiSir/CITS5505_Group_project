@@ -1,59 +1,223 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Friends - Fitness Dashboard</title>
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-</head>
+{% extends "base.html" %}
 
-<body>
-
-<div class="app-container">
-    <div class="content">
-
-        <!-- 侧边栏 Sidebar -->
-        <nav class="side-nav">
-            <div class="logo">Fitness Dashboard</div>
-            <a href="{{ url_for('index') }}" class="side-item"><i class="bi bi-house-fill"></i><span>Home</span></a>
-            <a href="{{ url_for('upload') }}" class="side-item"><i class="bi bi-cloud-arrow-up-fill"></i><span>Upload</span></a>
-            <a href="{{ url_for('visualize') }}" class="side-item"><i class="bi bi-bar-chart-line-fill"></i><span>Visualize</span></a>
-            <a href="{{ url_for('share') }}" class="side-item"><i class="bi bi-chat-dots-fill"></i><span>Share</span></a>
-            <a href="{{ url_for('settings') }}" class="side-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
-            <div class="user-profile">
-                <i class="bi bi-person-circle"></i>
-            </div>
-        </nav>
-
-        <!-- 主内容区 Main Content -->
-        <main class="main-content">
-
-            <div class="card" style="padding: 24px;">
-
-                <!-- 添加好友按钮 -->
-                <section style="margin-bottom: 24px; display: flex; justify-content: flex-end;">
-                    <a href="{{ url_for('new_friend') }}" class="btn-gradient" style="padding: 10px 20px;">➕ Add New Friend</a>
-                </section>
-
-                <!-- 好友列表 -->
-                <section>
-                    <h2 style="margin-bottom: 16px;">My Friends</h2>
-                    <div id="friendsContainer" class="forum-posts">
-                        <!-- 动态加载好友卡片 -->
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Friends List -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">My Friends</h5>
+                </div>
+                <div class="card-body">
+                    <div id="friendsList" class="list-group">
+                        <!-- Friends list will be dynamically loaded via JavaScript -->
                     </div>
-                </section>
+                </div>
+            </div>
+        </div>
 
+        <!-- Friend Requests and Search -->
+        <div class="col-md-4">
+            <!-- Search Users -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Search Users</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search by username or email">
+                        <small class="form-text text-muted">Type username or email address to search</small>
+                    </div>
+                    <div id="searchResults" class="list-group mt-3">
+                        <!-- Search results will be displayed here -->
+                    </div>
+                </div>
             </div>
 
-        </main>
-
+            <!-- Friend Requests -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Friend Requests</h5>
+                    <span id="requestCount" class="badge bg-primary" style="display: none;">0</span>
+                </div>
+                <div class="card-body">
+                    <div id="requestsList" class="list-group">
+                        <!-- Friend requests list will be dynamically loaded via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- 引入新的升级版 friends.js -->
-<script src="{{ url_for('static', filename='js/friends.js') }}"></script>
+<script>
+// Load friends list
+function loadFriends() {
+    fetch('/api/friend/friends')
+        .then(response => response.json())
+        .then(data => {
+            const friendsList = document.getElementById('friendsList');
+            friendsList.innerHTML = '';
+            if (data.friends.length === 0) {
+                friendsList.innerHTML = '<div class="list-group-item text-muted">No friends yet</div>';
+                return;
+            }
+            data.friends.forEach(friend => {
+                friendsList.innerHTML += `
+                    <div class="list-group-item">
+                        <h6 class="mb-1">${friend.username}</h6>
+                        <small class="text-muted">${friend.email}</small>
+                    </div>
+                `;
+            });
+        })
+        .catch(error => console.error('Error loading friends:', error));
+}
 
-</body>
-</html>
+// Load pending friend requests
+function loadPendingRequests() {
+    fetch('/api/friend/pending_requests')
+        .then(response => response.json())
+        .then(data => {
+            const requestsList = document.getElementById('requestsList');
+            requestsList.innerHTML = '';
+            if (data.pending_requests.length === 0) {
+                requestsList.innerHTML = '<div class="list-group-item text-muted">No pending requests</div>';
+                return;
+            }
+            data.pending_requests.forEach(request => {
+                requestsList.innerHTML += `
+                    <div class="list-group-item">
+                        <h6 class="mb-1">From: ${request.from_user.username}</h6>
+                        <small class="text-muted">${request.from_user.email}</small>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-success" onclick="handleRequest(${request.id}, 'accept')">Accept</button>
+                            <button class="btn btn-sm btn-danger" onclick="handleRequest(${request.id}, 'reject')">Reject</button>
+                        </div>
+                    </div>
+                `;
+            });
+            // Update request count after loading requests
+            loadRequestCount();
+        })
+        .catch(error => console.error('Error loading requests:', error));
+}
+
+// Load pending request count
+function loadRequestCount() {
+    fetch('/api/friend/pending_request_count')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('requestCount');
+            badge.textContent = data.count;
+            badge.style.display = data.count > 0 ? 'inline-block' : 'none';
+        })
+        .catch(error => console.error('Error loading request count:', error));
+}
+
+// Handle friend request
+function handleRequest(requestId, action) {
+    fetch(`/api/friend/handle_request/${requestId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: action })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadPendingRequests();
+        loadRequestCount();
+        if (action === 'accept') {
+            loadFriends();
+        }
+    })
+    .catch(error => console.error('Error handling request:', error));
+}
+
+// Search users
+function searchUsers(query) {
+    if (!query.trim()) {
+        document.getElementById('searchResults').innerHTML = '';
+        return;
+    }
+
+    fetch(`/api/friend/search_users?query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '';
+            if (data.users.length === 0) {
+                searchResults.innerHTML = '<div class="list-group-item text-muted">No users found</div>';
+                return;
+            }
+            data.users.forEach(user => {
+                let actionButton = '';
+                switch (user.status) {
+                    case 'available':
+                        actionButton = `<button class="btn btn-sm btn-primary" onclick="sendFriendRequest(${user.id})">Send Request</button>`;
+                        break;
+                    case 'pending':
+                        actionButton = `<span class="badge bg-warning text-dark">Request Pending</span>`;
+                        break;
+                    case 'friend':
+                        actionButton = `<span class="badge bg-success">Already Friends</span>`;
+                        break;
+                }
+                searchResults.innerHTML += `
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">${user.username}</h6>
+                                <small class="text-muted">${user.email}</small>
+                            </div>
+                            <div>
+                                ${actionButton}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        })
+        .catch(error => console.error('Error searching users:', error));
+}
+
+// Send friend request
+function sendFriendRequest(userId) {
+    fetch('/api/friend/send_request', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ to_user_id: userId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        searchUsers(document.getElementById('searchInput').value); // Refresh search results
+    })
+    .catch(error => console.error('Error sending request:', error));
+}
+
+// Add search input event listener with debounce
+let searchTimeout = null;
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        searchUsers(e.target.value);
+    }, 300);
+});
+
+// Load data when page is ready
+document.addEventListener('DOMContentLoaded', function() {
+    loadFriends();
+    loadPendingRequests();
+    loadRequestCount();
+    
+    // Refresh request count every 30 seconds
+    setInterval(loadRequestCount, 30000);
+});
+</script>
+{% endblock %}

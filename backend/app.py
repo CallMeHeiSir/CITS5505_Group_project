@@ -7,25 +7,23 @@ from flask_wtf.csrf import CSRFProtect
 from forms import ActivityForm
 from flask_login import login_required, current_user
 import os
-# 加载环境变量
+# Load environment variables
 load_dotenv()
 
-# 创建基础模型类
+# Create base model class
 class Base(DeclarativeBase):
     pass
-
-
 
 def create_app():
     app = Flask(__name__)
     
-    # 配置
+    # Configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制上传文件大小为16MB
-    # 邮件配置从环境变量加载
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit upload file size to 16MB
+    # Load email configuration from environment variables
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'yes']
@@ -33,18 +31,17 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
     
-    
-    # 自动创建头像文件夹
+    # Automatically create avatar folder
     if not os.path.exists(app.config['AVATAR_FOLDER']):
         os.makedirs(app.config['AVATAR_FOLDER'], exist_ok=True)
     
-    # 初始化扩展
+    # Initialize extensions
     db.init_app(app)
     mail.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     
-    # 启用 CSRF 保护
+    # Enable CSRF protection
     csrf = CSRFProtect( )
     csrf.init_app(app)
     
@@ -53,25 +50,28 @@ def create_app():
     csrf.exempt('visualization.get_visualization_data')
     
     with app.app_context():
-        # 导入模型
+        # Import models
         from models.user import User
         from models.activity_log import ActivityLog
         from models.verification_code import VerificationCode
+        from models.friend import FriendRequest, Friendship  # Import friend models
         
-        # 创建数据库表
+        # Create database tables
         db.create_all()
         
-        # 注册蓝图
+        # Register blueprints
         from auth import auth as auth_blueprint
         from analytics import analytics as analytics_blueprint
         from visualization import visualization as visualization_blueprint
         from activity_records import activity_records as activity_records_blueprint
+        from friend import friend_bp
         app.register_blueprint(auth_blueprint, url_prefix='/auth')
         app.register_blueprint(analytics_blueprint, url_prefix='/analytics')
         app.register_blueprint(visualization_blueprint, url_prefix='/api/visualization')
         app.register_blueprint(activity_records_blueprint)
+        app.register_blueprint(friend_bp, url_prefix='/api/friend')
         
-        # 添加页面路由
+        # Add page routes
         @app.route('/')
         def home():
             return redirect(url_for('welcome'))
