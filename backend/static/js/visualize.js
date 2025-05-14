@@ -765,6 +765,16 @@ async function exportData(format) {
 function updatePredictionChart(activities, predictions) {
   const ctx = document.getElementById('predictionChart').getContext('2d');
 
+  // 合并所有日期和数据，按日期排序
+  const actualPoints = activities.map(a => ({ date: a.date.split('T')[0], actual: a.calories, predicted: null }));
+  const predictedPoints = predictions.map(p => ({ date: p.date, actual: null, predicted: p.calories }));
+  const allPoints = [...actualPoints, ...predictedPoints];
+  allPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const sortedLabels = allPoints.map(p => p.date);
+  const sortedActual = allPoints.map(p => p.actual);
+  const sortedPredicted = allPoints.map(p => p.predicted);
+
   // Calculate current month calories
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -792,18 +802,18 @@ function updatePredictionChart(activities, predictions) {
   charts.prediction = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: [...activities.map(a => a.date.split('T')[0]), ...predictions.map(p => p.date)],
+      labels: sortedLabels,
       datasets: [
         {
           label: 'Actual Calories',
-          data: [...activities.map(a => a.calories), ...Array(predictions.length).fill(null)],
+          data: sortedActual,
           borderColor: 'rgba(102, 126, 234, 1)',
           backgroundColor: 'rgba(102, 126, 234, 0.1)',
           fill: true
         },
         {
           label: 'Predicted Calories',
-          data: [...Array(activities.length).fill(null), ...predictions.map(p => p.calories)],
+          data: sortedPredicted,
           borderColor: 'rgba(255, 99, 132, 1)',
           borderDash: [5, 5],
           fill: false
