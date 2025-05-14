@@ -3,8 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from extensions import db, login_manager, mail
 from sqlalchemy.orm import DeclarativeBase
-from forms import ActivityForm
-from flask_login import login_required, current_user
+from flask_wtf.csrf import CSRFProtect
 import os
 
 # 加载环境变量
@@ -25,7 +24,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制上传文件大小为16MB
- # 邮件配置从环境变量加载
+    # 邮件配置从环境变量加载
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'yes']
@@ -33,6 +32,8 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
     
+    # 启用 CSRF 保护
+    csrf = CSRFProtect(app)
     
     # 自动创建头像文件夹
     if not os.path.exists(app.config['AVATAR_FOLDER']):
@@ -75,11 +76,13 @@ def create_app():
         @app.route('/index')
         def index():
             return render_template('index.html')
+          
         @app.route('/upload', methods=['GET'])
         @login_required
         def upload():
             form = ActivityForm()
             return render_template('upload.html', form=form)
+
         @app.route('/visualize')
         def visualize():
             return render_template('visualize.html')
