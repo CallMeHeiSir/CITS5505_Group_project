@@ -88,12 +88,16 @@ function handleRequest(requestId, action) {
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message);
-        loadPendingRequests();
-        if (action === 'accept') {
-            loadFriends();
-        }
-    })
+    alert(data.message);
+    loadPendingRequests();
+    fetch('/api/friend/pending_request_count')
+        .then(resp => resp.json())
+        .then(data => updateRequestCount(data.count));
+    if (action === 'accept') {
+        loadFriends();
+    }
+})
+
     .catch(error => console.error('Error handling request:', error));
 }
 
