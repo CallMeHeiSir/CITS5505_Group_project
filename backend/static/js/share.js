@@ -1,15 +1,6 @@
 // Initialize sharing functionality when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Get sharing form elements
-  const shareButton = document.getElementById('share-analysis');
-  const textarea = document.getElementById('share-text');
-  const chartSelect = document.getElementById('chart-select');
-  const friendSelect = document.getElementById('friend-select');
-
-  // Load friends list
-  loadFriendsList();
-
-  // Initialize toggle buttons
+  // Initialize toggle buttons for "Shares Received" and "Shares Sent"
   const toggleButtons = document.querySelectorAll('.toggle-btn');
   toggleButtons.forEach(button => {
     button.addEventListener('click', function() {
@@ -19,233 +10,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Load existing shares from localStorage
-  updateSentShares();
-
-  // Handle share button click
-  shareButton.addEventListener('click', handleShare);
-
+  // Load shares
   loadReceivedShares();
   loadSentShares();
 });
 
-// Load friends list from backend
-function loadFriendsList() {
-  fetch('/api/friend/friends')
-    .then(response => response.json())
-    .then(data => {
-      if (data.friends) {
-        const friendSelect = document.getElementById('friend-select');
-        // Clear existing options except the placeholder
-        while (friendSelect.options.length > 1) {
-          friendSelect.remove(1);
-        }
-        // Add friend options
-        data.friends.forEach(friend => {
-          const option = document.createElement('option');
-          option.value = friend.id;
-          option.textContent = friend.username;
-          friendSelect.appendChild(option);
-        });
-      }
-    })
-    .catch(error => {
-      console.error('Error loading friends list:', error);
-      alert('Failed to load friends list. Please try again later.');
-    });
-}
-
-function handleShare() {
-  const textarea = document.getElementById('share-text');
-  const chartSelect = document.getElementById('chart-select');
-  const friendSelect = document.getElementById('friend-select');
-  const shareButton = document.getElementById('share-analysis');
-  
-  const content = textarea.value.trim();
-  const selectedChart = chartSelect.value;
-  const selectedFriendId = friendSelect.value;
-  const selectedFriendName = friendSelect.options[friendSelect.selectedIndex].text;
-
-  // Validate inputs
-  if (!content) {
-    alert('Please write your thoughts about the chart.');
-    textarea.focus();
-    return;
-  }
-
-  if (!selectedChart) {
-    alert('Please select a chart to share.');
-    chartSelect.focus();
-    return;
-  }
-
-  if (!selectedFriendId) {
-    alert('Please select a friend to share with.');
-    friendSelect.focus();
-    return;
-  }
-
-  // Add sharing animation
-  shareButton.style.opacity = '0.7';
-  shareButton.textContent = 'Sharing...';
-  shareButton.disabled = true;
-
-  // Send share request to backend
-  fetch('/api/share/activity', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      activity_id: selectedChart,
-      share_to_user_id: selectedFriendId,
-      message: content,
-      visualization_type: selectedChart
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.status === 'success') {
-      // Create new share record for UI
-      const shareRecord = {
-        id: Date.now(),
-        content: content,
-        chartName: chartSelect.options[chartSelect.selectedIndex].text,
-        friendName: selectedFriendName,
-        timestamp: new Date().toISOString()
-      };
-
-      // Add to localStorage
-      const sentShares = JSON.parse(localStorage.getItem('sentShares') || '[]');
-      sentShares.unshift(shareRecord);
-      localStorage.setItem('sentShares', JSON.stringify(sentShares));
-
-      // Update UI
-      updateSentShares();
-
-      // Reset form
-      textarea.value = '';
-      chartSelect.value = '';
-      friendSelect.value = '';
-
-      // Show success message
-      alert('Successfully shared!');
-    } else {
-      alert(data.message || 'Failed to share. Please try again.');
-    }
-  })
-  .catch(error => {
-    console.error('Error sharing:', error);
-    alert('Failed to share. Please try again later.');
-  })
-  .finally(() => {
-    // Reset button
-    shareButton.style.opacity = '1';
-    shareButton.textContent = 'Share Analysis';
-    shareButton.disabled = false;
-  });
-}
-
-function updateSentShares() {
-  const sentShares = JSON.parse(localStorage.getItem('sentShares') || '[]');
-  const container = document.querySelector('.share-section:last-child .share-content');
-  
-  if (sentShares.length === 0) {
-    container.innerHTML = '<div class="empty-state">No shares sent yet.</div>';
-    return;
-  }
-
-  const sharesHTML = sentShares.map(share => `
-    <div class="share-record">
-      <div class="record-header">
-        <div class="record-title">
-          <h3>${share.chartName}</h3>
-          <span class="share-info">Shared with ${share.friendName} • ${formatDate(share.timestamp)}</span>
-        </div>
-      </div>
-      <div class="record-content">
-        <p>${share.content}</p>
-      </div>
-      <div class="record-actions">
-        <button class="action-btn view-btn" onclick="viewChart('${share.chartName}')">
-          <i class="bi bi-graph-up"></i>
-          View Chart
-        </button>
-        <button class="action-btn withdraw-btn" onclick="withdrawShare(${share.id})">
-          <i class="bi bi-x-lg"></i>
-          Withdraw
-        </button>
-      </div>
-    </div>
-  `).join('');
-
-  container.innerHTML = sharesHTML;
-}
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString() + ', ' + date.toLocaleTimeString();
-}
-
-function viewChart(chartName) {
-  alert('Viewing chart: ' + chartName);
-  // 这里可以添加查看图表的具体实现
-}
-
-function withdrawShare(shareId) {
-  if (confirm('Are you sure you want to withdraw this share?')) {
-    let sentShares = JSON.parse(localStorage.getItem('sentShares') || '[]');
-    sentShares = sentShares.filter(share => share.id !== shareId);
-    localStorage.setItem('sentShares', JSON.stringify(sentShares));
-    updateSentShares();
-    alert('Share withdrawn successfully.');
-  }
-}
-
-// 创建新分享
-function createNewShare() {
-  const content = document.querySelector('.ql-editor').innerHTML;
-  const charts = $('#chart-select').val();
-  const friends = $('#friend-select').val();
-
-  if (!content.trim() || !charts.length || !friends.length) {
-    alert('请填写完整的分享信息！');
-    return;
-  }
-
-  const shareRecord = {
-    content: content,
-    charts: charts,
-    friends: friends,
-    timestamp: new Date().toISOString(),
-    author: {
-      name: 'Current User',
-      avatar: '/static/avatars/default.png'
-    }
-  };
-
-  const myShares = JSON.parse(localStorage.getItem('myShares') || '[]');
-  myShares.push(shareRecord);
-  localStorage.setItem('myShares', JSON.stringify(myShares));
-
-  // 清空表单
-  document.querySelector('.ql-editor').innerHTML = '';
-  $('#chart-select').val(null).trigger('change');
-  $('#friend-select').val(null).trigger('change');
-
-  // 切换到发出的分享标签页
-  document.querySelector('[data-tab="my-shares"]').click();
-  
-  // 显示成功消息
-  alert('分享发布成功！');
-}
-
-// 加载收到的分享
+// Load received shares
 function loadReceivedShares() {
   fetch('/api/share/received')
     .then(res => res.json())
     .then(data => {
-      const container = document.querySelector('.share-section:nth-of-type(2) .share-content');
+      const container = document.querySelector('.share-section:nth-of-type(1) .share-content'); // Updated index after removing "Create New Share"
       if (!container) return;
       container.innerHTML = '';
       if (!data.shared_activities || data.shared_activities.length === 0) {
@@ -258,7 +33,7 @@ function loadReceivedShares() {
     });
 }
 
-// 加载发出的分享
+// Load sent shares
 function loadSentShares() {
   fetch('/api/share/sent')
     .then(res => res.json())
@@ -275,7 +50,7 @@ function loadSentShares() {
     });
 }
 
-// 创建分享记录 HTML
+// Create share record HTML
 function createShareRecordHTML(share, type) {
   const isReceived = type === 'received';
   const statusBadge = isReceived ? `
@@ -340,14 +115,14 @@ function createShareRecordHTML(share, type) {
   `;
 }
 
-// 初始化回复表单
+// Initialize reply forms
 function initializeReplyForms() {
   document.querySelectorAll('.reply-form').forEach(form => {
     form.style.display = 'none';
   });
 }
 
-// 切换回复表单显示状态
+// Toggle reply form visibility
 function toggleReplyForm(shareId) {
   const form = document.getElementById(`reply-form-${shareId}`);
   const isVisible = form.style.display === 'block';
@@ -357,7 +132,7 @@ function toggleReplyForm(shareId) {
   }
 }
 
-// 提交回复
+// Submit reply
 function submitReply(shareId) {
   const form = document.getElementById(`reply-form-${shareId}`);
   const content = form.querySelector('textarea').value.trim();
@@ -367,13 +142,13 @@ function submitReply(shareId) {
     return;
   }
 
-  // TODO: 发送回复到后端
+  // TODO: Send reply to backend
   alert('回复已发送！');
   form.querySelector('textarea').value = '';
   form.style.display = 'none';
 }
 
-// 撤回分享
+// Revoke share
 function revokeShare(shareId) {
   if (!confirm('Are you sure you want to withdraw this share?')) return;
 
@@ -384,7 +159,7 @@ function revokeShare(shareId) {
     .then(data => {
       if (data.status === 'success') {
         alert(data.message || 'Share revoked successfully.');
-        loadSentShares();  // ✅ 重新加载分享记录
+        loadSentShares();
       } else {
         alert(data.message || 'Failed to revoke share.');
       }
@@ -395,11 +170,8 @@ function revokeShare(shareId) {
     });
 }
 
-
 function renderShareMessage(share, type) {
-  // 头像、用户名、时间
   const user = type === 'received' ? share.shared_from : share.shared_to;
-  // 格式化UTC时间：日期和时间之间用空格，只保留到秒
   let time = share.created_at;
   if (time) {
     time = time.replace('T', ' ');
@@ -432,12 +204,10 @@ function renderShareMessage(share, type) {
 }
 
 function renderSharedContent(share) {
-  // 留言优先显示
   let messageHtml = '';
   if (share.share_message) {
     messageHtml = `<div class="share-message" style="margin-bottom:8px;color:#6366f1;font-weight:500;">${share.share_message}</div>`;
   }
-  // 活动卡片复用 recent activity 样式
   if (share.activity_type) {
     return `
       ${messageHtml}
@@ -456,9 +226,7 @@ function renderSharedContent(share) {
       </div>
     `;
   }
-  // 图表/仪表盘分享渲染
   if (share.snapshot) {
-    // 自动解析字符串快照
     if (typeof share.snapshot === 'string') {
       try {
         share.snapshot = JSON.parse(share.snapshot);
@@ -477,7 +245,6 @@ function renderSharedContent(share) {
 }
 
 function renderChartSnapshot(type, snapshot) {
-  // 统计卡片类型特殊渲染
   if (snapshot.type === 'stat-card') {
     if (snapshot.cardType === 'calories-distance') {
       return `<div class="stat-card-group" style="display:flex;gap:24px;margin:24px 0;">
@@ -503,17 +270,12 @@ function renderChartSnapshot(type, snapshot) {
       </div>`;
     }
   }
-  // 日历类型渲染
   if (snapshot.type === 'calendar') {
-    // 构建日历表格
     const year = snapshot.year;
     const month = snapshot.month;
     const activityDates = snapshot.activityDates || [];
-    // 英文月份
     const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    // 英文星期
     const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    // 生成本月所有日期
     const firstDay = new Date(year, month - 1, 1);
     const lastDay = new Date(year, month, 0);
     const daysInMonth = lastDay.getDate();
@@ -521,7 +283,6 @@ function renderChartSnapshot(type, snapshot) {
       <div style='font-weight:bold;font-size:1.2em;margin-bottom:8px;'>${monthNames[month-1]} ${year}</div>
       <div style='display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:#f3f4f6;padding:8px 0;border-radius:8px;'>`;
     weekDays.forEach(d => html += `<div style='color:#888;font-size:0.95em;'>${d}</div>`);
-    // 补齐前导空格
     for (let i = 0; i < firstDay.getDay(); i++) html += `<div></div>`;
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${month.toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
@@ -531,7 +292,6 @@ function renderChartSnapshot(type, snapshot) {
     html += `</div></div>`;
     return html;
   }
-  // 生成唯一id，防止多图表冲突
   const chartId = 'shared-chart-' + Math.random().toString(36).substr(2, 9);
   const labels = snapshot.data?.labels || [];
   const datasets = snapshot.data?.datasets || [];
@@ -539,7 +299,6 @@ function renderChartSnapshot(type, snapshot) {
   if (!labels.length || !datasets.length || !hasValidData) {
     return `<div class="chart-container" style="height:300px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;color:#888;">No chart data to display.</div>`;
   }
-  // 优先用快照里的type
   let chartType = snapshot.type || type;
   if (labels.length === 1) chartType = 'bar';
   setTimeout(() => {
@@ -558,7 +317,6 @@ function renderChartSnapshot(type, snapshot) {
 }
 
 function renderDashboardSnapshot(snapshot) {
-  // snapshot为数组，顺序渲染每个元素
   if (Array.isArray(snapshot)) {
     let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
     snapshot.forEach((item, idx) => {
@@ -567,7 +325,6 @@ function renderDashboardSnapshot(snapshot) {
     html += '</div>';
     return html;
   }
-  // ...原对象结构兼容逻辑...
   return '';
 }
 
@@ -625,7 +382,6 @@ function revokeShare(id) {
     });
 }
 
-// 新增：专门用于dashboard快照的渲染
 function renderDashboardSnapshotV2(snapshot) {
   if (!Array.isArray(snapshot)) return '';
   let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
@@ -635,7 +391,6 @@ function renderDashboardSnapshotV2(snapshot) {
     } else if (item.type === 'calendar') {
       html += renderChartSnapshot(item.type, item);
     } else if (['bar','line','pie','doughnut'].includes(item.type)) {
-      // 图表类型，labels和datasets必须存在且为非空数组
       const labels = item.data?.labels || [];
       const datasets = item.data?.datasets || [];
       if (Array.isArray(labels) && labels.length && Array.isArray(datasets) && datasets.length) {
@@ -645,4 +400,4 @@ function renderDashboardSnapshotV2(snapshot) {
   });
   html += '</div>';
   return html;
-} 
+}
