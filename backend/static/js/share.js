@@ -460,7 +460,7 @@ function renderSharedContent(share) {
       }
     }
     if (share.visualization_type === 'dashboard') {
-      return messageHtml + renderDashboardSnapshot(share.snapshot);
+      return messageHtml + renderDashboardSnapshotV2(share.snapshot);
     } else {
       return messageHtml + renderChartSnapshot(share.visualization_type, share.snapshot);
     }
@@ -553,17 +553,10 @@ function renderDashboardSnapshot(snapshot) {
   // snapshot为数组，顺序渲染每个元素
   if (Array.isArray(snapshot)) {
     let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
-    let hasChart = false;
     snapshot.forEach((item, idx) => {
-      if ((item.data && item.data.labels && item.data.datasets && item.data.labels.length && item.data.datasets.length) || item.type === 'stat-card') {
-        html += renderChartSnapshot(item.type, item);
-        hasChart = true;
-      }
+      html += renderChartSnapshot(item.type, item);
     });
     html += '</div>';
-    if (!hasChart) {
-      return '<div style="color:#888;text-align:center;padding:40px 0;">No chart data to display.</div>';
-    }
     return html;
   }
   // ...原对象结构兼容逻辑...
@@ -622,4 +615,26 @@ function revokeShare(id) {
       loadSentShares();
       alert(data.message || 'Share revoked.');
     });
+}
+
+// 新增：专门用于dashboard快照的渲染
+function renderDashboardSnapshotV2(snapshot) {
+  if (!Array.isArray(snapshot)) return '';
+  let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
+  snapshot.forEach((item, idx) => {
+    if (item.type === 'stat-card') {
+      html += renderChartSnapshot(item.type, item);
+    } else if (item.type === 'calendar') {
+      html += renderChartSnapshot(item.type, item);
+    } else if (['bar','line','pie','doughnut'].includes(item.type)) {
+      // 图表类型，labels和datasets必须存在且为非空数组
+      const labels = item.data?.labels || [];
+      const datasets = item.data?.datasets || [];
+      if (Array.isArray(labels) && labels.length && Array.isArray(datasets) && datasets.length) {
+        html += renderChartSnapshot(item.type, item);
+      }
+    }
+  });
+  html += '</div>';
+  return html;
 } 

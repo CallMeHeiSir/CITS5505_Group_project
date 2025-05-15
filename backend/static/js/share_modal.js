@@ -114,12 +114,45 @@ function collectSnapshot(type) {
       activities,
       filters: currentFilters
     });
+    // 日历快照
+    snapshot.push({
+      type: 'calendar',
+      year: currentDate.getFullYear(),
+      month: currentDate.getMonth() + 1,
+      activityDates: Array.from(activityDates),
+      filters: currentFilters
+    });
     // 主图表
-    if (charts.weekly) snapshot.push({type: charts.weekly.config.type, data: charts.weekly.data, options: JSON.parse(JSON.stringify(charts.weekly.options)), filters: currentFilters});
-    if (charts.progress) snapshot.push({type: charts.progress.config.type, data: charts.progress.data, options: JSON.parse(JSON.stringify(charts.progress.options)), filters: currentFilters});
-    if (charts.activities) snapshot.push({type: charts.activities.config.type, data: charts.activities.data, options: JSON.parse(JSON.stringify(charts.activities.options)), filters: currentFilters});
-    if (charts.calories) snapshot.push({type: charts.calories.config.type, data: charts.calories.data, options: JSON.parse(JSON.stringify(charts.calories.options)), filters: currentFilters});
-    if (charts.prediction) snapshot.push({type: charts.prediction.config.type, data: charts.prediction.data, options: JSON.parse(JSON.stringify(charts.prediction.options)), filters: currentFilters});
+    if (charts.weekly) snapshot.push({
+      type: 'bar',
+      data: JSON.parse(JSON.stringify(charts.weekly.data)),
+      options: JSON.parse(JSON.stringify(charts.weekly.options)),
+      filters: currentFilters
+    });
+    if (charts.progress) snapshot.push({
+      type: 'line',
+      data: JSON.parse(JSON.stringify(charts.progress.data)),
+      options: JSON.parse(JSON.stringify(charts.progress.options)),
+      filters: currentFilters
+    });
+    if (charts.activities) snapshot.push({
+      type: 'pie',
+      data: JSON.parse(JSON.stringify(charts.activities.data)),
+      options: JSON.parse(JSON.stringify(charts.activities.options)),
+      filters: currentFilters
+    });
+    if (charts.calories) snapshot.push({
+      type: 'line',
+      data: JSON.parse(JSON.stringify(charts.calories.data)),
+      options: JSON.parse(JSON.stringify(charts.calories.options)),
+      filters: currentFilters
+    });
+    if (charts.prediction) snapshot.push({
+      type: 'line',
+      data: JSON.parse(JSON.stringify(charts.prediction.data)),
+      options: JSON.parse(JSON.stringify(charts.prediction.options)),
+      filters: currentFilters
+    });
     return snapshot;
   } else if (type === 'stat-calories-distance') {
     // 采集统计卡片：卡路里+距离
