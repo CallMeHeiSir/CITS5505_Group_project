@@ -374,19 +374,27 @@ function submitReply(shareId) {
 }
 
 // 撤回分享
-function revokeShare(timestamp) {
-  if (!confirm('确定要撤回这条分享吗？')) {
-    return;
-  }
+function revokeShare(shareId) {
+  if (!confirm('Are you sure you want to withdraw this share?')) return;
 
-  const myShares = JSON.parse(localStorage.getItem('myShares') || '[]');
-  const index = myShares.findIndex(share => share.timestamp === timestamp);
-  if (index !== -1) {
-    myShares.splice(index, 1);
-    localStorage.setItem('myShares', JSON.stringify(myShares));
-    loadMyShares();
-  }
+  fetch(`/api/share/revoke/${shareId}`, {
+    method: 'DELETE',
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        alert(data.message || 'Share revoked successfully.');
+        loadSentShares();  // ✅ 重新加载分享记录
+      } else {
+        alert(data.message || 'Failed to revoke share.');
+      }
+    })
+    .catch(error => {
+      console.error('Error revoking share:', error);
+      alert('An error occurred while revoking the share.');
+    });
 }
+
 
 function renderShareMessage(share, type) {
   // 头像、用户名、时间
