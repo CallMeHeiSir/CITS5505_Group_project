@@ -448,4 +448,18 @@ def upload_activities():
         return jsonify({
             'status': 'error',
             'message': str(e)
-        }), 400 
+        }), 400
+
+@analytics.route('/api/activities/today_summary', methods=['GET'])
+@login_required
+def get_today_summary():
+    today = datetime.now().date()
+    activities = ActivityLog.query.filter_by(user_id=current_user.id).filter(ActivityLog.date == today).all()
+    total_calories = sum(a.calories or 0 for a in activities)
+    total_distance = sum(a.distance or 0 for a in activities)
+    total_duration = sum(a.duration or 0 for a in activities)
+    return jsonify({
+        'total_calories': total_calories,
+        'total_distance': total_distance,
+        'total_duration': total_duration
+    }) 

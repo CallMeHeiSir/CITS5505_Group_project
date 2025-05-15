@@ -316,17 +316,6 @@ function renderChartSnapshot(type, snapshot) {
   return `<div class="chart-container" style="height:300px;margin-bottom:16px;border:1px solid #e57373;"><canvas id="${chartId}"></canvas></div>`;
 }
 
-function renderDashboardSnapshot(snapshot) {
-  if (Array.isArray(snapshot)) {
-    let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
-    snapshot.forEach((item, idx) => {
-      html += renderChartSnapshot(item.type, item);
-    });
-    html += '</div>';
-    return html;
-  }
-  return '';
-}
 
 function getActivityIcon(type) {
   switch(type) {
