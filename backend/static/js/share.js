@@ -522,27 +522,23 @@ function renderChartSnapshot(type, snapshot) {
 }
 
 function renderDashboardSnapshot(snapshot) {
-  // 生成唯一前缀，防止多dashboard冲突
-  const prefix = 'dashboard-' + Math.random().toString(36).substr(2, 6);
-  let html = `<div class="dashboard-container" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px;">`;
-  let idx = 0;
-  for (const [type, data] of Object.entries(snapshot)) {
-    if (type !== 'filters' && data) {
-      const chartId = `${prefix}-chart-${idx++}`;
-      setTimeout(() => {
-        const ctx = document.getElementById(chartId)?.getContext('2d');
-        if (ctx) {
-          new Chart(ctx, {
-            type: data.type || type || 'line',
-            data: data,
-            options: {responsive:true,maintainAspectRatio:false}
-          });
-        }
-      }, 0);
-      html += `<div class="chart-container" style="height:250px;"><canvas id="${chartId}"></canvas></div>`;
+  const keys = ['weekly', 'progress', 'activities', 'calories', 'prediction', 'stat-calories-distance', 'stat-duration-activities'];
+  let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
+  let hasChart = false;
+  for (const key of keys) {
+    const data = snapshot[key];
+    if (data) {
+      // 图表类型：有labels和datasets
+      if ((data.data && data.data.labels && data.data.datasets && data.data.labels.length && data.data.datasets.length) || data.type === 'stat-card') {
+        html += renderChartSnapshot(key, data);
+        hasChart = true;
+      }
     }
   }
   html += '</div>';
+  if (!hasChart) {
+    return '<div style="color:#888;text-align:center;padding:40px 0;">No chart data to display.</div>';
+  }
   return html;
 }
 
