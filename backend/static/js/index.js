@@ -77,4 +77,39 @@ document.addEventListener('DOMContentLoaded', function() {
       streakDays
     });
   }
+
+  // ====== 首页 Recent Activities 汇总 ======
+  function loadTodaySummary() {
+    fetch('/analytics/api/activities/today_summary')
+      .then(res => res.json())
+      .then(data => {
+        // 找到 recent activities 卡片下的 stats-grid
+        const statsGrid = document.querySelector('.card-recent-activities .stats-grid');
+        if (statsGrid) {
+          // 距离保留1位小数，时长为分钟，卡路里整数
+          statsGrid.innerHTML = `
+            <div class="stat-item">
+              <span class="stat-value">${data.total_distance ? data.total_distance.toFixed(1) : '0.0'} km</span>
+              <span class="stat-label">Distance</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${data.total_duration ? data.total_duration : 0} min</span>
+              <span class="stat-label">Duration</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${data.total_calories ? data.total_calories : 0}</span>
+              <span class="stat-label">Calories</span>
+            </div>
+          `;
+        }
+      })
+      .catch(err => {
+        // 失败时显示默认内容
+        const statsGrid = document.querySelector('.card-recent-activities .stats-grid');
+        if (statsGrid) {
+          statsGrid.innerHTML = `<div style='color:#888;'>Failed to load today's summary.</div>`;
+        }
+      });
+  }
+  loadTodaySummary();
 });
