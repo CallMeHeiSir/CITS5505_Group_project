@@ -1,32 +1,32 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const passwordInput = document.getElementById('new_password');
-    const passwordError = document.getElementById('new_passwordError');
+$(function () {
+    const $passwordInput = $('#new_password');
+    const $passwordError = $('#new_passwordError');
 
-    passwordInput.addEventListener('input', () => {
-        const password = passwordInput.value;
-        const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/; // 特殊字符正则表达式
+    $passwordInput.on('input', function () {
+        const password = $(this).val();
+        const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
         const isValid = password.length >= 6 && specialCharRegex.test(password);
 
         if (!isValid) {
-            passwordInput.classList.add('is-invalid');
-            passwordError.style.display = 'block';
+            $(this).addClass('is-invalid');
+            $passwordError.show();
         } else {
-            passwordInput.classList.remove('is-invalid');
-            passwordError.style.display = 'none';
+            $(this).removeClass('is-invalid');
+            $passwordError.hide();
         }
     });
-    // 切换密码显示/隐藏功能
-    const togglePasswordVisibility = (inputId, toggleIconId) => {
-        const input = document.getElementById(inputId);
-        const toggleIcon = document.getElementById(toggleIconId);
 
-        toggleIcon.addEventListener('click', () => {
-            const isPassword = input.getAttribute('type') === 'password';
-            input.setAttribute('type', isPassword ? 'text' : 'password');
-            toggleIcon.classList.toggle('bi-eye');
-            toggleIcon.classList.toggle('bi-eye-slash');
+    // 切换密码显示/隐藏功能
+    function togglePasswordVisibility(inputId, toggleIconId) {
+        const $input = $('#' + inputId);
+        const $toggleIcon = $('#' + toggleIconId);
+
+        $toggleIcon.on('click', function () {
+            const isPassword = $input.attr('type') === 'password';
+            $input.attr('type', isPassword ? 'text' : 'password');
+            $toggleIcon.toggleClass('bi-eye bi-eye-slash');
         });
-    };
+    }
 
     // 为每个密码输入框添加切换功能
     togglePasswordVisibility('new_password', 'toggleNewPassword');
