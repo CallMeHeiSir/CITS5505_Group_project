@@ -1,90 +1,66 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('loginForm');
-    const usernameInput = document.getElementById('username');
-    const usernameError = document.getElementById('usernameError');
-    const passwordInput = document.getElementById('password');
-    const passwordError = document.getElementById('passwordError');
-
+$(function () {
     // 功能 1：用户名验证
-    // 验证用户名是否为空
-    usernameInput.addEventListener('input', () => {
-        const username = usernameInput.value.trim();
-        const isValid = username.length > 0;
-
-        if (!isValid) {
-            usernameInput.classList.add('is-invalid');
-            usernameError.style.display = 'block';
+    $('#username').on('input', function () {
+        const username = $(this).val().trim();
+        if (!username) {
+            $(this).addClass('is-invalid');
+            $('#usernameError').show();
         } else {
-            usernameInput.classList.remove('is-invalid');
-            usernameError.style.display = 'none';
+            $(this).removeClass('is-invalid');
+            $('#usernameError').hide();
         }
     });
 
     // 功能 2：密码验证
-    // 验证密码是否为空
-    passwordInput.addEventListener('input', () => {
-        const password = passwordInput.value.trim();
-        const isValid = password.length > 0;
-
-        if (!isValid) {
-            passwordInput.classList.add('is-invalid');
-            passwordError.style.display = 'block';
+    $('#password').on('input', function () {
+        const password = $(this).val().trim();
+        if (!password) {
+            $(this).addClass('is-invalid');
+            $('#passwordError').show();
         } else {
-            passwordInput.classList.remove('is-invalid');
-            passwordError.style.display = 'none';
+            $(this).removeClass('is-invalid');
+            $('#passwordError').hide();
         }
     });
 
     // 功能 3：关闭 Flash 消息
-    document.querySelectorAll('.flash-close').forEach(button => {
-        button.addEventListener('click', () => {
-            button.parentElement.style.display = 'none';
-        });
+    $('.flash-close').on('click', function () {
+        $(this).parent().hide();
     });
-});
 
- document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('loginForm');
-    const sendCodeButton = document.getElementById('sendCodeButton');
-    const LoginButton = document.getElementById('LoginButton');
-    const csrfToken = document.getElementById('csrf_token').value;
+    const csrfToken = $('#csrf_token').val();
 
     // 点击“Send Code”按钮时，发送验证码请求
-    sendCodeButton.addEventListener('click', (event) => {
-        event.preventDefault(); // 阻止默认表单提交行为
+    $('#sendCodeButton').on('click', function (event) {
+        event.preventDefault();
 
-        // 获取用户输入的邮箱
-        const emailInput = document.getElementById('email').value.trim();
+        const emailInput = $('#email').val().trim();
         if (!emailInput) {
             alert('Please enter your email before requesting a verification code.');
             return;
         }
 
-        // 创建一个表单数据对象
         const formData = new FormData();
         formData.append('email', emailInput);
 
-         // 禁用按钮并开始倒计时
-    let countdown = 60; // 倒计时秒数
-    sendCodeButton.disabled = true; // 禁用按钮
-    sendCodeButton.textContent = `Resend (${countdown}s)`;
-
-    const timer = setInterval(() => {
-        countdown -= 1;
-        sendCodeButton.textContent = `Resend (${countdown}s)`;
-
-        if (countdown <= 0) {
-            clearInterval(timer);
-            sendCodeButton.disabled = false; // 启用按钮
-            sendCodeButton.textContent = 'Send Code';
-        }
-    }, 1000);
+        // 禁用按钮并开始倒计时
+        let countdown = 60;
+        const $btn = $(this);
+        $btn.prop('disabled', true).text(`Resend (${countdown}s)`);
+        const timer = setInterval(function () {
+            countdown -= 1;
+            $btn.text(`Resend (${countdown}s)`);
+            if (countdown <= 0) {
+                clearInterval(timer);
+                $btn.prop('disabled', false).text('Send Code');
+            }
+        }, 1000);
 
         // 发送验证码请求到后端
         fetch('/auth/send_verification_code', {
             method: 'POST',
             headers: {
-              'X-CSRFToken': csrfToken, // 添加 CSRF 令牌到请求头
+                'X-CSRFToken': csrfToken,
             },
             body: formData,
         })
@@ -92,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) {
                     throw new Error('Failed to send verification code.');
                 }
-                return response.text(); // 后端可能返回 HTML 页面
+                return response.text();
             })
             .then(() => {
                 alert('Verification code sent successfully. Please check your email.');
@@ -104,24 +80,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 点击“Login”按钮时，提交表单到登录路径
-    LoginButton.addEventListener('click', (event) => {
-        event.preventDefault(); // 阻止默认表单提交行为
+    $('#LoginButton').on('click', function (event) {
+        event.preventDefault();
 
-        // 验证表单是否填写完整
-        const username = document.getElementById('username').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const verificationCode = document.getElementById('verificationCode').value.trim();
-        const password = document.getElementById('password').value.trim();
-        
+        const username = $('#username').val().trim();
+        const email = $('#email').val().trim();
+        const verificationCode = $('#verificationCode').val().trim();
+        const password = $('#password').val().trim();
 
-        if (!username || !email || !verificationCode || !password ) {
+        if (!username || !email || !verificationCode || !password) {
             alert('Please fill in all required fields.');
             return;
         }
 
-        // 提交表单到登录路径
-        form.action = '/auth/login'; // 设置登录路径
-        form.method = 'POST'; // 确保使用 POST 方法
-        form.submit(); // 提交表单
+        const $form = $('#loginForm');
+        $form.attr('action', '/auth/login');
+        $form.attr('method', 'POST');
+        $form.submit();
     });
 });
