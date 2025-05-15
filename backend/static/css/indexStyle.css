@@ -143,6 +143,11 @@ html, body {
   margin-bottom: 24px;
 }
 
+.cards-row:first-of-type {
+  height: 400px;
+  align-items: stretch;
+}
+
 .cards-row:first-of-type > .card {
   min-height: 350px;
   display: flex;
@@ -196,29 +201,42 @@ html, body {
 
 /* Health Tips 卡片 */
 .card-health-tips {
-  min-height: 100px;
+  height: 200px !important;
+  min-height: 200px !important;
+  max-height: 200px !important;
   flex: 1;
   overflow-y: auto;
 }
 
 /* Recent activities 卡片 */
 .card-recent-activities {
-  min-height: 200px;
+  height: 200px !important;
+  min-height: 200px !important;
+  max-height: 200px !important;
   flex: 2;
   overflow-y: auto;
 }
 
 /* My Friends 卡片 */
 .card-my-friends {
-  height: 100%;
+  height: 400px !important;
+  min-height: 400px !important;
+  max-height: 400px !important;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 }
 
 .card-my-friends .friends-dropdown {
   max-height: 150px;
   overflow-y: auto;
   width: 100%;
+}
+
+.card-my-friends .friends-list {
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 10px;
 }
 
 /* 调整卡片内边距以保持一致 */
@@ -269,14 +287,17 @@ html, body {
 
 /* Progress Bar 容器 */
 .progress-bar-container {
-  grid-column: 1 / -1;
-  position: absolute;
-  top: 0;
-  left: 16px;
-  right: 16px;
-  z-index: 1;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  width: 80%;
+  margin: 18px auto 0 auto;
+  position: static;
+  left: unset;
+  right: unset;
+  top: unset;
+  grid-column: unset;
+  z-index: unset;
+  margin-top: 18px;
+  margin-bottom: 0;
+  display: block;
 }
 
 /* Progress Bar 本身 */
@@ -297,7 +318,7 @@ html, body {
 
 /* Daily Check-In 部分 */
 .daily-check-in {
-  margin-bottom: 8px;
+  text-align: center;
 }
 
 .daily-check-in .progress-bar {
@@ -309,7 +330,8 @@ html, body {
 }
 
 .daily-check-in .btn-gradient {
-  margin-top: 12px;
+  margin: 16px auto 0 auto;
+  display: block;
 }
 
 @media (max-width: 768px) {
@@ -349,6 +371,41 @@ html, body {
   }
   .top-logout a {
     font-size: 0.8rem;
+  }
+  .card {
+    width: 95vw !important;
+    max-width: 420px !important;
+    margin: 0 auto 15px auto !important;
+    height: 300px !important;
+    min-height: 300px !important;
+    max-height: 300px !important;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  .cards-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    height: auto !important;
+    min-height: unset !important;
+    max-height: unset !important;
+    align-items: center !important;
+  }
+  .card-welcome,
+  .card-my-friends {
+    height: 300px !important;
+    min-height: 300px !important;
+    max-height: 300px !important;
+    box-sizing: content-box !important;
+  }
+  .card-health-tips,
+  .card-recent-activities {
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+  }
+  .card-my-friends .friends-list {
+    max-height: 140px !important;
   }
 }
 
@@ -405,4 +462,22 @@ html, body {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 4px rgba(102, 126, 234, 0.3);
+}
+
+.card-welcome,
+.card-my-friends {
+  height: 100% !important;
+  min-height: unset !important;
+  max-height: unset !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.search-input {
+  max-width: 320px;
+  width: 100%;
+  margin: 0 auto;
+  display: block;
 }
