@@ -57,6 +57,8 @@ def create_app():
     csrf.exempt('friend.search_users')
     csrf.exempt('checkin.daily_checkin')
     csrf.exempt('share.share_activity')
+    csrf.exempt('share.revoke_share')
+
     
     
     with app.app_context():
