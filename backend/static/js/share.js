@@ -403,13 +403,13 @@ function renderShareMessage(share, type) {
     userInfoHtml = `<span style="font-weight:600;">To ${user ? user.username : '?'}</span>
                     <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
   } else {
-    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'}</span> to you
+    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'}</span> <span style="color:#888;">send to you</span>
                     <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
   }
   const card = document.createElement('div');
   card.className = 'share-record';
   card.innerHTML = `
-    <div class="record-header">
+    <div class="record-header" style="display:flex;align-items:center;gap:10px;">
       <img src="/static/avatars/${user && user.avatar ? user.avatar : 'default.png'}" class="user-avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;">
       <div style="display:inline-block;vertical-align:middle;">
         ${userInfoHtml}
