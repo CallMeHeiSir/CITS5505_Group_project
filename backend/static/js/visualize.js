@@ -272,12 +272,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const h5 = card.querySelector('h5');
       if (h5) {
         const title = h5.textContent.trim().toLowerCase();
-        if (title.includes('activity duration by day') || title.includes('weekly')) shareBtn.setAttribute('data-chart', 'weekly');
+        if (title.includes('activity calendar')) shareBtn.setAttribute('data-chart', 'calendar');
+        else if (title.includes('activity duration by day') || title.includes('weekly')) shareBtn.setAttribute('data-chart', 'weekly');
         else if (title.includes('distance progress') || title.includes('progress')) shareBtn.setAttribute('data-chart', 'progress');
         else if (title.includes('activity distribution')) shareBtn.setAttribute('data-chart', 'activities');
         else if (title.includes('calories trend')) shareBtn.setAttribute('data-chart', 'calories');
         else if (title.includes('calories prediction') || title.includes('prediction')) shareBtn.setAttribute('data-chart', 'prediction');
-        // 不再赋值calendar等无效key
       }
     }
   });

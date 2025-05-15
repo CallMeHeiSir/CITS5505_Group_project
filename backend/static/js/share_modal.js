@@ -62,6 +62,10 @@ window.openShareModal = function(shareOptions) {
       body.visualization_type = 'dashboard';
       body.snapshot = collectSnapshot('dashboard');
       console.log('分享快照:', body.snapshot);
+    } else if (type === 'calendar') {
+      // 采集日历快照：当前年月、已打卡日期、过滤器
+      body.snapshot = collectSnapshot('calendar');
+      console.log('分享快照:', body.snapshot);
     }
     fetch(url, {
       method: 'POST',
@@ -89,15 +93,33 @@ window.openShareModal = function(shareOptions) {
 // 采集快照参数
 function collectSnapshot(type) {
   if (type === 'dashboard') {
-    // 采集 dashboard 所有图表的状态
-    const snapshot = {
-      weekly: charts.weekly ? {type: charts.weekly.config.type, data: charts.weekly.data, options: JSON.parse(JSON.stringify(charts.weekly.options))} : null,
-      progress: charts.progress ? {type: charts.progress.config.type, data: charts.progress.data, options: JSON.parse(JSON.stringify(charts.progress.options))} : null,
-      activities: charts.activities ? {type: charts.activities.config.type, data: charts.activities.data, options: JSON.parse(JSON.stringify(charts.activities.options))} : null,
-      calories: charts.calories ? {type: charts.calories.config.type, data: charts.calories.data, options: JSON.parse(JSON.stringify(charts.calories.options))} : null,
-      prediction: charts.prediction ? {type: charts.prediction.config.type, data: charts.prediction.data, options: JSON.parse(JSON.stringify(charts.prediction.options))} : null,
+    // 采集 dashboard 所有图表和统计卡片，顺序push到数组
+    const snapshot = [];
+    // 统计卡片
+    const calories = document.getElementById('total-calories')?.textContent || '';
+    const distance = document.getElementById('total-distance')?.textContent || '';
+    snapshot.push({
+      type: 'stat-card',
+      cardType: 'calories-distance',
+      calories,
+      distance,
       filters: currentFilters
-    };
+    });
+    const duration = document.getElementById('total-duration')?.textContent || '';
+    const activities = document.getElementById('activity-count')?.textContent || '';
+    snapshot.push({
+      type: 'stat-card',
+      cardType: 'duration-activities',
+      duration,
+      activities,
+      filters: currentFilters
+    });
+    // 主图表
+    if (charts.weekly) snapshot.push({type: charts.weekly.config.type, data: charts.weekly.data, options: JSON.parse(JSON.stringify(charts.weekly.options)), filters: currentFilters});
+    if (charts.progress) snapshot.push({type: charts.progress.config.type, data: charts.progress.data, options: JSON.parse(JSON.stringify(charts.progress.options)), filters: currentFilters});
+    if (charts.activities) snapshot.push({type: charts.activities.config.type, data: charts.activities.data, options: JSON.parse(JSON.stringify(charts.activities.options)), filters: currentFilters});
+    if (charts.calories) snapshot.push({type: charts.calories.config.type, data: charts.calories.data, options: JSON.parse(JSON.stringify(charts.calories.options)), filters: currentFilters});
+    if (charts.prediction) snapshot.push({type: charts.prediction.config.type, data: charts.prediction.data, options: JSON.parse(JSON.stringify(charts.prediction.options)), filters: currentFilters});
     return snapshot;
   } else if (type === 'stat-calories-distance') {
     // 采集统计卡片：卡路里+距离
@@ -119,6 +141,15 @@ function collectSnapshot(type) {
       cardType: 'duration-activities',
       duration,
       activities,
+      filters: currentFilters
+    };
+  } else if (type === 'calendar') {
+    // 采集日历快照：当前年月、已打卡日期、过滤器
+    return {
+      type: 'calendar',
+      year: currentDate.getFullYear(),
+      month: currentDate.getMonth() + 1, // 1-12
+      activityDates: Array.from(activityDates),
       filters: currentFilters
     };
   } else {

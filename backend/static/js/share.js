@@ -495,6 +495,34 @@ function renderChartSnapshot(type, snapshot) {
       </div>`;
     }
   }
+  // 日历类型渲染
+  if (snapshot.type === 'calendar') {
+    // 构建日历表格
+    const year = snapshot.year;
+    const month = snapshot.month;
+    const activityDates = snapshot.activityDates || [];
+    // 英文月份
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    // 英文星期
+    const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    // 生成本月所有日期
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const daysInMonth = lastDay.getDate();
+    let html = `<div style="margin:24px 0;text-align:center;">
+      <div style='font-weight:bold;font-size:1.2em;margin-bottom:8px;'>${monthNames[month-1]} ${year}</div>
+      <div style='display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:#f3f4f6;padding:8px 0;border-radius:8px;'>`;
+    weekDays.forEach(d => html += `<div style='color:#888;font-size:0.95em;'>${d}</div>`);
+    // 补齐前导空格
+    for (let i = 0; i < firstDay.getDay(); i++) html += `<div></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${month.toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
+      const isActive = activityDates.includes(dateStr);
+      html += `<div style='padding:6px 0;border-radius:50%;${isActive?"background:#6366f1;color:#fff;font-weight:bold;":''}'>${d}</div>`;
+    }
+    html += `</div></div>`;
+    return html;
+  }
   // 生成唯一id，防止多图表冲突
   const chartId = 'shared-chart-' + Math.random().toString(36).substr(2, 9);
   const labels = snapshot.data?.labels || [];
@@ -522,24 +550,24 @@ function renderChartSnapshot(type, snapshot) {
 }
 
 function renderDashboardSnapshot(snapshot) {
-  const keys = ['weekly', 'progress', 'activities', 'calories', 'prediction', 'stat-calories-distance', 'stat-duration-activities'];
-  let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
-  let hasChart = false;
-  for (const key of keys) {
-    const data = snapshot[key];
-    if (data) {
-      // 图表类型：有labels和datasets
-      if ((data.data && data.data.labels && data.data.datasets && data.data.labels.length && data.data.datasets.length) || data.type === 'stat-card') {
-        html += renderChartSnapshot(key, data);
+  // snapshot为数组，顺序渲染每个元素
+  if (Array.isArray(snapshot)) {
+    let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
+    let hasChart = false;
+    snapshot.forEach((item, idx) => {
+      if ((item.data && item.data.labels && item.data.datasets && item.data.labels.length && item.data.datasets.length) || item.type === 'stat-card') {
+        html += renderChartSnapshot(item.type, item);
         hasChart = true;
       }
+    });
+    html += '</div>';
+    if (!hasChart) {
+      return '<div style="color:#888;text-align:center;padding:40px 0;">No chart data to display.</div>';
     }
+    return html;
   }
-  html += '</div>';
-  if (!hasChart) {
-    return '<div style="color:#888;text-align:center;padding:40px 0;">No chart data to display.</div>';
-  }
-  return html;
+  // ...原对象结构兼容逻辑...
+  return '';
 }
 
 function getActivityIcon(type) {
