@@ -869,3 +869,22 @@ function showError(message) {
   document.body.appendChild(errorDiv);
   setTimeout(() => errorDiv.remove(), 3000);
 }
+
+
+function bindVisualizationShareButtons() {
+  document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.onclick = function() {
+      // 优先用 data-chart，否则用卡片标题，否则用 'card'
+      const chartType = this.getAttribute('data-chart') || this.closest('.card')?.querySelector('h5')?.textContent || 'card';
+      window.openShareModal({ type: 'chart', id: chartType });
+    };
+  });
+  // dashboard分享按钮
+  const dashboardBtn = document.getElementById('share-dashboard-btn') || document.querySelector('.share-dashboard-btn');
+  if (dashboardBtn) {
+    dashboardBtn.onclick = function() {
+      window.openShareModal({ type: 'dashboard' });
+    };
+  }
+}
+bindVisualizationShareButtons();
