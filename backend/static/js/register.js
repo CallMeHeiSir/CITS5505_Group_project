@@ -1,157 +1,136 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('registerForm');
-    const passwordInput = document.getElementById('password');
-    const passwordError = document.getElementById('passwordError');
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    const confirmPasswordError = document.getElementById('confirmPasswordError');
-    const avatarInput = document.getElementById('avatar');
-    const avatarPreview = document.getElementById('avatarPreview');
-    const avatarUploadZone = document.getElementById('avatarUploadZone');
+$(function () {
+    const $form = $('#registerForm');
+    const $passwordInput = $('#password');
+    const $passwordError = $('#passwordError');
+    const $confirmPasswordInput = $('#confirmPassword');
+    const $confirmPasswordError = $('#confirmPasswordError');
+    const $avatarInput = $('#avatar');
+    const $avatarPreview = $('#avatarPreview');
+    const $avatarUploadZone = $('#avatarUploadZone');
+    const $sendCodeButton = $('#sendCodeButton');
+    const $registerButton = $('#registerButton');
+    const csrfToken = $('#csrf_token').val();
 
     // 功能 1：密码格式验证
-    // 验证密码是否至少6个字符且包含特殊字符
-    passwordInput.addEventListener('input', () => {
-        const password = passwordInput.value;
-        const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/; // 特殊字符正则表达式
+    $passwordInput.on('input', function () {
+        const password = $(this).val();
+        const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
         const isValid = password.length >= 6 && specialCharRegex.test(password);
 
         if (!isValid) {
-            passwordInput.classList.add('is-invalid');
-            passwordError.style.display = 'block';
+            $(this).addClass('is-invalid');
+            $passwordError.show();
         } else {
-            passwordInput.classList.remove('is-invalid');
-            passwordError.style.display = 'none';
+            $(this).removeClass('is-invalid');
+            $passwordError.hide();
         }
     });
 
     // 确认密码验证
-    confirmPasswordInput.addEventListener('input', () => {
-        const password = passwordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
+    $confirmPasswordInput.on('input', function () {
+        const password = $passwordInput.val();
+        const confirmPassword = $(this).val();
         if (password !== confirmPassword) {
-            confirmPasswordError.style.display = 'block';
+            $confirmPasswordError.show();
         } else {
-            confirmPasswordError.style.display = 'none';
+            $confirmPasswordError.hide();
         }
     });
 
     // 密码显示/隐藏功能
-    const togglePasswordVisibility = (inputId, toggleIconId) => {
-        const input = document.getElementById(inputId);
-        const toggleIcon = document.getElementById(toggleIconId);
+    function togglePasswordVisibility(inputId, toggleIconId) {
+        const $input = $('#' + inputId);
+        const $toggleIcon = $('#' + toggleIconId);
 
-        toggleIcon.addEventListener('click', () => {
-            const isPassword = input.getAttribute('type') === 'password';
-            input.setAttribute('type', isPassword ? 'text' : 'password');
-            toggleIcon.textContent = isPassword ? '👁️‍🗨️' : '👁️';
+        $toggleIcon.on('click', function () {
+            const isPassword = $input.attr('type') === 'password';
+            $input.attr('type', isPassword ? 'text' : 'password');
+            $toggleIcon.text(isPassword ? '👁️‍🗨️' : '👁️');
         });
-    };
-
-    // 添加眼睛图标功能
+    }
     togglePasswordVisibility('password', 'togglePassword');
     togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
 
     // 功能 2：Avatar 上传预览
-    // 使整个 upload-zone 可点击
-    avatarUploadZone.addEventListener('click', (event) => {
-        // 避免重复触发（如果点击的是 input 本身）
-        if (event.target !== avatarInput) {
-            avatarInput.click();
+    $avatarUploadZone.on('click', function (event) {
+        if (event.target !== $avatarInput[0]) {
+            $avatarInput.click();
         }
     });
 
-    // 当用户选择文件时，显示图像预览
-    const handleFileSelect = (file) => {
+    function handleFileSelect(file) {
         if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                avatarPreview.src = e.target.result;
-                avatarPreview.style.display = 'block';
-                avatarUploadZone.querySelector('p').style.display = 'none'; // 隐藏提示文字
-                avatarUploadZone.querySelector('.upload-icon').style.display = 'none'; // 隐藏上传图标
+            reader.onload = function (e) {
+                $avatarPreview.attr('src', e.target.result).show();
+                $avatarUploadZone.find('p').hide();
+                $avatarUploadZone.find('.upload-icon').hide();
             };
             reader.readAsDataURL(file);
         }
-    };
+    }
 
-    // 点击上传
-    avatarInput.addEventListener('change', (event) => {
+    $avatarInput.on('change', function (event) {
         const file = event.target.files[0];
         handleFileSelect(file);
     });
 
-    // 拖放上传
-    avatarUploadZone.addEventListener('dragover', (event) => {
+    $avatarUploadZone.on('dragover', function (event) {
         event.preventDefault();
-        avatarUploadZone.classList.add('dragover');
+        $avatarUploadZone.addClass('dragover');
     });
 
-    avatarUploadZone.addEventListener('dragleave', (event) => {
+    $avatarUploadZone.on('dragleave', function (event) {
         event.preventDefault();
-        avatarUploadZone.classList.remove('dragover');
+        $avatarUploadZone.removeClass('dragover');
     });
 
-    avatarUploadZone.addEventListener('drop', (event) => {
+    $avatarUploadZone.on('drop', function (event) {
         event.preventDefault();
-        avatarUploadZone.classList.remove('dragover');
-        const file = event.dataTransfer.files[0];
+        $avatarUploadZone.removeClass('dragover');
+        const file = event.originalEvent.dataTransfer.files[0];
         handleFileSelect(file);
-        // 更新 input 的文件（以便表单提交时包含文件）
+        // 更新 input 的文件
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
-        avatarInput.files = dataTransfer.files;
+        $avatarInput[0].files = dataTransfer.files;
     });
 
     // 功能 3：关闭 Flash 消息
-    document.querySelectorAll('.flash-close').forEach(button => {
-        button.addEventListener('click', () => {
-            button.parentElement.style.display = 'none';
-        });
+    $('.flash-close').on('click', function () {
+        $(this).parent().hide();
     });
-});
-
- document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('registerForm');
-    const sendCodeButton = document.getElementById('sendCodeButton');
-    const registerButton = document.getElementById('registerButton');
-     const csrfToken = document.getElementById('csrf_token').value;
 
     // 点击“Send Code”按钮时，发送验证码请求
-    sendCodeButton.addEventListener('click', (event) => {
-        event.preventDefault(); // 阻止默认表单提交行为
+    $sendCodeButton.on('click', function (event) {
+        event.preventDefault();
 
-        // 获取用户输入的邮箱
-        const emailInput = document.getElementById('email').value.trim();
+        const emailInput = $('#email').val().trim();
         if (!emailInput) {
             alert('Please enter your email before requesting a verification code.');
             return;
         }
 
-        // 创建一个表单数据对象
         const formData = new FormData();
         formData.append('email', emailInput);
 
-         // 禁用按钮并开始倒计时
-    let countdown = 60; // 倒计时秒数
-    sendCodeButton.disabled = true;
-    sendCodeButton.textContent = `Resend (${countdown}s)`;
-
-    const timer = setInterval(() => {
-        countdown -= 1;
-        sendCodeButton.textContent = `Resend (${countdown}s)`;
-
-        if (countdown <= 0) {
-            clearInterval(timer);
-            sendCodeButton.disabled = false;
-            sendCodeButton.textContent = 'Send Code';
-        }
-    }, 1000);
+        // 禁用按钮并开始倒计时
+        let countdown = 60;
+        $sendCodeButton.prop('disabled', true).text(`Resend (${countdown}s)`);
+        const timer = setInterval(function () {
+            countdown -= 1;
+            $sendCodeButton.text(`Resend (${countdown}s)`);
+            if (countdown <= 0) {
+                clearInterval(timer);
+                $sendCodeButton.prop('disabled', false).text('Send Code');
+            }
+        }, 1000);
 
         // 发送验证码请求到后端
         fetch('/auth/send_verification_code', {
             method: 'POST',
             headers: {
-              'X-CSRFToken': csrfToken, // 添加 CSRF 令牌到请求头
+                'X-CSRFToken': csrfToken,
             },
             body: formData,
         })
@@ -159,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) {
                     throw new Error('Failed to send verification code.');
                 }
-                return response.text(); // 后端可能返回 HTML 页面
+                return response.text();
             })
             .then(() => {
                 alert('Verification code sent successfully. Please check your email.');
@@ -171,15 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 点击“Register”按钮时，提交表单到注册路径
-    registerButton.addEventListener('click', (event) => {
-        event.preventDefault(); // 阻止默认表单提交行为
+    $registerButton.on('click', function (event) {
+        event.preventDefault();
 
-        // 验证表单是否填写完整
-        const username = document.getElementById('username').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const verificationCode = document.getElementById('verificationCode').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        const username = $('#username').val().trim();
+        const email = $('#email').val().trim();
+        const verificationCode = $('#verificationCode').val().trim();
+        const password = $passwordInput.val().trim();
+        const confirmPassword = $confirmPasswordInput.val().trim();
 
         if (!username || !email || !verificationCode || !password || !confirmPassword) {
             alert('Please fill in all required fields.');
@@ -191,9 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 提交表单到注册路径
-        form.action = '/auth/register'; // 设置注册路径
-        form.method = 'POST'; // 确保使用 POST 方法
-        form.submit(); // 提交表单
+        $form.attr('action', '/auth/register');
+        $form.attr('method', 'POST');
+        $form.submit();
     });
 });
