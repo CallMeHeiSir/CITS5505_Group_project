@@ -315,6 +315,7 @@ function showSuccess(message) {
       activities.forEach(activity => {
         const card = document.createElement('div');
         card.className = 'activity-card';
+        card.dataset.activityId = activity.id;
         card.style = 'border:1px solid #e5e7eb; border-radius:12px; margin-bottom:12px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 1px 4px #e5e7eb;';
         card.innerHTML = `
           <div style="display:flex;align-items:center;gap:16px;">
@@ -334,6 +335,7 @@ function showSuccess(message) {
         `;
         container.appendChild(card);
       });
+      bindShareButtons();
     } catch (e) {
       container.innerHTML = '<div style="text-align:center;color:#888;">Failed to load activities.</div>';
     }
@@ -381,6 +383,16 @@ function getActivityIcon(type) {
   function formatDate(dateStr) {
     const d = new Date(dateStr);
     return d.toLocaleDateString();
+  }
+
+  function bindShareButtons() {
+    document.querySelectorAll('.share-btn').forEach(btn => {
+      btn.onclick = function() {
+        // 优先用 data-activity-id，否则用卡片标题，否则用 'activity'
+        const activityId = this.closest('.activity-card')?.dataset?.activityId || this.closest('.activity-card')?.querySelector('h5')?.textContent || 'activity';
+        window.openShareModal({ type: 'activity', id: activityId });
+      };
+    });
   }
 
   // 加载活动卡片
