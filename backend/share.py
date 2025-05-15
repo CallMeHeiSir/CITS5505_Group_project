@@ -7,6 +7,7 @@ from models.share_log import ShareLog
 from flask_login import login_required, current_user
 from datetime import datetime
 from sqlalchemy import desc
+import json
 
 share_bp = Blueprint('share', __name__)
 
@@ -35,34 +36,33 @@ def get_friends_list():
 def share_activity():
     try:
         data = request.get_json()
-        print('SHARE POST DATA:', data)  # 调试用，输出前端传递的字段
         activity_id = data.get('activity_id')
         share_to_user_id = data.get('share_to_user_id')
-        visualization_type = data.get('visualization_type')  # 新增：可视化类型
-        # 兼容前端传递的 share_message 或 message 字段
+        visualization_type = data.get('visualization_type')
         custom_message = data.get('share_message') or data.get('message', '')
-        share_type = data.get('share_type', 'activity')  # 新增
-        snapshot = data.get('snapshot')  # 新增
-        
+        share_type = data.get('share_type', 'activity')
+        snapshot = data.get('snapshot')
+
         # 验证是否是好友关系
         if not Friendship.are_friends(current_user.id, share_to_user_id):
             return jsonify({
                 'status': 'error',
                 'message': 'You can only share with your friends'
             }), 403
-        
-        # Verify if the activity exists and belongs to the current user
-        activity = ActivityLog.query.filter_by(
-            id=activity_id, 
-            user_id=current_user.id
-        ).first()
-        
-        if not activity:
-            return jsonify({
-                'status': 'error',
-                'message': 'Activity not found or you do not have permission'
-            }), 404
-            
+
+        # 允许 activity_id 为空（图表/仪表盘分享）
+        activity = None
+        if activity_id:
+            activity = ActivityLog.query.filter_by(
+                id=activity_id, 
+                user_id=current_user.id
+            ).first()
+            if not activity:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Activity not found or you do not have permission'
+                }), 404
+
         # Verify if the target user exists
         target_user = User.query.get(share_to_user_id)
         if not target_user:
@@ -70,28 +70,23 @@ def share_activity():
                 'status': 'error',
                 'message': 'Target user not found'
             }), 404
-            
+
         # Create a new share log record for the target user
         share_log = ShareLog(
             from_user_id=current_user.id,
             to_user_id=share_to_user_id,
-            activity_log_id=activity_id,
+            activity_log_id=activity_id if activity else None,
             share_type=share_type,
-            snapshot=snapshot,
+            snapshot=json.dumps(snapshot) if snapshot is not None else None,
             share_message=custom_message,
             created_at=datetime.utcnow(),
             status='active'
         )
-        
         db.session.add(share_log)
         db.session.commit()
-        
-        return jsonify({
-            'status': 'success',
-            'message': 'Activity shared successfully',
-            'share_log_id': share_log.id
-        })
-        
+
+        return jsonify({'status': 'success', 'message': 'Activity shared successfully'})
+
     except Exception as e:
         db.session.rollback()
         return jsonify({

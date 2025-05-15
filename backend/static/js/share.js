@@ -393,9 +393,7 @@ function renderShareMessage(share, type) {
   const user = type === 'received' ? share.shared_from : share.shared_to;
   // 格式化UTC时间：日期和时间之间用空格，只保留到秒
   let time = share.created_at;
-  // 只保留到秒，去掉毫秒
   if (time) {
-    // 例如 '2025-05-15T06:34:57.634204' => '2025-05-15 06:34:57'
     time = time.replace('T', ' ');
     time = time.replace(/\.[0-9]+/, '');
   }
@@ -405,7 +403,7 @@ function renderShareMessage(share, type) {
     userInfoHtml = `<span style="font-weight:600;">To ${user ? user.username : '?'}</span>
                     <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
   } else {
-    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'}</span>
+    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'}</span> to you
                     <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
   }
   const card = document.createElement('div');
@@ -452,6 +450,15 @@ function renderSharedContent(share) {
   }
   // 图表/仪表盘分享渲染
   if (share.snapshot) {
+    // 自动解析字符串快照
+    if (typeof share.snapshot === 'string') {
+      try {
+        share.snapshot = JSON.parse(share.snapshot);
+      } catch (e) {
+        console.error('快照解析失败', e, share.snapshot);
+        return messageHtml + '<div style="color:#e57373;">快照数据损坏，无法显示图表。</div>';
+      }
+    }
     if (share.visualization_type === 'dashboard') {
       return messageHtml + renderDashboardSnapshot(share.snapshot);
     } else {
@@ -462,19 +469,56 @@ function renderSharedContent(share) {
 }
 
 function renderChartSnapshot(type, snapshot) {
+  // 统计卡片类型特殊渲染
+  if (snapshot.type === 'stat-card') {
+    if (snapshot.cardType === 'calories-distance') {
+      return `<div class="stat-card-group" style="display:flex;gap:24px;margin:24px 0;">
+        <div class="stat-card" style="flex:1;padding:18px 0;text-align:center;background:#f8fafc;border-radius:12px;box-shadow:0 1px 4px #e5e7eb;">
+          <div class="stat-value" style="font-size:2em;font-weight:bold;color:#6366f1;">${snapshot.calories}</div>
+          <div class="stat-label" style="color:#888;">Total Calories</div>
+        </div>
+        <div class="stat-card" style="flex:1;padding:18px 0;text-align:center;background:#f8fafc;border-radius:12px;box-shadow:0 1px 4px #e5e7eb;">
+          <div class="stat-value" style="font-size:2em;font-weight:bold;color:#6366f1;">${snapshot.distance}</div>
+          <div class="stat-label" style="color:#888;">Total Distance (km)</div>
+        </div>
+      </div>`;
+    } else if (snapshot.cardType === 'duration-activities') {
+      return `<div class="stat-card-group" style="display:flex;gap:24px;margin:24px 0;">
+        <div class="stat-card" style="flex:1;padding:18px 0;text-align:center;background:#f8fafc;border-radius:12px;box-shadow:0 1px 4px #e5e7eb;">
+          <div class="stat-value" style="font-size:2em;font-weight:bold;color:#6366f1;">${snapshot.duration}</div>
+          <div class="stat-label" style="color:#888;">Total Duration (mins)</div>
+        </div>
+        <div class="stat-card" style="flex:1;padding:18px 0;text-align:center;background:#f8fafc;border-radius:12px;box-shadow:0 1px 4px #e5e7eb;">
+          <div class="stat-value" style="font-size:2em;font-weight:bold;color:#6366f1;">${snapshot.activities}</div>
+          <div class="stat-label" style="color:#888;">Activities</div>
+        </div>
+      </div>`;
+    }
+  }
   // 生成唯一id，防止多图表冲突
   const chartId = 'shared-chart-' + Math.random().toString(36).substr(2, 9);
+  const labels = snapshot.data?.labels || [];
+  const datasets = snapshot.data?.datasets || [];
+  const hasValidData = datasets.some(ds => Array.isArray(ds.data) && ds.data.some(v => v !== null && v !== undefined));
+  if (!labels.length || !datasets.length || !hasValidData) {
+    return `<div class="chart-container" style="height:300px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;color:#888;">No chart data to display.</div>`;
+  }
+  // 优先用快照里的type
+  let chartType = snapshot.type || type;
+  if (labels.length === 1) chartType = 'bar';
   setTimeout(() => {
     const ctx = document.getElementById(chartId)?.getContext('2d');
     if (ctx) {
+      const data = JSON.parse(JSON.stringify(snapshot.data));
+      const options = JSON.parse(JSON.stringify(snapshot.options || {responsive:true,maintainAspectRatio:false}));
       new Chart(ctx, {
-        type: snapshot.data.type || type || 'line',
-        data: snapshot.data,
-        options: snapshot.options || {responsive:true,maintainAspectRatio:false}
+        type: chartType || 'line',
+        data: data,
+        options: options
       });
     }
   }, 0);
-  return `<div class="chart-container" style="height:300px;margin-bottom:16px;"><canvas id="${chartId}"></canvas></div>`;
+  return `<div class="chart-container" style="height:300px;margin-bottom:16px;border:1px solid #e57373;"><canvas id="${chartId}"></canvas></div>`;
 }
 
 function renderDashboardSnapshot(snapshot) {

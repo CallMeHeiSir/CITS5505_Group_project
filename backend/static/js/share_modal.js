@@ -57,9 +57,11 @@ window.openShareModal = function(shareOptions) {
     } else if (shareOptions.type === 'chart') {
       body.visualization_type = shareOptions.id;
       body.snapshot = collectSnapshot(shareOptions.id);
+      console.log('分享快照:', body.snapshot);
     } else if (shareOptions.type === 'dashboard') {
       body.visualization_type = 'dashboard';
       body.snapshot = collectSnapshot('dashboard');
+      console.log('分享快照:', body.snapshot);
     }
     fetch(url, {
       method: 'POST',
@@ -89,26 +91,51 @@ function collectSnapshot(type) {
   if (type === 'dashboard') {
     // 采集 dashboard 所有图表的状态
     const snapshot = {
-      weekly: charts.weekly ? charts.weekly.data : null,
-      progress: charts.progress ? charts.progress.data : null,
-      activities: charts.activities ? charts.activities.data : null,
-      calories: charts.calories ? charts.calories.data : null,
-      prediction: charts.prediction ? charts.prediction.data : null,
+      weekly: charts.weekly ? {type: charts.weekly.config.type, data: charts.weekly.data, options: JSON.parse(JSON.stringify(charts.weekly.options))} : null,
+      progress: charts.progress ? {type: charts.progress.config.type, data: charts.progress.data, options: JSON.parse(JSON.stringify(charts.progress.options))} : null,
+      activities: charts.activities ? {type: charts.activities.config.type, data: charts.activities.data, options: JSON.parse(JSON.stringify(charts.activities.options))} : null,
+      calories: charts.calories ? {type: charts.calories.config.type, data: charts.calories.data, options: JSON.parse(JSON.stringify(charts.calories.options))} : null,
+      prediction: charts.prediction ? {type: charts.prediction.config.type, data: charts.prediction.data, options: JSON.parse(JSON.stringify(charts.prediction.options))} : null,
       filters: currentFilters
     };
     return snapshot;
+  } else if (type === 'stat-calories-distance') {
+    // 采集统计卡片：卡路里+距离
+    const calories = document.getElementById('total-calories')?.textContent || '';
+    const distance = document.getElementById('total-distance')?.textContent || '';
+    return {
+      type: 'stat-card',
+      cardType: 'calories-distance',
+      calories,
+      distance,
+      filters: currentFilters
+    };
+  } else if (type === 'stat-duration-activities') {
+    // 采集统计卡片：时长+活动数
+    const duration = document.getElementById('total-duration')?.textContent || '';
+    const activities = document.getElementById('activity-count')?.textContent || '';
+    return {
+      type: 'stat-card',
+      cardType: 'duration-activities',
+      duration,
+      activities,
+      filters: currentFilters
+    };
   } else {
     // 采集单个图表的状态
     const chart = charts[type];
     if (chart) {
+      // 深拷贝 options，去掉 Proxy
+      const options = JSON.parse(JSON.stringify(chart.options));
       return {
+        type: chart.config.type,
         data: chart.data,
-        options: chart.options,
+        options: options,
         filters: currentFilters
       };
     }
+    return null;
   }
-  return null;
 }
 
 // 供所有页面调用 window.openShareModal({type, id}) 

@@ -264,6 +264,37 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize calendar
   renderCalendar();
+
+  // 在初始化卡片时为每个分享按钮加上唯一的data-chart属性
+  document.querySelectorAll('.card').forEach(card => {
+    const shareBtn = card.querySelector('.share-btn');
+    if (shareBtn) {
+      const h5 = card.querySelector('h5');
+      if (h5) {
+        const title = h5.textContent.trim().toLowerCase();
+        if (title.includes('activity duration by day') || title.includes('weekly')) shareBtn.setAttribute('data-chart', 'weekly');
+        else if (title.includes('distance progress') || title.includes('progress')) shareBtn.setAttribute('data-chart', 'progress');
+        else if (title.includes('activity distribution')) shareBtn.setAttribute('data-chart', 'activities');
+        else if (title.includes('calories trend')) shareBtn.setAttribute('data-chart', 'calories');
+        else if (title.includes('calories prediction') || title.includes('prediction')) shareBtn.setAttribute('data-chart', 'prediction');
+        // 不再赋值calendar等无效key
+      }
+    }
+  });
+
+  // 针对stat-card统计卡片，手动赋予唯一data-chart（与charts key唯一对应）
+  const statCards = document.querySelectorAll('.stat-card');
+  if (statCards.length > 0) {
+    // 第一组：Total Calories + Total Distance
+    const btn0 = statCards[0].querySelector('.share-btn');
+    if (btn0) btn0.setAttribute('data-chart', 'stat-calories-distance');
+    // 第二组：Total Duration + Activities
+    const btn1 = statCards[1].querySelector('.share-btn');
+    if (btn1) btn1.setAttribute('data-chart', 'stat-duration-activities');
+  }
+
+  // 确保所有分享按钮都能正常弹出分享弹窗
+  bindVisualizationShareButtons();
 });
 
 // Initialize date range filter functionality
@@ -765,15 +796,34 @@ async function exportData(format) {
 function updatePredictionChart(activities, predictions) {
   const ctx = document.getElementById('predictionChart').getContext('2d');
 
-  // 合并所有日期和数据，按日期排序
-  const actualPoints = activities.map(a => ({ date: a.date.split('T')[0], actual: a.calories, predicted: null }));
-  const predictedPoints = predictions.map(p => ({ date: p.date, actual: null, predicted: p.calories }));
-  const allPoints = [...actualPoints, ...predictedPoints];
-  allPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
+  // 1. 实际数据
+  let actualLabels = activities.map(a => a.date.split('T')[0]);
+  let actualData = activities.map(a => a.calories);
 
-  const sortedLabels = allPoints.map(p => p.date);
-  const sortedActual = allPoints.map(p => p.actual);
-  const sortedPredicted = allPoints.map(p => p.predicted);
+  // 对真实区间按日期排序，且只保留有真实值的日期
+  const actualPairs = actualLabels.map((d, i) => ({ date: d, value: actualData[i] }));
+  actualPairs.sort((a, b) => new Date(a.date) - new Date(b.date));
+  actualLabels = actualPairs.map(p => p.date);
+  actualData = actualPairs.map(p => p.value);
+
+  // 2. 预测数据
+  const predictedLabels = predictions.map(p => p.date);
+  const predictedData = predictions.map(p => p.calories);
+
+  // 3. 找到最后一个实际日期
+  const lastActualDate = actualLabels[actualLabels.length - 1];
+
+  // 4. 预测区间（只取最后一个实际日期之后的预测）
+  const predStartIdx = predictedLabels.findIndex(d => d > lastActualDate);
+  const predLabelsAfter = predStartIdx >= 0 ? predictedLabels.slice(predStartIdx) : [];
+  const predDataAfter = predStartIdx >= 0 ? predictedData.slice(predStartIdx) : [];
+
+  // 5. allDates = 真实值日期（递增）+ 预测区间日期（递增）
+  const allDates = [...actualLabels, ...predLabelsAfter];
+
+  // 6. 对齐数据
+  const actualFull = [...actualData, ...Array(predLabelsAfter.length).fill(null)];
+  const predictedFull = [...Array(actualLabels.length).fill(null), ...predDataAfter];
 
   // Calculate current month calories
   const currentMonth = new Date().getMonth();
@@ -802,18 +852,18 @@ function updatePredictionChart(activities, predictions) {
   charts.prediction = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: sortedLabels,
+      labels: allDates,
       datasets: [
         {
           label: 'Actual Calories',
-          data: sortedActual,
+          data: actualFull,
           borderColor: 'rgba(102, 126, 234, 1)',
           backgroundColor: 'rgba(102, 126, 234, 0.1)',
           fill: true
         },
         {
           label: 'Predicted Calories',
-          data: sortedPredicted,
+          data: predictedFull,
           borderColor: 'rgba(255, 99, 132, 1)',
           borderDash: [5, 5],
           fill: false
@@ -870,13 +920,14 @@ function showError(message) {
   setTimeout(() => errorDiv.remove(), 3000);
 }
 
-
+// 保证bindVisualizationShareButtons时能正确获取data-chart
 function bindVisualizationShareButtons() {
   document.querySelectorAll('.share-btn').forEach(btn => {
     btn.onclick = function() {
-      // 优先用 data-chart，否则用卡片标题，否则用 'card'
-      const chartType = this.getAttribute('data-chart') || this.closest('.card')?.querySelector('h5')?.textContent || 'card';
-      window.openShareModal({ type: 'chart', id: chartType });
+      const chartType = this.getAttribute('data-chart');
+      if (chartType) {
+        window.openShareModal({ type: 'chart', id: chartType });
+      }
     };
   });
   // dashboard分享按钮
