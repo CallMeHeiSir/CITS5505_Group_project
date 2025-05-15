@@ -58,10 +58,6 @@ window.openShareModal = function(shareOptions) {
       body.visualization_type = shareOptions.id;
       body.snapshot = collectSnapshot(shareOptions.id);
       console.log('分享快照:', body.snapshot);
-    } else if (shareOptions.type === 'dashboard') {
-      body.visualization_type = 'dashboard';
-      body.snapshot = collectSnapshot('dashboard');
-      console.log('分享快照:', body.snapshot);
     } else if (type === 'calendar') {
       // 采集日历快照：当前年月、已打卡日期、过滤器
       body.snapshot = collectSnapshot('calendar');

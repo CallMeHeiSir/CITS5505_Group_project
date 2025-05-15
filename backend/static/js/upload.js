@@ -311,8 +311,18 @@ function showSuccess(message) {
         container.innerHTML = '<div style="text-align:center;color:#888;">No activities found.</div>';
         return;
       }
-      // Sort by date descending
-      const activities = data.activities.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+      // Sort by date descending, then by created_at descending if same day
+      const activities = data.activities.slice().sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateB - dateA; // 日期新在前
+        }
+        // 日期相同，比较created_at
+        const createdA = a.created_at ? new Date(a.created_at) : 0;
+        const createdB = b.created_at ? new Date(b.created_at) : 0;
+        return createdB - createdA; // 创建时间新在前
+      });
       container.innerHTML = '';
       activities.forEach(activity => {
         const card = document.createElement('div');
