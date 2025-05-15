@@ -10,6 +10,7 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/uploadStyle.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/indexStyle.css') }}">
 </head>
 <body>
   <div class="app-container">
@@ -28,6 +29,22 @@
             <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
           {% endif %}
           <span class="username">{{ current_user.username }}</span>
+        </div>
+        <!-- 天气模块 -->
+        <div class="weather-section">
+          <div class="weather-content">
+            <h4>Weather</h4>
+            <select id="city-select">
+              <option value="-33.8688,151.2093,Sydney">Sydney</option>
+              <option value="-37.8136,144.9631,Melbourne">Melbourne</option>
+              <option value="-27.4698,153.0251,Brisbane">Brisbane</option>
+              <option value="-31.9505,115.8605,Perth" selected>Perth</option>
+              <option value="-34.9285,138.6007,Adelaide">Adelaide</option>
+            </select>
+            <p id="weather-location">Loading...</p>
+            <p id="weather-temp"></p>
+            <p id="weather-desc"></p>
+          </div>
         </div>
         <div class="top-logout">
           <a href="{{ url_for('auth.logout') }}" class="tab-btn active">Logout</a>
@@ -241,5 +258,7 @@
 
   <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
   <script src="{{ url_for('static', filename='js/share_modal.js') }}"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="{{ url_for('static', filename='js/weather.js') }}"></script>
 </body>
 </html>
