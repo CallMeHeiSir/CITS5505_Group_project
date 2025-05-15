@@ -8,6 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/shareStyle.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/indexStyle.css') }}">
 </head>
 <body>
   <div class="app-container">
@@ -36,38 +37,36 @@
           {% else %}
             <img src="{{ url_for('static', filename='avatars/default.png') }}" alt="Default Avatar" class="user-avatar"/>
           {% endif %}
+        <span class="username">{{ current_user.username }}</span>
+        </div>
+
+
+        <!-- 天气模块 -->
+        <div class="weather-section">
+          <div class="weather-content">
+            <h4>Weather</h4>
+            <select id="city-select">
+              <option value="-33.8688,151.2093,Sydney">Sydney</option>
+              <option value="-37.8136,144.9631,Melbourne">Melbourne</option>
+              <option value="-27.4698,153.0251,Brisbane">Brisbane</option>
+              <option value="-31.9505,115.8605,Perth" selected>Perth</option>
+              <option value="-34.9285,138.6007,Adelaide">Adelaide</option>
+            </select>
+            <p id="weather-location">Loading...</p>
+            <p id="weather-temp"></p>
+            <p id="weather-desc"></p>
+          </div>
+        </div>
+
+        <!-- Logout 按钮 -->
+        <div class="top-logout">
+          <a href="{{ url_for('auth.logout') }}" class="tab-btn active">Logout</a>
         </div>
       </nav>
 
       <!-- Main Content -->
       <main class="main-content">
         <div class="share-container">
-          <!-- Create New Share -->
-          <div class="share-section">
-            <h2 class="section-title">
-              <i class="bi bi-share-fill"></i> Create New Share
-              <button class="toggle-btn"><i class="bi bi-chevron-down"></i></button>
-            </h2>
-            <div class="share-content">
-              <div class="form-group">
-                <label><i class="bi bi-pencil-fill"></i> Share your thoughts</label>
-                <textarea id="share-text" class="share-textarea" placeholder="Write your thoughts about the chart here..."></textarea>
-              </div>
-
-              <select class="form-select" id="chart-select">
-                <option value="" disabled selected>Select a chart to share</option>
-                <option value="sleep">Sleep Tracker</option>
-                <option value="activity">Activity Tracker</option>
-                <option value="nutrition">Nutrition Tracker</option>
-              </select>
-
-              <select class="form-select" id="friend-select">
-                <option value="" disabled selected class="select-placeholder">Select a friend to share with</option>
-              </select>
-
-              <button class="share-button" id="share-analysis">Share Analysis</button>
-            </div>
-          </div>
 
           <!-- Shares Received -->
           <div class="share-section">
@@ -103,5 +102,6 @@
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <script src="{{ url_for('static', filename='js/share.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/weather.js') }}"></script>
 </body>
 </html>
