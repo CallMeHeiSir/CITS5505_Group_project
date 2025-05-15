@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from extensions import db
 from models.user import User
 from models.activity_log import ActivityLog
-from models.friendship import Friendship
+from models.friend import Friendship
 from models.share_log import ShareLog
 from flask_login import login_required, current_user
 from datetime import datetime

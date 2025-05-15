@@ -17,11 +17,21 @@ class FriendRequest(db.Model):
 
 class Friendship(db.Model):
     __tablename__ = 'friendships'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     user1_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user2_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user1 = db.relationship('User', foreign_keys=[user1_id], backref=db.backref('friendships1', lazy='dynamic'))
-    user2 = db.relationship('User', foreign_keys=[user2_id], backref=db.backref('friendships2', lazy='dynamic')) 
+    user2 = db.relationship('User', foreign_keys=[user2_id], backref=db.backref('friendships2', lazy='dynamic'))
+
+    @staticmethod
+    def are_friends(user_id_1, user_id_2):
+        from sqlalchemy import or_, and_
+        return db.session.query(Friendship).filter(
+            or_(
+                and_(Friendship.user1_id == user_id_1, Friendship.user2_id == user_id_2),
+                and_(Friendship.user1_id == user_id_2, Friendship.user2_id == user_id_1)
+            )
+        ).first() is not None

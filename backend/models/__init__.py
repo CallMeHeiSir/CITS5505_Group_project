@@ -2,6 +2,6 @@
 from .activity_log import ActivityLog
 from .user import User
 from .share_log import ShareLog
-from .friendship import Friendship
+from .friend import Friendship
 from .check_in_log import CheckInLog
 from .verification_code import VerificationCode 
