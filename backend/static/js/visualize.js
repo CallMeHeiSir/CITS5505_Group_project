@@ -534,7 +534,8 @@ async function updateData() {
     const response = await fetch('/api/visualization/activities', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
       },
       body: JSON.stringify(currentFilters)
     });
