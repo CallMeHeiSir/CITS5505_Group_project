@@ -51,9 +51,6 @@ def create_app():
     csrf.init_app(app)
     
     # Exempt specific routes from CSRF protection
-    csrf.exempt('analytics.add_activity')
-    csrf.exempt('analytics.upload_activities')
-    csrf.exempt('visualization.get_visualization_data')
     csrf.exempt('get_weather')  # Exempt weather route to ensure AJAX works
     csrf.exempt('friend.send_friend_request')
     csrf.exempt('friend.handle_friend_request')

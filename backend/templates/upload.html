@@ -113,6 +113,7 @@
                   </p>
                 </div>
                 <form class="upload-form" id="upload-form" enctype="multipart/form-data">
+                  {{ form.csrf_token }}
                   <div class="upload-zone" id="drop-zone">
                     <i class="bi bi-cloud-arrow-up"></i>
                     <p>Drag and drop your CSV files here or <label for="file-input" class="browse-link">click to browse</label></p>

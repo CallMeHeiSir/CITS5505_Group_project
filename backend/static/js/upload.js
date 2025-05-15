@@ -121,6 +121,7 @@ function handleFiles(files) {
       try {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
         const response = await fetch('/analytics/api/activities/upload', {
           method: 'POST',
           body: formData
@@ -248,7 +249,8 @@ function showSuccess(message) {
         const response = await fetch('/analytics/api/activities/add', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
           },
           body: JSON.stringify(data)
         });

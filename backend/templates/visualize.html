@@ -38,6 +38,9 @@
 
       <!-- Main Content -->
       <main class="main-content">
+        <!-- CSRF Token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
         <!-- Filter Options -->
         <div class="filter-section card">
           <div class="filter-row">
