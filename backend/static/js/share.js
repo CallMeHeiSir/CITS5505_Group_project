@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle share button click
   shareButton.addEventListener('click', handleShare);
+
+  loadReceivedShares();
+  loadSentShares();
 });
 
 // Load friends list from backend
@@ -239,52 +242,37 @@ function createNewShare() {
 
 // 加载收到的分享
 function loadReceivedShares() {
-  const receivedList = document.getElementById('received-shares-list');
-  // 模拟数据
-  const receivedShares = [
-    {
-      id: 1,
-      author: {
-        name: 'John Doe',
-        avatar: '/static/avatars/default.png'
-      },
-      content: '<p>这是我最近的跑步数据，希望对你有帮助！</p>',
-      charts: ['跑步数据', '心率数据'],
-      timestamp: '2024-03-20T10:00:00Z',
-      isRead: false,
-      replies: []
-    },
-    {
-      id: 2,
-      author: {
-        name: 'Jane Smith',
-        avatar: '/static/avatars/default.png'
-      },
-      content: '<p>分享一下我的健身计划和饮食记录。</p>',
-      charts: ['健身记录', '饮食计划'],
-      timestamp: '2024-03-19T15:30:00Z',
-      isRead: true,
-      replies: [
-        {
-          author: 'Current User',
-          content: '谢谢分享！这个计划很有参考价值。',
-          timestamp: '2024-03-19T16:00:00Z'
-        }
-      ]
-    }
-  ];
-
-  receivedList.innerHTML = receivedShares.map(share => createShareRecordHTML(share, 'received')).join('');
-  initializeReplyForms();
+  fetch('/api/share/received')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.querySelector('.share-section:nth-of-type(2) .share-content');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!data.shared_activities || data.shared_activities.length === 0) {
+        container.innerHTML = '<div class="empty-state">No shares received yet.</div>';
+        return;
+      }
+      data.shared_activities.forEach(share => {
+        container.appendChild(renderShareMessage(share, 'received'));
+      });
+    });
 }
 
 // 加载发出的分享
-function loadMyShares() {
-  const mySharesList = document.getElementById('my-shares-list');
-  const myShares = JSON.parse(localStorage.getItem('myShares') || '[]');
-
-  mySharesList.innerHTML = myShares.map(share => createShareRecordHTML(share, 'sent')).join('');
-  initializeReplyForms();
+function loadSentShares() {
+  fetch('/api/share/sent')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.querySelector('.share-section:last-child .share-content');
+      container.innerHTML = '';
+      if (!data.sent_activities || data.sent_activities.length === 0) {
+        container.innerHTML = '<div class="empty-state">No shares sent yet.</div>';
+        return;
+      }
+      data.sent_activities.forEach(share => {
+        container.appendChild(renderShareMessage(share, 'sent'));
+      });
+    });
 }
 
 // 创建分享记录 HTML
@@ -398,4 +386,255 @@ function revokeShare(timestamp) {
     localStorage.setItem('myShares', JSON.stringify(myShares));
     loadMyShares();
   }
+}
+
+function renderShareMessage(share, type) {
+  // 头像、用户名、时间
+  const user = type === 'received' ? share.shared_from : share.shared_to;
+  // 格式化UTC时间：日期和时间之间用空格，只保留到秒
+  let time = share.created_at;
+  if (time) {
+    time = time.replace('T', ' ');
+    time = time.replace(/\.[0-9]+/, '');
+  }
+  time = time + ' (UTC)';
+  let userInfoHtml = '';
+  if (type === 'sent') {
+    userInfoHtml = `<span style="font-weight:600;">To ${user ? user.username : '?'}</span>
+                    <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
+  } else {
+    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'}</span> <span style="color:#888;">send to you</span>
+                    <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
+  }
+  const card = document.createElement('div');
+  card.className = 'share-record';
+  card.innerHTML = `
+    <div class="record-header" style="display:flex;align-items:center;gap:10px;">
+      <img src="/static/avatars/${user && user.avatar ? user.avatar : 'default.png'}" class="user-avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;">
+      <div style="display:inline-block;vertical-align:middle;">
+        ${userInfoHtml}
+      </div>
+    </div>
+    ${renderSharedContent(share)}
+    <div class="record-actions">
+      ${type === 'sent' ? `<button class="action-btn withdraw-btn" onclick="revokeShare(${share.id})"><i class="bi bi-x-lg"></i> Withdraw</button>` : ''}
+    </div>
+  `;
+  return card;
+}
+
+function renderSharedContent(share) {
+  // 留言优先显示
+  let messageHtml = '';
+  if (share.share_message) {
+    messageHtml = `<div class="share-message" style="margin-bottom:8px;color:#6366f1;font-weight:500;">${share.share_message}</div>`;
+  }
+  // 活动卡片复用 recent activity 样式
+  if (share.activity_type) {
+    return `
+      ${messageHtml}
+      <div class="activity-card" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px #e5e7eb;">
+        <span class="activity-icon" style="font-size:1.4em;">${getActivityIcon(share.activity_type)}</span>
+        <div>
+          <div style="font-weight:bold;font-size:1.05em;">${capitalize(share.activity_type)}</div>
+          <div style="font-size:0.95em;color:#666;">${formatDate(share.date)}</div>
+          <div style="font-size:0.95em;color:#666;">
+            <span><i class="bi bi-clock"></i> ${share.duration} min</span>
+            ${share.distance ? `<span style='margin-left:10px;'><i class="bi bi-geo"></i> ${share.distance} km</span>` : ''}
+            ${share.reps ? `<span style='margin-left:10px;'><i class="bi bi-arrow-up-circle"></i> ${share.reps} reps</span>` : ''}
+            <span style='margin-left:10px;'><i class="bi bi-fire"></i> ${share.calories} kcal</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  // 图表/仪表盘分享渲染
+  if (share.snapshot) {
+    // 自动解析字符串快照
+    if (typeof share.snapshot === 'string') {
+      try {
+        share.snapshot = JSON.parse(share.snapshot);
+      } catch (e) {
+        console.error('快照解析失败', e, share.snapshot);
+        return messageHtml + '<div style="color:#e57373;">快照数据损坏，无法显示图表。</div>';
+      }
+    }
+    if (share.visualization_type === 'dashboard') {
+      return messageHtml + renderDashboardSnapshotV2(share.snapshot);
+    } else {
+      return messageHtml + renderChartSnapshot(share.visualization_type, share.snapshot);
+    }
+  }
+  return messageHtml;
+}
+
+function renderChartSnapshot(type, snapshot) {
+  // 统计卡片类型特殊渲染
+  if (snapshot.type === 'stat-card') {
+    if (snapshot.cardType === 'calories-distance') {
+      return `<div class="stat-card-group" style="display:flex;gap:24px;margin:24px 0;">
+        <div class="stat-card" style="flex:1;padding:18px 0;text-align:center;background:#f8fafc;border-radius:12px;box-shadow:0 1px 4px #e5e7eb;">
+          <div class="stat-value" style="font-size:2em;font-weight:bold;color:#6366f1;">${snapshot.calories}</div>
+          <div class="stat-label" style="color:#888;">Total Calories</div>
+        </div>
+        <div class="stat-card" style="flex:1;padding:18px 0;text-align:center;background:#f8fafc;border-radius:12px;box-shadow:0 1px 4px #e5e7eb;">
+          <div class="stat-value" style="font-size:2em;font-weight:bold;color:#6366f1;">${snapshot.distance}</div>
+          <div class="stat-label" style="color:#888;">Total Distance (km)</div>
+        </div>
+      </div>`;
+    } else if (snapshot.cardType === 'duration-activities') {
+      return `<div class="stat-card-group" style="display:flex;gap:24px;margin:24px 0;">
+        <div class="stat-card" style="flex:1;padding:18px 0;text-align:center;background:#f8fafc;border-radius:12px;box-shadow:0 1px 4px #e5e7eb;">
+          <div class="stat-value" style="font-size:2em;font-weight:bold;color:#6366f1;">${snapshot.duration}</div>
+          <div class="stat-label" style="color:#888;">Total Duration (mins)</div>
+        </div>
+        <div class="stat-card" style="flex:1;padding:18px 0;text-align:center;background:#f8fafc;border-radius:12px;box-shadow:0 1px 4px #e5e7eb;">
+          <div class="stat-value" style="font-size:2em;font-weight:bold;color:#6366f1;">${snapshot.activities}</div>
+          <div class="stat-label" style="color:#888;">Activities</div>
+        </div>
+      </div>`;
+    }
+  }
+  // 日历类型渲染
+  if (snapshot.type === 'calendar') {
+    // 构建日历表格
+    const year = snapshot.year;
+    const month = snapshot.month;
+    const activityDates = snapshot.activityDates || [];
+    // 英文月份
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    // 英文星期
+    const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    // 生成本月所有日期
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const daysInMonth = lastDay.getDate();
+    let html = `<div style="margin:24px 0;text-align:center;">
+      <div style='font-weight:bold;font-size:1.2em;margin-bottom:8px;'>${monthNames[month-1]} ${year}</div>
+      <div style='display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:#f3f4f6;padding:8px 0;border-radius:8px;'>`;
+    weekDays.forEach(d => html += `<div style='color:#888;font-size:0.95em;'>${d}</div>`);
+    // 补齐前导空格
+    for (let i = 0; i < firstDay.getDay(); i++) html += `<div></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${month.toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
+      const isActive = activityDates.includes(dateStr);
+      html += `<div style='padding:6px 0;border-radius:50%;${isActive?"background:#6366f1;color:#fff;font-weight:bold;":''}'>${d}</div>`;
+    }
+    html += `</div></div>`;
+    return html;
+  }
+  // 生成唯一id，防止多图表冲突
+  const chartId = 'shared-chart-' + Math.random().toString(36).substr(2, 9);
+  const labels = snapshot.data?.labels || [];
+  const datasets = snapshot.data?.datasets || [];
+  const hasValidData = datasets.some(ds => Array.isArray(ds.data) && ds.data.some(v => v !== null && v !== undefined));
+  if (!labels.length || !datasets.length || !hasValidData) {
+    return `<div class="chart-container" style="height:300px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;color:#888;">No chart data to display.</div>`;
+  }
+  // 优先用快照里的type
+  let chartType = snapshot.type || type;
+  if (labels.length === 1) chartType = 'bar';
+  setTimeout(() => {
+    const ctx = document.getElementById(chartId)?.getContext('2d');
+    if (ctx) {
+      const data = JSON.parse(JSON.stringify(snapshot.data));
+      const options = JSON.parse(JSON.stringify(snapshot.options || {responsive:true,maintainAspectRatio:false}));
+      new Chart(ctx, {
+        type: chartType || 'line',
+        data: data,
+        options: options
+      });
+    }
+  }, 0);
+  return `<div class="chart-container" style="height:300px;margin-bottom:16px;border:1px solid #e57373;"><canvas id="${chartId}"></canvas></div>`;
+}
+
+function renderDashboardSnapshot(snapshot) {
+  // snapshot为数组，顺序渲染每个元素
+  if (Array.isArray(snapshot)) {
+    let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
+    snapshot.forEach((item, idx) => {
+      html += renderChartSnapshot(item.type, item);
+    });
+    html += '</div>';
+    return html;
+  }
+  // ...原对象结构兼容逻辑...
+  return '';
+}
+
+function getActivityIcon(type) {
+  switch(type) {
+    case 'running': return '<i class="bi bi-person-fill"></i>';
+    case 'cycling': return '<i class="bi bi-bicycle"></i>';
+    case 'swimming': return '<i class="bi bi-droplet"></i>';
+    case 'walking': return '<i class="bi bi-person"></i>';
+    case 'hiking': return '<i class="bi bi-tree"></i>';
+    case 'dancing': return '<i class="bi bi-music-note-beamed"></i>';
+    case 'jumping': return '<i class="bi bi-arrow-up-circle"></i>';
+    case 'climbing': return '<i class="bi bi-graph-up"></i>';
+    case 'skating': return '<i class="bi bi-snow"></i>';
+    case 'skiing': return '<i class="bi bi-snow2"></i>';
+    case 'pushup':
+    case 'situp':
+    case 'pullup':
+    case 'squats':
+    case 'plank':
+    case 'lunges':
+    case 'deadlift':
+    case 'bench_press':
+      return '<i class="bi bi-activity"></i>';
+    case 'yoga': return '<i class="bi bi-flower2"></i>';
+    case 'pilates': return '<i class="bi bi-flower2"></i>';
+    case 'stretching': return '<i class="bi bi-flower2"></i>';
+    case 'basketball': return '<i class="bi bi-basket"></i>';
+    case 'tennis': return '<i class="bi bi-emoji-sunglasses"></i>';
+    case 'badminton': return '<i class="bi bi-wind"></i>';
+    case 'volleyball': return '<i class="bi bi-emoji-laughing"></i>';
+    case 'football': return '<i class="bi bi-emoji-neutral"></i>';
+    case 'golf': return '<i class="bi bi-flag"></i>';
+    case 'other': return '<i class="bi bi-activity"></i>';
+    default: return '<i class="bi bi-activity"></i>';
+  }
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString();
+}
+
+function revokeShare(id) {
+  if (!confirm('Are you sure you want to withdraw this share?')) return;
+  fetch(`/api/share/revoke/${id}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+      loadSentShares();
+      alert(data.message || 'Share revoked.');
+    });
+}
+
+// 新增：专门用于dashboard快照的渲染
+function renderDashboardSnapshotV2(snapshot) {
+  if (!Array.isArray(snapshot)) return '';
+  let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
+  snapshot.forEach((item, idx) => {
+    if (item.type === 'stat-card') {
+      html += renderChartSnapshot(item.type, item);
+    } else if (item.type === 'calendar') {
+      html += renderChartSnapshot(item.type, item);
+    } else if (['bar','line','pie','doughnut'].includes(item.type)) {
+      // 图表类型，labels和datasets必须存在且为非空数组
+      const labels = item.data?.labels || [];
+      const datasets = item.data?.datasets || [];
+      if (Array.isArray(labels) && labels.length && Array.isArray(datasets) && datasets.length) {
+        html += renderChartSnapshot(item.type, item);
+      }
+    }
+  });
+  html += '</div>';
+  return html;
 } 

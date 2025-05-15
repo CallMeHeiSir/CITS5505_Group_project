@@ -1,6 +1,8 @@
 from app import create_app, db
 from models.user import User
+
 from models.friend import FriendRequest, Friendship  # Import friend models
+
 from sqlalchemy import select
 import os
 

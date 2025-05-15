@@ -1,11 +1,13 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
 from models.user import User
-from activity_records import ActivityRecord
+from models.activity_log import ActivityLog
 from models.friendship import Friendship
+from models.share_log import ShareLog
 from flask_login import login_required, current_user
 from datetime import datetime
 from sqlalchemy import desc
+import json
 
 share_bp = Blueprint('share', __name__)
 
@@ -36,28 +38,31 @@ def share_activity():
         data = request.get_json()
         activity_id = data.get('activity_id')
         share_to_user_id = data.get('share_to_user_id')
-        visualization_type = data.get('visualization_type')  # 新增：可视化类型
-        custom_message = data.get('message', '')  # 新增：分享时的个人消息
-        
+        visualization_type = data.get('visualization_type')
+        custom_message = data.get('share_message') or data.get('message', '')
+        share_type = data.get('share_type', 'activity')
+        snapshot = data.get('snapshot')
+
         # 验证是否是好友关系
         if not Friendship.are_friends(current_user.id, share_to_user_id):
             return jsonify({
                 'status': 'error',
                 'message': 'You can only share with your friends'
             }), 403
-        
-        # Verify if the activity exists and belongs to the current user
-        activity = ActivityRecord.query.filter_by(
-            id=activity_id, 
-            user_id=current_user.id
-        ).first()
-        
-        if not activity:
-            return jsonify({
-                'status': 'error',
-                'message': 'Activity not found or you do not have permission'
-            }), 404
-            
+
+        # 允许 activity_id 为空（图表/仪表盘分享）
+        activity = None
+        if activity_id:
+            activity = ActivityLog.query.filter_by(
+                id=activity_id, 
+                user_id=current_user.id
+            ).first()
+            if not activity:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Activity not found or you do not have permission'
+                }), 404
+
         # Verify if the target user exists
         target_user = User.query.get(share_to_user_id)
         if not target_user:
@@ -65,32 +70,23 @@ def share_activity():
                 'status': 'error',
                 'message': 'Target user not found'
             }), 404
-            
-        # Create a new activity record for the target user
-        shared_activity = ActivityRecord(
-            user_id=share_to_user_id,
-            activity_type=activity.activity_type,
-            duration=activity.duration,
-            distance=activity.distance,
-            calories=activity.calories,
-            start_time=activity.start_time,
-            end_time=activity.end_time,
-            notes=activity.notes,
-            shared_from=current_user.id,
-            visualization_type=visualization_type,  # 新增：记录可视化类型
-            share_message=custom_message,  # 新增：记录分享消息
-            created_at=datetime.utcnow()
+
+        # Create a new share log record for the target user
+        share_log = ShareLog(
+            from_user_id=current_user.id,
+            to_user_id=share_to_user_id,
+            activity_log_id=activity_id if activity else None,
+            share_type=share_type,
+            snapshot=json.dumps(snapshot) if snapshot is not None else None,
+            share_message=custom_message,
+            created_at=datetime.utcnow(),
+            status='active'
         )
-        
-        db.session.add(shared_activity)
+        db.session.add(share_log)
         db.session.commit()
-        
-        return jsonify({
-            'status': 'success',
-            'message': 'Activity shared successfully',
-            'shared_activity_id': shared_activity.id
-        })
-        
+
+        return jsonify({'status': 'success', 'message': 'Activity shared successfully'})
+
     except Exception as e:
         db.session.rollback()
         return jsonify({
@@ -120,37 +116,35 @@ def batch_share_activities():
                 'message': 'Target user not found'
             }), 404
             
-        shared_activities = []
+        share_logs = []
         for activity_id in activity_ids:
             # Verify if activity exists and belongs to current user
-            activity = ActivityRecord.query.filter_by(
+            activity = ActivityLog.query.filter_by(
                 id=activity_id,
                 user_id=current_user.id
             ).first()
             
             if activity:
-                shared_activity = ActivityRecord(
-                    user_id=share_to_user_id,
-                    activity_type=activity.activity_type,
-                    duration=activity.duration,
-                    distance=activity.distance,
-                    calories=activity.calories,
-                    start_time=activity.start_time,
-                    end_time=activity.end_time,
-                    notes=activity.notes,
-                    shared_from=current_user.id,
-                    created_at=datetime.utcnow()
+                share_log = ShareLog(
+                    from_user_id=current_user.id,
+                    to_user_id=share_to_user_id,
+                    activity_log_id=activity_id,
+                    share_type='activity',
+                    snapshot=None,
+                    share_message='',
+                    created_at=datetime.utcnow(),
+                    status='active'
                 )
-                shared_activities.append(shared_activity)
+                share_logs.append(share_log)
         
-        if shared_activities:
-            db.session.bulk_save_objects(shared_activities)
+        if share_logs:
+            db.session.bulk_save_objects(share_logs)
             db.session.commit()
             
             return jsonify({
                 'status': 'success',
-                'message': f'Successfully shared {len(shared_activities)} activities',
-                'shared_count': len(shared_activities)
+                'message': f'Successfully shared {len(share_logs)} activities',
+                'shared_count': len(share_logs)
             })
         else:
             return jsonify({
@@ -170,29 +164,30 @@ def batch_share_activities():
 def batch_revoke_shares():
     try:
         data = request.get_json()
-        activity_ids = data.get('activity_ids', [])
+        share_ids = data.get('share_ids', [])
         
-        if not activity_ids:
+        if not share_ids:
             return jsonify({
                 'status': 'error',
-                'message': 'No activities specified'
+                'message': 'No shares specified'
             }), 400
             
-        # Find all shared activities that belong to the current user
-        shared_activities = ActivityRecord.query.filter(
-            ActivityRecord.id.in_(activity_ids),
-            ActivityRecord.shared_from == current_user.id
+        # Find all share logs that belong to the current user
+        share_logs = ShareLog.query.filter(
+            ShareLog.id.in_(share_ids),
+            ShareLog.from_user_id == current_user.id
         ).all()
         
-        if shared_activities:
-            for activity in shared_activities:
-                db.session.delete(activity)
+        if share_logs:
+            for share in share_logs:
+                share.status = 'revoked'
+            db.session.bulk_save_objects(share_logs)
             db.session.commit()
             
             return jsonify({
                 'status': 'success',
-                'message': f'Successfully revoked {len(shared_activities)} shares',
-                'revoked_count': len(shared_activities)
+                'message': f'Successfully revoked {len(share_logs)} shares',
+                'revoked_count': len(share_logs)
             })
         else:
             return jsonify({
@@ -214,34 +209,37 @@ def get_received_shares():
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
-        query = ActivityRecord.query.filter(
-            ActivityRecord.user_id == current_user.id,
-            ActivityRecord.shared_from.isnot(None)
-        ).order_by(desc(ActivityRecord.created_at))
+        query = ShareLog.query.filter_by(to_user_id=current_user.id, status='active').order_by(ShareLog.created_at.desc())
         
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         total_pages = pagination.pages
         total_items = pagination.total
         
         activities_data = []
-        for activity in pagination.items:
-            shared_from_user = User.query.get(activity.shared_from)
+        for share in pagination.items:
+            from_user = User.query.get(share.from_user_id)
+            activity = ActivityLog.query.get(share.activity_log_id)
             activities_data.append({
-                'id': activity.id,
-                'activity_type': activity.activity_type,
-                'duration': activity.duration,
-                'distance': activity.distance,
-                'calories': activity.calories,
-                'start_time': activity.start_time.isoformat(),
-                'end_time': activity.end_time.isoformat(),
-                'notes': activity.notes,
-                'visualization_type': activity.visualization_type,  # 新增：返回可视化类型
-                'share_message': activity.share_message,  # 新增：返回分享消息
+                'id': share.id,
+                'activity_type': activity.activity_type if activity else None,
+                'date': activity.date.isoformat() if activity and activity.date else None,
+                'duration': activity.duration if activity else None,
+                'distance': activity.distance if activity else None,
+                'reps': activity.reps if activity else None,
+                'calories': activity.calories if activity else None,
+                'height': activity.height if activity else None,
+                'weight': activity.weight if activity else None,
+                'age': activity.age if activity else None,
+                'location': activity.location if activity else None,
+                'visualization_type': activity.visualization_type if activity else None,
+                'share_message': share.share_message,
+                'share_type': share.share_type,
+                'snapshot': share.snapshot,
                 'shared_from': {
-                    'id': shared_from_user.id,
-                    'username': shared_from_user.username
-                },
-                'created_at': activity.created_at.isoformat()
+                    'id': from_user.id,
+                    'username': from_user.username
+                } if from_user else None,
+                'created_at': share.created_at.isoformat() if share.created_at else None
             })
             
         return jsonify({
@@ -268,31 +266,37 @@ def get_sent_shares():
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
-        query = ActivityRecord.query.filter(
-            ActivityRecord.shared_from == current_user.id
-        ).order_by(desc(ActivityRecord.created_at))
+        query = ShareLog.query.filter_by(from_user_id=current_user.id, status='active').order_by(ShareLog.created_at.desc())
         
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         total_pages = pagination.pages
         total_items = pagination.total
         
         activities_data = []
-        for activity in pagination.items:
-            shared_to_user = User.query.get(activity.user_id)
+        for share in pagination.items:
+            to_user = User.query.get(share.to_user_id)
+            activity = ActivityLog.query.get(share.activity_log_id)
             activities_data.append({
-                'id': activity.id,
-                'activity_type': activity.activity_type,
-                'duration': activity.duration,
-                'distance': activity.distance,
-                'calories': activity.calories,
-                'start_time': activity.start_time.isoformat(),
-                'end_time': activity.end_time.isoformat(),
-                'notes': activity.notes,
+                'id': share.id,
+                'activity_type': activity.activity_type if activity else None,
+                'date': activity.date.isoformat() if activity and activity.date else None,
+                'duration': activity.duration if activity else None,
+                'distance': activity.distance if activity else None,
+                'reps': activity.reps if activity else None,
+                'calories': activity.calories if activity else None,
+                'height': activity.height if activity else None,
+                'weight': activity.weight if activity else None,
+                'age': activity.age if activity else None,
+                'location': activity.location if activity else None,
+                'visualization_type': activity.visualization_type if activity else None,
+                'share_message': share.share_message,
+                'share_type': share.share_type,
+                'snapshot': share.snapshot,
                 'shared_to': {
-                    'id': shared_to_user.id,
-                    'username': shared_to_user.username
-                },
-                'created_at': activity.created_at.isoformat()
+                    'id': to_user.id,
+                    'username': to_user.username
+                } if to_user else None,
+                'created_at': share.created_at.isoformat() if share.created_at else None
             })
             
         return jsonify({
@@ -312,24 +316,21 @@ def get_sent_shares():
             'message': str(e)
         }), 500
 
-@share_bp.route('/api/share/revoke/<int:activity_id>', methods=['DELETE'])
+@share_bp.route('/api/share/revoke/<int:share_id>', methods=['DELETE'])
 @login_required
-def revoke_share(activity_id):
+def revoke_share(share_id):
     try:
-        # Find the shared activity
-        shared_activity = ActivityRecord.query.filter_by(
-            id=activity_id,
-            shared_from=current_user.id
-        ).first()
+        # Find the share log
+        share = ShareLog.query.filter_by(id=share_id, from_user_id=current_user.id, status='active').first()
         
-        if not shared_activity:
+        if not share:
             return jsonify({
                 'status': 'error',
-                'message': 'Shared activity not found or you do not have permission to revoke it'
+                'message': 'Share not found or you do not have permission to revoke it'
             }), 404
             
-        # Delete the shared activity
-        db.session.delete(shared_activity)
+        # Update the status of the share log
+        share.status = 'revoked'
         db.session.commit()
         
         return jsonify({
