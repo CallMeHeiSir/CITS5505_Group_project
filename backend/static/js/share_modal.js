@@ -15,7 +15,7 @@ window.openShareModal = function(shareOptions) {
   modal.style.display = 'flex';
 
   // 拉取好友列表
-  fetch('/api/share/friends')
+  fetch('/api/friend/friends')
     .then(res => res.json())
     .then(data => {
       friendSelect.innerHTML = '';
@@ -56,8 +56,10 @@ window.openShareModal = function(shareOptions) {
       body.activity_id = shareOptions.id;
     } else if (shareOptions.type === 'chart') {
       body.visualization_type = shareOptions.id;
+      body.snapshot = collectSnapshot(shareOptions.id);
     } else if (shareOptions.type === 'dashboard') {
       body.visualization_type = 'dashboard';
+      body.snapshot = collectSnapshot('dashboard');
     }
     fetch(url, {
       method: 'POST',
@@ -81,4 +83,32 @@ window.openShareModal = function(shareOptions) {
       });
   };
 };
+
+// 采集快照参数
+function collectSnapshot(type) {
+  if (type === 'dashboard') {
+    // 采集 dashboard 所有图表的状态
+    const snapshot = {
+      weekly: charts.weekly ? charts.weekly.data : null,
+      progress: charts.progress ? charts.progress.data : null,
+      activities: charts.activities ? charts.activities.data : null,
+      calories: charts.calories ? charts.calories.data : null,
+      prediction: charts.prediction ? charts.prediction.data : null,
+      filters: currentFilters
+    };
+    return snapshot;
+  } else {
+    // 采集单个图表的状态
+    const chart = charts[type];
+    if (chart) {
+      return {
+        data: chart.data,
+        options: chart.options,
+        filters: currentFilters
+      };
+    }
+  }
+  return null;
+}
+
 // 供所有页面调用 window.openShareModal({type, id}) 

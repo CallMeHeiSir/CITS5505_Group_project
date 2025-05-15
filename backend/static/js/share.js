@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle share button click
   shareButton.addEventListener('click', handleShare);
+
+  loadReceivedShares();
+  loadSentShares();
 });
 
 // Load friends list from backend
@@ -239,52 +242,37 @@ function createNewShare() {
 
 // 加载收到的分享
 function loadReceivedShares() {
-  const receivedList = document.getElementById('received-shares-list');
-  // 模拟数据
-  const receivedShares = [
-    {
-      id: 1,
-      author: {
-        name: 'John Doe',
-        avatar: '/static/avatars/default.png'
-      },
-      content: '<p>这是我最近的跑步数据，希望对你有帮助！</p>',
-      charts: ['跑步数据', '心率数据'],
-      timestamp: '2024-03-20T10:00:00Z',
-      isRead: false,
-      replies: []
-    },
-    {
-      id: 2,
-      author: {
-        name: 'Jane Smith',
-        avatar: '/static/avatars/default.png'
-      },
-      content: '<p>分享一下我的健身计划和饮食记录。</p>',
-      charts: ['健身记录', '饮食计划'],
-      timestamp: '2024-03-19T15:30:00Z',
-      isRead: true,
-      replies: [
-        {
-          author: 'Current User',
-          content: '谢谢分享！这个计划很有参考价值。',
-          timestamp: '2024-03-19T16:00:00Z'
-        }
-      ]
-    }
-  ];
-
-  receivedList.innerHTML = receivedShares.map(share => createShareRecordHTML(share, 'received')).join('');
-  initializeReplyForms();
+  fetch('/api/share/received')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.querySelector('.share-section:nth-of-type(2) .share-content');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!data.shared_activities || data.shared_activities.length === 0) {
+        container.innerHTML = '<div class="empty-state">No shares received yet.</div>';
+        return;
+      }
+      data.shared_activities.forEach(share => {
+        container.appendChild(renderShareMessage(share, 'received'));
+      });
+    });
 }
 
 // 加载发出的分享
-function loadMyShares() {
-  const mySharesList = document.getElementById('my-shares-list');
-  const myShares = JSON.parse(localStorage.getItem('myShares') || '[]');
-
-  mySharesList.innerHTML = myShares.map(share => createShareRecordHTML(share, 'sent')).join('');
-  initializeReplyForms();
+function loadSentShares() {
+  fetch('/api/share/sent')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.querySelector('.share-section:last-child .share-content');
+      container.innerHTML = '';
+      if (!data.sent_activities || data.sent_activities.length === 0) {
+        container.innerHTML = '<div class="empty-state">No shares sent yet.</div>';
+        return;
+      }
+      data.sent_activities.forEach(share => {
+        container.appendChild(renderShareMessage(share, 'sent'));
+      });
+    });
 }
 
 // 创建分享记录 HTML
@@ -398,4 +386,172 @@ function revokeShare(timestamp) {
     localStorage.setItem('myShares', JSON.stringify(myShares));
     loadMyShares();
   }
+}
+
+function renderShareMessage(share, type) {
+  // 头像、用户名、时间
+  const user = type === 'received' ? share.shared_from : share.shared_to;
+  // 格式化UTC时间：日期和时间之间用空格，只保留到秒
+  let time = share.created_at;
+  // 只保留到秒，去掉毫秒
+  if (time) {
+    // 例如 '2025-05-15T06:34:57.634204' => '2025-05-15 06:34:57'
+    time = time.replace('T', ' ');
+    time = time.replace(/\.[0-9]+/, '');
+  }
+  time = time + ' (UTC)';
+  let userInfoHtml = '';
+  if (type === 'sent') {
+    userInfoHtml = `<span style="font-weight:600;">To ${user ? user.username : '?'}</span>
+                    <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
+  } else {
+    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'}</span>
+                    <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
+  }
+  const card = document.createElement('div');
+  card.className = 'share-record';
+  card.innerHTML = `
+    <div class="record-header">
+      <img src="/static/avatars/${user && user.avatar ? user.avatar : 'default.png'}" class="user-avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;">
+      <div style="display:inline-block;vertical-align:middle;">
+        ${userInfoHtml}
+      </div>
+    </div>
+    ${renderSharedContent(share)}
+    <div class="record-actions">
+      ${type === 'sent' ? `<button class="action-btn withdraw-btn" onclick="revokeShare(${share.id})"><i class="bi bi-x-lg"></i> Withdraw</button>` : ''}
+    </div>
+  `;
+  return card;
+}
+
+function renderSharedContent(share) {
+  // 留言优先显示
+  let messageHtml = '';
+  if (share.share_message) {
+    messageHtml = `<div class="share-message" style="margin-bottom:8px;color:#6366f1;font-weight:500;">${share.share_message}</div>`;
+  }
+  // 活动卡片复用 recent activity 样式
+  if (share.activity_type) {
+    return `
+      ${messageHtml}
+      <div class="activity-card" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px #e5e7eb;">
+        <span class="activity-icon" style="font-size:1.4em;">${getActivityIcon(share.activity_type)}</span>
+        <div>
+          <div style="font-weight:bold;font-size:1.05em;">${capitalize(share.activity_type)}</div>
+          <div style="font-size:0.95em;color:#666;">${formatDate(share.date)}</div>
+          <div style="font-size:0.95em;color:#666;">
+            <span><i class="bi bi-clock"></i> ${share.duration} min</span>
+            ${share.distance ? `<span style='margin-left:10px;'><i class="bi bi-geo"></i> ${share.distance} km</span>` : ''}
+            ${share.reps ? `<span style='margin-left:10px;'><i class="bi bi-arrow-up-circle"></i> ${share.reps} reps</span>` : ''}
+            <span style='margin-left:10px;'><i class="bi bi-fire"></i> ${share.calories} kcal</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  // 图表/仪表盘分享渲染
+  if (share.snapshot) {
+    if (share.visualization_type === 'dashboard') {
+      return messageHtml + renderDashboardSnapshot(share.snapshot);
+    } else {
+      return messageHtml + renderChartSnapshot(share.visualization_type, share.snapshot);
+    }
+  }
+  return messageHtml;
+}
+
+function renderChartSnapshot(type, snapshot) {
+  // 生成唯一id，防止多图表冲突
+  const chartId = 'shared-chart-' + Math.random().toString(36).substr(2, 9);
+  setTimeout(() => {
+    const ctx = document.getElementById(chartId)?.getContext('2d');
+    if (ctx) {
+      new Chart(ctx, {
+        type: snapshot.data.type || type || 'line',
+        data: snapshot.data,
+        options: snapshot.options || {responsive:true,maintainAspectRatio:false}
+      });
+    }
+  }, 0);
+  return `<div class="chart-container" style="height:300px;margin-bottom:16px;"><canvas id="${chartId}"></canvas></div>`;
+}
+
+function renderDashboardSnapshot(snapshot) {
+  // 生成唯一前缀，防止多dashboard冲突
+  const prefix = 'dashboard-' + Math.random().toString(36).substr(2, 6);
+  let html = `<div class="dashboard-container" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px;">`;
+  let idx = 0;
+  for (const [type, data] of Object.entries(snapshot)) {
+    if (type !== 'filters' && data) {
+      const chartId = `${prefix}-chart-${idx++}`;
+      setTimeout(() => {
+        const ctx = document.getElementById(chartId)?.getContext('2d');
+        if (ctx) {
+          new Chart(ctx, {
+            type: data.type || type || 'line',
+            data: data,
+            options: {responsive:true,maintainAspectRatio:false}
+          });
+        }
+      }, 0);
+      html += `<div class="chart-container" style="height:250px;"><canvas id="${chartId}"></canvas></div>`;
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+function getActivityIcon(type) {
+  switch(type) {
+    case 'running': return '<i class="bi bi-person-fill"></i>';
+    case 'cycling': return '<i class="bi bi-bicycle"></i>';
+    case 'swimming': return '<i class="bi bi-droplet"></i>';
+    case 'walking': return '<i class="bi bi-person"></i>';
+    case 'hiking': return '<i class="bi bi-tree"></i>';
+    case 'dancing': return '<i class="bi bi-music-note-beamed"></i>';
+    case 'jumping': return '<i class="bi bi-arrow-up-circle"></i>';
+    case 'climbing': return '<i class="bi bi-graph-up"></i>';
+    case 'skating': return '<i class="bi bi-snow"></i>';
+    case 'skiing': return '<i class="bi bi-snow2"></i>';
+    case 'pushup':
+    case 'situp':
+    case 'pullup':
+    case 'squats':
+    case 'plank':
+    case 'lunges':
+    case 'deadlift':
+    case 'bench_press':
+      return '<i class="bi bi-activity"></i>';
+    case 'yoga': return '<i class="bi bi-flower2"></i>';
+    case 'pilates': return '<i class="bi bi-flower2"></i>';
+    case 'stretching': return '<i class="bi bi-flower2"></i>';
+    case 'basketball': return '<i class="bi bi-basket"></i>';
+    case 'tennis': return '<i class="bi bi-emoji-sunglasses"></i>';
+    case 'badminton': return '<i class="bi bi-wind"></i>';
+    case 'volleyball': return '<i class="bi bi-emoji-laughing"></i>';
+    case 'football': return '<i class="bi bi-emoji-neutral"></i>';
+    case 'golf': return '<i class="bi bi-flag"></i>';
+    case 'other': return '<i class="bi bi-activity"></i>';
+    default: return '<i class="bi bi-activity"></i>';
+  }
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString();
+}
+
+function revokeShare(id) {
+  if (!confirm('Are you sure you want to withdraw this share?')) return;
+  fetch(`/api/share/revoke/${id}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+      loadSentShares();
+      alert(data.message || 'Share revoked.');
+    });
 } 

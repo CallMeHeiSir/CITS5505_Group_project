@@ -59,7 +59,8 @@ def create_app():
     csrf.exempt('friend.handle_friend_request')
     csrf.exempt('friend.search_users')
     csrf.exempt('checkin.daily_checkin')
-
+    csrf.exempt('share.share_activity')
+    
     
     with app.app_context():
         # Import models
@@ -77,11 +78,13 @@ def create_app():
         from visualization import visualization as visualization_blueprint
         from activity_records import activity_records as activity_records_blueprint
         from friend import friend_bp
+        from share import share_bp
         app.register_blueprint(auth_blueprint, url_prefix='/auth')
         app.register_blueprint(analytics_blueprint, url_prefix='/analytics')
         app.register_blueprint(visualization_blueprint, url_prefix='/api/visualization')
         app.register_blueprint(activity_records_blueprint)
         app.register_blueprint(friend_bp, url_prefix='/api/friend')
+        app.register_blueprint(share_bp)
         app.register_blueprint(checkin_bp)
 
         
@@ -247,4 +250,4 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     print(app.url_map)
-    app.run(debug=True)
+    app.run(debug=True) 

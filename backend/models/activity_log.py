@@ -19,6 +19,8 @@ class ActivityLog(db.Model):
     shared_from = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     visualization_type = db.Column(db.String(50), nullable=True)
     share_message = db.Column(db.Text, nullable=True)
+    share_type = db.Column(db.String(32), default='activity')
+    snapshot = db.Column(db.Text, nullable=True)
 
     # Calorie calculation factors (calories per minute)
     CALORIE_FACTORS = {
