@@ -66,7 +66,7 @@ def create_app():
         from models.user import User
         from models.activity_log import ActivityLog
         from models.verification_code import VerificationCode
-        from models.friendship import Friendship
+        from models.friend import FriendRequest, Friendship
         
         # Create database tables
         db.create_all()

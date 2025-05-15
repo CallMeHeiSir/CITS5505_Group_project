@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, current_app
 from flask_login import current_user, login_required
-from models.friendship import Friendship
+from models.friend import FriendRequest, Friendship
 from models.user import User
 from extensions import db
 from sqlalchemy import or_, and_
@@ -13,24 +13,32 @@ def send_friend_request():
     data = request.get_json()
     to_user_id = data.get('to_user_id')
     
+    # Check if request already exists
+    existing_request = FriendRequest.query.filter_by(
+        from_user_id=current_user.id,
+        to_user_id=to_user_id,
+        status='pending'
+    ).first()
+    
+    if existing_request:
+        return jsonify({'message': 'Friend request already sent'}), 400
+    
     # Check if they are already friends
     existing_friendship = Friendship.query.filter(
         or_(
-            and_(Friendship.user_id == current_user.id, Friendship.friend_id == to_user_id),
-            and_(Friendship.user_id == to_user_id, Friendship.friend_id == current_user.id)
+            and_(Friendship.user1_id == current_user.id, Friendship.user2_id == to_user_id),
+            and_(Friendship.user1_id == to_user_id, Friendship.user2_id == current_user.id)
         )
     ).first()
     
     if existing_friendship:
         return jsonify({'message': 'Already friends'}), 400
     
-    # Create new friendship with pending status
-    new_friendship = Friendship(
-        user_id=current_user.id,
-        friend_id=to_user_id,
-        status='pending'
+    new_request = FriendRequest(
+        from_user_id=current_user.id,
+        to_user_id=to_user_id
     )
-    db.session.add(new_friendship)
+    db.session.add(new_request)
     db.session.commit()
     
     return jsonify({'message': 'Friend request sent successfully'}), 200
@@ -41,13 +49,19 @@ def handle_friend_request(request_id):
     data = request.get_json()
     action = data.get('action')  # 'accept' or 'reject'
     
-    friend_request = Friendship.query.get_or_404(request_id)
+    friend_request = FriendRequest.query.get_or_404(request_id)
     
     # Verify the request is for the current user
-    if friend_request.friend_id != current_user.id:
+    if friend_request.to_user_id != current_user.id:
         return jsonify({'message': 'Unauthorized'}), 403
     
     if action == 'accept':
+        # Create friendship
+        new_friendship = Friendship(
+            user1_id=friend_request.from_user_id,
+            user2_id=friend_request.to_user_id
+        )
+        db.session.add(new_friendship)
         friend_request.status = 'accepted'
     elif action == 'reject':
         friend_request.status = 'rejected'
@@ -60,17 +74,17 @@ def handle_friend_request(request_id):
 @friend_bp.route('/friends', methods=['GET'])
 @login_required
 def get_friends():
-    # Get all accepted friendships where current user is either user or friend
+    # Get all friendships where current user is either user1 or user2
     friendships = Friendship.query.filter(
         or_(
-            and_(Friendship.user_id == current_user.id, Friendship.status == 'accepted'),
-            and_(Friendship.friend_id == current_user.id, Friendship.status == 'accepted')
+            Friendship.user1_id == current_user.id,
+            Friendship.user2_id == current_user.id
         )
     ).all()
     
     friends = []
     for friendship in friendships:
-        friend = friendship.friend if friendship.user_id == current_user.id else friendship.user
+        friend = friendship.user2 if friendship.user1_id == current_user.id else friendship.user1
         friends.append({
             'id': friend.id,
             'username': friend.username,
@@ -83,8 +97,8 @@ def get_friends():
 @login_required
 def get_pending_requests():
     # Get received pending requests
-    received_requests = Friendship.query.filter_by(
-        friend_id=current_user.id,
+    received_requests = FriendRequest.query.filter_by(
+        to_user_id=current_user.id,
         status='pending'
     ).all()
     
@@ -93,8 +107,8 @@ def get_pending_requests():
         requests.append({
             'id': req.id,
             'from_user': {
-                'id': req.user.id,
-                'username': req.user.username
+                'id': req.from_user.id,
+                'username': req.from_user.username
             },
             'created_at': req.created_at.isoformat()
         })
@@ -117,23 +131,23 @@ def search_users():
         User.id != current_user.id  # Exclude current user
     ).limit(10).all()
     
-    # Get list of users who have pending requests
-    pending_requests = Friendship.query.filter(
-        Friendship.user_id == current_user.id,
-        Friendship.status == 'pending'
-    ).with_entities(Friendship.friend_id).all()
+    # Get list of users who already have pending requests
+    pending_requests = FriendRequest.query.filter_by(
+        from_user_id=current_user.id,
+        status='pending'
+    ).with_entities(FriendRequest.to_user_id).all()
     pending_request_ids = [r[0] for r in pending_requests]
     
     # Get list of current friends
     friendships = Friendship.query.filter(
         or_(
-            and_(Friendship.user_id == current_user.id, Friendship.status == 'accepted'),
-            and_(Friendship.friend_id == current_user.id, Friendship.status == 'accepted')
+            Friendship.user1_id == current_user.id,
+            Friendship.user2_id == current_user.id
         )
     ).all()
     friend_ids = []
     for friendship in friendships:
-        friend_ids.append(friendship.friend_id if friendship.user_id == current_user.id else friendship.user_id)
+        friend_ids.append(friendship.user2_id if friendship.user1_id == current_user.id else friendship.user1_id)
     
     # Format user data with friendship status
     result = []
@@ -157,8 +171,8 @@ def search_users():
 @login_required
 def get_pending_request_count():
     # Get count of received pending requests
-    count = Friendship.query.filter_by(
-        friend_id=current_user.id,
+    count = FriendRequest.query.filter_by(
+        to_user_id=current_user.id,
         status='pending'
     ).count()
     
