@@ -153,7 +153,6 @@ CITS5505_Group_project/
 │   │       ├── test_utils.py             # Utility function tests
 │   │       └── test_visualization.py     # Visualization tests
 │   └── visualization.py    # Visualization logic
-├── .gitignore             # Git ignore rules
 └── README.md              # Project documentation
 ```
 
