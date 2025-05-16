@@ -166,7 +166,7 @@ CITS5505_Group_project/
    git clone https://github.com/CallMeHeiSir/CITS5505_Group_project.git
    cd CITS5505_Group_project
    ```
-OR Unzip the `.zip` compressed file we uploaded in lms
+   OR Unzip the `.zip` compressed file we uploaded in lms
    ```bash
    cd CITS5505_Group_project
    ```
@@ -312,3 +312,6 @@ Improvement of code structure and readability
 - [pandas Documentation (v2.2)](https://pandas.pydata.org/docs/)
 - [pytest Documentation (v8.0)](https://docs.pytest.org/en/stable/)
 - [SQLAlchemy Documentation (v3.0.x)](https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/)
+- [GPT-4 Documentation](https://platform.openai.com/docs/models/gpt-4)
+- [Claude Documentation](https://docs.anthropic.com/claude/)
+- [Grok Documentation](https://grok.x.ai/)
