@@ -4,6 +4,9 @@ from models.user import User
 from models.verification_code import VerificationCode
 from werkzeug.security import generate_password_hash
 from datetime import datetime
+import os
+TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
+NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
 class LoginTestCase(unittest.TestCase):
     def setUp(self):
@@ -15,7 +18,7 @@ class LoginTestCase(unittest.TestCase):
             user = User(
                 username='testuser',
                 email='test1@example.com',
-                password_hash=generate_password_hash('testpassword')
+                password_hash=generate_password_hash(TEST_PASSWORD)
             )
             db.session.add(user)
             # 插入验证码
@@ -42,7 +45,7 @@ class LoginTestCase(unittest.TestCase):
             'username': 'testuser',
             'email': 'test@example.com',
             'verificationCode': '123456',
-            'password': 'testpassword'
+            'password': NEW_PASSWORD
         }, follow_redirects=True)
         self.assertIn(b'Login', response.data)  # 根据实际页面内容调整
 

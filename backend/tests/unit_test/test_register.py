@@ -5,6 +5,9 @@ from models.verification_code import VerificationCode
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 from io import BytesIO
+import os
+TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
+NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
 class RegisterTestCase(unittest.TestCase):
     def setUp(self):
@@ -36,8 +39,8 @@ class RegisterTestCase(unittest.TestCase):
             'username': 'newuser',
             'email': 'test2@example.com',
             'verificationCode': '654321',
-            'password': 'Test@1234',
-            'confirmPassword': 'Test@1234',
+            'password': TEST_PASSWORD,
+            'confirmPassword': TEST_PASSWORD,
             'phone': '1234567890',
             'gender': 'male',
             'birthdate': '05/06/2025',

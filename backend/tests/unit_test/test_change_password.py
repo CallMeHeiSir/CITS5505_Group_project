@@ -3,6 +3,10 @@ from app import create_app, db
 from models.user import User
 from werkzeug.security import generate_password_hash
 from flask_login import login_user
+import os
+
+TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
+NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
 class ChangePasswordTestCase(unittest.TestCase):
     def setUp(self):
@@ -11,11 +15,7 @@ class ChangePasswordTestCase(unittest.TestCase):
         with self.app.app_context():
             db.create_all()
             # 插入测试用户
-            user = User(
-                username='testuser',
-                email='test1@example.com',
-                password_hash=generate_password_hash('oldpassword')
-            )
+            user = User(username='testuser',email='test1@example.com',password_hash=generate_password_hash(TEST_PASSWORD))
             db.session.add(user)
             db.session.commit()
             self.user_id = user.id
@@ -39,9 +39,9 @@ class ChangePasswordTestCase(unittest.TestCase):
     def test_change_password_valid(self):
         self.login()
         response = self.client.post('/auth/change_password', data={
-            'current_password': 'oldpassword',
-            'new_password': 'New@1234',
-            'confirm_new_password': 'New@1234',
+            'current_password': TEST_PASSWORD,
+            'new_password': NEW_PASSWORD,
+            'confirm_new_password': NEW_PASSWORD,
         }, follow_redirects=True)
         self.assertIn(b'Password changed successfully', response.data)
 
@@ -49,16 +49,16 @@ class ChangePasswordTestCase(unittest.TestCase):
         self.login()
         response = self.client.post('/auth/change_password', data={
             'current_password': 'wrongpassword',
-            'new_password': 'New@1234',
-            'confirm_new_password': 'New@1234',
+            'new_password': NEW_PASSWORD,
+            'confirm_new_password': NEW_PASSWORD,
         }, follow_redirects=True)
         self.assertIn(b'Current password is incorrect', response.data)
 
     def test_change_password_mismatch(self):
         self.login()
         response = self.client.post('/auth/change_password', data={
-            'current_password': 'oldpassword',
-            'new_password': 'New@1234',
+            'current_password': TEST_PASSWORD,
+            'new_password': NEW_PASSWORD,
             'confirm_new_password': 'Other@1234',
         }, follow_redirects=True)
         self.assertIn(b'New passwords do not match', response.data)

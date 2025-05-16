@@ -37,4 +37,13 @@ function openModal(type) {
       closeModal();
     }
   }
+
+document.addEventListener('DOMContentLoaded', function () {
+  // 功能 3：关闭 Flash 消息
+  document.querySelectorAll('.flash-close').forEach(function(btn) {
+    btn.addEventListener('click', function () {
+      this.parentElement.style.display = 'none';
+    });
+  });
+});
   

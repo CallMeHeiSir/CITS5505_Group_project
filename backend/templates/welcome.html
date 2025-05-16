@@ -8,6 +8,20 @@
 </head>
 <body>
   <div class="hero">
+     <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages mt-3">
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}">
+            {{ message }}
+            <button type="button" class="flash-close" aria-label="Close">×</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
     <div class="hero-box">
       <h1>REACH YOUR BEST</h1>
       <p>Whether you’re training for a marathon or your biggest season yet, we’re here to help you make serious progress.</p>

@@ -33,3 +33,8 @@ $(function () {
     togglePasswordVisibility('new_password', 'toggleNewPassword');
     togglePasswordVisibility('confirm_new_password', 'toggleConfirmPassword');
 });
+
+window.addEventListener('unload', function() {
+  // 用 navigator.sendBeacon 保证请求能发出
+  navigator.sendBeacon('/auth/logout');
+});
