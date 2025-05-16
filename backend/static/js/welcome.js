@@ -1,3 +1,4 @@
+// Open modal with content based on type
 function openModal(type) {
     const modal = document.getElementById('modal');
     const text = document.getElementById('modal-text');
@@ -27,23 +28,25 @@ function openModal(type) {
     modal.style.display = "flex";
   }
   
-  function closeModal() {
+// Close the modal
+function closeModal() {
     document.getElementById('modal').style.display = "none";
   }
   
-  window.onclick = function(event) {
+// Close modal when clicking outside the modal content
+window.onclick = function(event) {
     const modal = document.getElementById('modal');
     if (event.target === modal) {
       closeModal();
     }
   }
 
+// Initialize flash message close button after DOM is loaded
 document.addEventListener('DOMContentLoaded', function () {
-  // 功能 3：关闭 Flash 消息
+  // Add click event to all flash-close buttons to hide their parent
   document.querySelectorAll('.flash-close').forEach(function(btn) {
     btn.addEventListener('click', function () {
       this.parentElement.style.display = 'none';
     });
   });
 });
-  

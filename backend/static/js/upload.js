@@ -17,7 +17,7 @@ const activityForm = document.getElementById('activity-form');
   const distanceGroup = document.getElementById('distance-group');
   const repsGroup = document.getElementById('reps-group');
   
-  // 检查必要的DOM元素是否存在
+  // Check if required DOM elements exist
   if (!dropZone || !fileInput || !fileList || !uploadForm) {
     console.error('Required DOM elements not found');
     return;
@@ -33,7 +33,7 @@ const activityForm = document.getElementById('activity-form');
 
   // Handle click on drop zone
   dropZone.addEventListener('click', (e) => {
-    // 如果点击的是 drop zone 本身，则触发文件选择
+    // If the drop zone itself is clicked, trigger file selection
     if (e.target === dropZone) {
       fileInput.click();
 }
@@ -72,13 +72,13 @@ const activityForm = document.getElementById('activity-form');
 // Process selected files
 function handleFiles(files) {
     console.log('Handling files:', files);
-    // 清空现有文件列表
+    // Clear existing file list
     fileList.innerHTML = '';
     
   Array.from(files).forEach(file => {
     try {
       validateFile(file);
-        // 只显示文件名,不创建预览
+        // Only show file name, do not create preview
         const fileInfo = document.createElement('div');
         fileInfo.className = 'file-info';
         fileInfo.innerHTML = `
@@ -128,7 +128,7 @@ function handleFiles(files) {
         });
         const result = await response.json();
         if (response.ok) {
-          // 更新文件信息显示为上传成功
+          // Update file info display to show upload success
           const fileInfo = fileList.querySelector(`.file-name`);
           if (fileInfo) {
             fileInfo.innerHTML = `
@@ -137,7 +137,7 @@ function handleFiles(files) {
             `;
           }
           showSuccess(result.message);
-          loadRecentActivities(); // 刷新活动历史
+          loadRecentActivities(); // Refresh activity history
         } else {
           showError(result.message || 'Failed to upload file');
         }
@@ -259,7 +259,7 @@ function showSuccess(message) {
         if (result.status === 'success') {
           showSuccess(result.message);
           activityForm.reset();
-          loadRecentActivities(); // 刷新活动历史
+          loadRecentActivities(); // Refresh activity history
         } else {
           showError(result.message);
         }
@@ -316,12 +316,12 @@ function showSuccess(message) {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
         if (dateA.getTime() !== dateB.getTime()) {
-          return dateB - dateA; // 日期新在前
+          return dateB - dateA; // Newer date first
         }
-        // 日期相同，比较created_at
+        // Same date, compare created_at
         const createdA = a.created_at ? new Date(a.created_at) : 0;
         const createdB = b.created_at ? new Date(b.created_at) : 0;
-        return createdB - createdA; // 创建时间新在前
+        return createdB - createdA; // Newer creation time first
       });
       container.innerHTML = '';
       activities.forEach(activity => {
@@ -400,18 +400,18 @@ function getActivityIcon(type) {
   function bindShareButtons() {
     document.querySelectorAll('.share-btn').forEach(btn => {
       btn.onclick = function() {
-        // 优先用 data-activity-id，否则用卡片标题，否则用 'activity'
+        // Prefer data-activity-id, otherwise use card title, otherwise use 'activity'
         const activityId = this.closest('.activity-card')?.dataset?.activityId || this.closest('.activity-card')?.querySelector('h5')?.textContent || 'activity';
         window.openShareModal({ type: 'activity', id: activityId });
       };
     });
   }
 
-  // 加载活动卡片
+  // Load activity cards
   loadRecentActivities();
   });
 
     window.addEventListener('unload', function() {
-    // 用 navigator.sendBeacon 保证请求能发出
+    // Use navigator.sendBeacon to ensure the request is sent
     navigator.sendBeacon('/auth/logout');
   });

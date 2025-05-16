@@ -211,7 +211,7 @@ def add_activity():
     try:
         data = request.get_json()
         
-        # 验证日期
+        # Validate date
         try:
             activity_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
             today = datetime.now().date()
@@ -225,8 +225,7 @@ def add_activity():
                 'status': 'error',
                 'message': 'Invalid date format. Please use YYYY-MM-DD'
             }), 400
-        
-        # 创建新的活动记录
+        # Create new activity record
         activity = ActivityLog(
             user_id=current_user.id,
             activity_type=data['activityType'],
@@ -472,4 +471,4 @@ def get_today_summary():
         'total_calories': total_calories,
         'total_distance': total_distance,
         'total_duration': total_duration
-    }) 
+    })

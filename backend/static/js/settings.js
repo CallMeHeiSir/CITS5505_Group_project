@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // 全局变量，避免重复声明
+  // Global variable to avoid redeclaration
   const profileForm = document.getElementById('profile-form');
 
-  // 闪现消息关闭
+  // Flash message close
   document.body.addEventListener('click', function(event) {
     if (event.target.classList.contains('flash-close')) {
       event.target.parentElement.style.display = 'none';
     }
   });
 
-  // 点击头像触发文件选择
+  // Click avatar to trigger file selection
   const profileAvatar = document.getElementById('profile-avatar');
   const avatarUpload = document.getElementById('avatar-upload');
   if (profileAvatar && avatarUpload && profileForm) {
@@ -17,10 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
       avatarUpload.click();
     });
 
-        avatarUpload.addEventListener('change', function() {
+    avatarUpload.addEventListener('change', function() {
       const formData = new FormData(profileForm);
-      formData.set('avatar', this.files[0]); // 更新 avatar 字段
-      // 显式添加CSRF token
+      formData.set('avatar', this.files[0]); // Update avatar field
+      // Explicitly add CSRF token
       formData.set('_csrf_token', document.querySelector('#profile-form input[name="_csrf_token"]').value);
     
       $.ajax({
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-    // 编辑个性签名
+  // Edit bio
   const bioText = document.getElementById('bioText');
   const editBioBtn = document.getElementById('editBioBtn');
   if (editBioBtn && bioText) {
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // 个人信息表单提交
+  // Profile form submission
   if (profileForm) {
     profileForm.addEventListener('submit', function(e) {
       e.preventDefault();
@@ -108,6 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.addEventListener('unload', function() {
-  // 用 navigator.sendBeacon 保证请求能发出
+  // Use navigator.sendBeacon to ensure the request is sent
   navigator.sendBeacon('/auth/logout');
 });

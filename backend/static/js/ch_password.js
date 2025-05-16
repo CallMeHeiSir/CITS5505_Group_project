@@ -16,7 +16,7 @@ $(function () {
         }
     });
 
-    // 切换密码显示/隐藏功能
+    // Toggle password show/hide functionality
     function togglePasswordVisibility(inputId, toggleIconId) {
         const $input = $('#' + inputId);
         const $toggleIcon = $('#' + toggleIconId);
@@ -28,13 +28,13 @@ $(function () {
         });
     }
 
-    // 为每个密码输入框添加切换功能
+    // Add toggle feature for each password input box
     togglePasswordVisibility('current_password', 'togglePassword');
     togglePasswordVisibility('new_password', 'toggleNewPassword');
     togglePasswordVisibility('confirm_new_password', 'toggleConfirmPassword');
 });
 
 window.addEventListener('unload', function() {
-  // 用 navigator.sendBeacon 保证请求能发出
+  // Send a beacon to the server when the page is unloaded
   navigator.sendBeacon('/auth/logout');
 });

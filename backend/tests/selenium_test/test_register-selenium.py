@@ -11,7 +11,7 @@ import os
 TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
 NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
-# 注册测试
+# Register Test
 class SeleniumRegisterTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

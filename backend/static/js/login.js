@@ -1,5 +1,5 @@
 $(function () {
-    // 功能 1：用户名验证
+    // Feature 1: Username validation
     $('#username').on('input', function () {
         const username = $(this).val().trim();
         if (!username) {
@@ -11,7 +11,7 @@ $(function () {
         }
     });
 
-    // 功能 2：密码验证
+    // Feature 2: Password validation
     $('#password').on('input', function () {
         const password = $(this).val().trim();
         if (!password) {
@@ -23,14 +23,14 @@ $(function () {
         }
     });
 
-    // 功能 3：关闭 Flash 消息
+    // Feature 3: Close Flash message
     $('.flash-close').on('click', function () {
         $(this).parent().hide();
     });
 
     const csrfToken = $('#csrf_token').val();
 
-    // 点击“Send Code”按钮时，发送验证码请求
+    // When the "Send Code" button is clicked, send a verification code request
     $('#sendCodeButton').on('click', function (event) {
         event.preventDefault();
 
@@ -43,7 +43,7 @@ $(function () {
         const formData = new FormData();
         formData.append('email', emailInput);
 
-        // 禁用按钮并开始倒计时
+        // Disable the button and start the countdown
         let countdown = 60;
         const $btn = $(this);
         $btn.prop('disabled', true).text(`Resend (${countdown}s)`);
@@ -56,7 +56,7 @@ $(function () {
             }
         }, 1000);
 
-        // 发送验证码请求到后端
+        // Send the verification code request to the backend
         fetch('/auth/send_verification_code', {
             method: 'POST',
             headers: {
@@ -79,7 +79,7 @@ $(function () {
             });
     });
 
-    // 点击“Login”按钮时，提交表单到登录路径
+    // When the "Login" button is clicked, submit the form to the login path
     $('#LoginButton').on('click', function (event) {
         event.preventDefault();
 

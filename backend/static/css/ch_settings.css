@@ -1,5 +1,5 @@
 body {
-        background-color: #f8f9fa; /* 浅灰色背景 */
+        background-color: #f8f9fa; /* Light gray background */
         display: flex;
         justify-content: center;
         align-items: center;
@@ -15,7 +15,7 @@ body {
         margin: auto;
     }
 
-/* Flash 消息样式 */
+/* Flash message styles */
 .flash-messages {
     width: 100%;
     max-width: 600px;
@@ -59,7 +59,7 @@ body {
     color: #333;
   }
 
-  /* 错误提示样式 */
+  /* Error feedback styles */
 .invalid-feedback {
   display: none;
   color: #dc3545;

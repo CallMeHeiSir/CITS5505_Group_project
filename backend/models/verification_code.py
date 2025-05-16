@@ -8,5 +8,5 @@ class VerificationCode(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def is_expired(self):
-        """检查验证码是否过期（有效期为5分钟）"""
+        """Check if the verification code is expired (valid for 5 minutes)"""
         return datetime.utcnow() > self.created_at + timedelta(minutes=5)

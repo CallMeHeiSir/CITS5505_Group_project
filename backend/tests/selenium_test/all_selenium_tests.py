@@ -13,7 +13,7 @@ import os
 TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
 NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
-# 登录测试
+# Login Test
 class SeleniumLoginTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -51,7 +51,7 @@ class SeleniumLoginTestCase(unittest.TestCase):
         time.sleep(2)
         self.assertTrue("Login" not in driver.title or "dashboard" in driver.current_url)
 
-# 注册测试
+# Registration Test
 class SeleniumRegisterTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -93,7 +93,7 @@ class SeleniumRegisterTestCase(unittest.TestCase):
         time.sleep(2)
         self.assertTrue("login" in driver.current_url or "Registration successful" in driver.page_source)
 
-# 找回密码测试
+# Password Retrieval Test
 class SeleniumRetrievePasswordTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -129,7 +129,7 @@ class SeleniumRetrievePasswordTestCase(unittest.TestCase):
         time.sleep(5)
         self.assertTrue("Password retrieved successfully" in driver.page_source)
 
-# 修改密码测试
+# Password Change Test
 class SeleniumChangePasswordTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -174,7 +174,7 @@ class SeleniumChangePasswordTestCase(unittest.TestCase):
         time.sleep(2)
         self.assertTrue("Password changed successfully" in driver.page_source)
 
-# 编辑个人信息测试
+# Edit Profile Test
 class SeleniumEditProfileTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

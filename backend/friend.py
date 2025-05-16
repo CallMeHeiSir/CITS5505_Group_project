@@ -170,10 +170,10 @@ def search_users():
 @friend_bp.route('/pending_request_count', methods=['GET'])
 @login_required
 def get_pending_request_count():
-    # Get count of received pending requests
+    # Return the count of received pending friend requests for the current user
     count = FriendRequest.query.filter_by(
         to_user_id=current_user.id,
         status='pending'
     ).count()
     
-    return jsonify({'count': count}), 200 
+    return jsonify({'count': count}), 200

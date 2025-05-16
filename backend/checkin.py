@@ -11,12 +11,12 @@ checkin_bp = Blueprint('checkin', __name__)
 def daily_checkin():
     today = datetime.now().date()
 
-    # ✅ 不判断是否已有记录，允许无限打卡
+    # Do not check for existing records, allow unlimited check-ins
     new_log = CheckInLog(user_id=current_user.id, checkin_date=today)
     db.session.add(new_log)
     db.session.commit()
 
-    # ✅ streak = 连续多少天都有“至少一次打卡”
+    # streak = number of consecutive days with at least one check-in
     streak = 0
     for i in range(0, 100):
         day = today - timedelta(days=i)

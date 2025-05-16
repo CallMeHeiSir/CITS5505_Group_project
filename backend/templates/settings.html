@@ -27,7 +27,7 @@
           {% endif %}
           <span class="username">{{ current_user.username }}</span>
         </div>
-        <!-- 天气栏 -->
+        <!-- Weather Section -->
         <div class="weather-section">
           <div class="weather-content">
             <h4>Weather</h4>
@@ -48,10 +48,9 @@
         </div>
       </nav>
 
-      <!-- Main Content -->
+      <!-- Flash Messages -->
       <main class="main-content">
         <div class="cards-row">
-          <!-- 闪现消息 -->
           {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
               <div class="flash-messages">

@@ -73,13 +73,13 @@ html, body {
   align-items: center;
   gap: 12px;
   border-top: 1px solid #eee;
-  margin-top: 20px; /* 与 indexStyle.css 一致 */
+  margin-top: 20px; /* Same as indexStyle.css */
 }
 
 .user-avatar {
-  width: 50px; /* 与 indexStyle.css 一致 */
-  height: 50px; /* 与 indexStyle.css 一致 */
-  border-radius: 50%; /* 与 indexStyle.css 一致 */
+  width: 50px; /* Same as indexStyle.css */
+  height: 50px; /* Same as indexStyle.css */
+  border-radius: 50%; /* Same as indexStyle.css */
   object-fit: cover;
 }
 
@@ -89,7 +89,7 @@ html, body {
   font-weight: 500;
 }
 
-/* 调整 top-logout 样式，与 indexStyle.css 一致 */
+/* Adjust top-logout style, same as indexStyle.css */
 .top-logout {
   margin-top: auto;
   padding: 12px 20px;
@@ -420,7 +420,7 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
-/*响应式设计*/
+/* Responsive design */
 @media (max-width: 768px) {
   .side-nav {
     width: 60px;

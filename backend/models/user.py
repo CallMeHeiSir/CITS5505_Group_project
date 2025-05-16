@@ -16,8 +16,8 @@ class User(UserMixin, db.Model):
     avatar = db.Column(db.String(200), nullable=True)
     password_hash = db.Column(db.String(128))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    failed_attempts = db.Column(db.Integer, default=0)  # 登录失败次数
-    lock_until = db.Column(db.DateTime, nullable=True)  # 锁定截止时间
+    failed_attempts = db.Column(db.Integer, default=0)  
+    lock_until = db.Column(db.DateTime, nullable=True)  
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

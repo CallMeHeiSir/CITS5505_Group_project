@@ -15,7 +15,7 @@ class RegisterTestCase(unittest.TestCase):
         self.client = self.app.test_client()
         with self.app.app_context():
             db.create_all()
-            # 插入验证码
+            # Insert verification code
             code = VerificationCode(
                 email='test2@example.com',
                 code='654321',
@@ -47,10 +47,10 @@ class RegisterTestCase(unittest.TestCase):
             'address': '123 Test St',
             'csrf_token': 'dummy_csrf_token'  # 视实际情况调整
         }
-        # 模拟上传头像
+        # Simulate avatar upload
         data['avatar'] = (BytesIO(b'my file contents'), 'avatar.png')
         response = self.client.post('/auth/register', data=data, content_type='multipart/form-data', follow_redirects=True)
-        self.assertIn(b'Login', response.data)  # 注册成功后通常会跳转到登录页面
+        self.assertIn(b'Login', response.data)  # Usually redirects to login page after successful registration
 
 if __name__ == '__main__':
     unittest.main()

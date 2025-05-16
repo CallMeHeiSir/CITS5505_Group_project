@@ -11,7 +11,7 @@ $(function () {
     const $registerButton = $('#registerButton');
     const csrfToken = $('#csrf_token').val();
 
-    // 功能 1：密码格式验证
+    // Feature 1: Password format validation
     $passwordInput.on('input', function () {
         const password = $(this).val();
         const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
@@ -26,7 +26,7 @@ $(function () {
         }
     });
 
-    // 确认密码验证
+    // Confirm password validation
     $confirmPasswordInput.on('input', function () {
         const password = $passwordInput.val();
         const confirmPassword = $(this).val();
@@ -37,7 +37,7 @@ $(function () {
         }
     });
 
-    // 密码显示/隐藏功能
+    // Password show/hide functionality
     function togglePasswordVisibility(inputId, toggleIconId) {
         const $input = $('#' + inputId);
         const $toggleIcon = $('#' + toggleIconId);
@@ -51,7 +51,7 @@ $(function () {
     togglePasswordVisibility('password', 'togglePassword');
     togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
 
-    // 功能 2：Avatar 上传预览
+    // Feature 2: Avatar upload preview
     $avatarUploadZone.on('click', function (event) {
         if (event.target !== $avatarInput[0]) {
             $avatarInput.click();
@@ -90,18 +90,18 @@ $(function () {
         $avatarUploadZone.removeClass('dragover');
         const file = event.originalEvent.dataTransfer.files[0];
         handleFileSelect(file);
-        // 更新 input 的文件
+        // Update the input's file
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         $avatarInput[0].files = dataTransfer.files;
     });
 
-    // 功能 3：关闭 Flash 消息
+    // Feature 3: Close Flash message
     $('.flash-close').on('click', function () {
         $(this).parent().hide();
     });
 
-    // 点击“Send Code”按钮时，发送验证码请求
+    // When the "Send Code" button is clicked, send a verification code request
     $sendCodeButton.on('click', function (event) {
         event.preventDefault();
 
@@ -114,7 +114,7 @@ $(function () {
         const formData = new FormData();
         formData.append('email', emailInput);
 
-        // 禁用按钮并开始倒计时
+        // Disable the button and start the countdown
         let countdown = 60;
         $sendCodeButton.prop('disabled', true).text(`Resend (${countdown}s)`);
         const timer = setInterval(function () {
@@ -126,7 +126,7 @@ $(function () {
             }
         }, 1000);
 
-        // 发送验证码请求到后端
+        // Send the verification code request to the backend
         fetch('/auth/send_verification_code', {
             method: 'POST',
             headers: {
@@ -149,7 +149,7 @@ $(function () {
             });
     });
 
-    // 点击“Register”按钮时，提交表单到注册路径
+    // When the "Register" button is clicked, submit the form to the register path
     $registerButton.on('click', function (event) {
         event.preventDefault();
 

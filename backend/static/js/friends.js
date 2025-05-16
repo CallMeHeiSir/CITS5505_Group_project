@@ -4,6 +4,7 @@
 let currentTab = 'friends';
 
 function switchTab(tab) {
+    // Switch between Friends, Pending Requests, and Search tabs
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -12,6 +13,7 @@ function switchTab(tab) {
 }
 
 function loadFriends() {
+    // Load the user's friends list from the server
     fetch('/api/friend/friends')
         .then(response => response.json())
         .then(data => {
@@ -38,6 +40,7 @@ function loadFriends() {
 }
 
 function loadPendingRequests() {
+    // Load pending friend requests from the server
     fetch('/api/friend/pending_requests')
         .then(response => response.json())
         .then(data => {
@@ -71,6 +74,7 @@ function loadPendingRequests() {
 }
 
 function updateRequestCount(count) {
+    // Update the badge showing the number of pending requests
     const badge = document.getElementById('requestCount');
     if (badge) {
         badge.textContent = count;
@@ -79,6 +83,7 @@ function updateRequestCount(count) {
 }
 
 function handleRequest(requestId, action) {
+    // Handle accepting or rejecting a friend request
     fetch(`/api/friend/handle_request/${requestId}`, {
         method: 'POST',
         headers: {
@@ -102,6 +107,7 @@ function handleRequest(requestId, action) {
 }
 
 function searchUsers(query) {
+    // Search for users by query and display results
     if (!query.trim()) {
         document.getElementById('searchResults').innerHTML = '';
         return;
@@ -148,6 +154,7 @@ function searchUsers(query) {
 }
 
 function sendFriendRequest(userId) {
+    // Send a friend request to the specified user
     fetch('/api/friend/send_request', {
         method: 'POST',
         headers: {
@@ -169,6 +176,7 @@ function sendFriendRequest(userId) {
 // Add search input event listener with debounce
 let searchTimeout = null;
 document.addEventListener('DOMContentLoaded', function() {
+    // Set up search input, load initial data, and auto-refresh
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', function(e) {

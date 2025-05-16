@@ -13,15 +13,19 @@ import os
 TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
 
 
+# This test case uses Selenium to test the edit profile functionality in the web application.
+# It includes setup and teardown for the test environment, user login, and the profile editing process.
 class SeleniumEditProfileTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # Set up the Flask app and test database for Selenium tests
         cls.app = create_app('testing')
         cls.app.config['AVATAR_FOLDER'] = 'backend/static/avatars/'
         os.makedirs(cls.app.config['AVATAR_FOLDER'], exist_ok=True)
         cls.app_context = cls.app.app_context()
         cls.app_context.push()
         db.create_all()
+        # Create a test user and verification code
         user = User(username='testuser', email='test1@example.com', password_hash=generate_password_hash(TEST_PASSWORD))
         db.session.add(user)
         code = VerificationCode(email='test1@example.com', code='bypass', created_at=datetime.utcnow())
@@ -37,11 +41,13 @@ class SeleniumEditProfileTestCase(unittest.TestCase):
         cls.driver.implicitly_wait(5)
     @classmethod
     def tearDownClass(cls):
+        # Clean up after all tests
         cls.driver.quit()
         db.session.remove()
         db.drop_all()
         cls.app_context.pop()
     def login(self):
+        # Log in as the test user before editing profile
         driver = self.driver
         driver.get("http://127.0.0.1:5005/auth/logout")
         time.sleep(0.5)
@@ -53,6 +59,7 @@ class SeleniumEditProfileTestCase(unittest.TestCase):
         driver.find_element(By.ID, "LoginButton").click()
         time.sleep(1.5)
     def test_edit_profile(self):
+        # Test the edit profile process
         driver = self.driver
         self.login()
         driver.get("http://127.0.0.1:5005/settings")
@@ -72,7 +79,6 @@ class SeleniumEditProfileTestCase(unittest.TestCase):
         time.sleep(5)
         self.assertTrue("Profile updated successfully" in driver.page_source or "success" in driver.page_source)
 
-    
-
 if __name__ == "__main__":
+    # Run the Selenium edit profile test case
     unittest.main()

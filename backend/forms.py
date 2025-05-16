@@ -18,7 +18,7 @@ class MultiFormatDateField(DateField):
 
 class ActivityForm(FlaskForm):
     activity_type = SelectField('Activity Type', choices=[
-        # 有氧运动
+        # Cardio
         ('running', 'Running'),
         ('cycling', 'Cycling'),
         ('swimming', 'Swimming'),
@@ -30,7 +30,7 @@ class ActivityForm(FlaskForm):
         ('skating', 'Skating'),
         ('skiing', 'Skiing'),
         
-        # 力量训练
+        # Strength Training
         ('pushup', 'Push-up'),
         ('situp', 'Sit-up'),
         ('pullup', 'Pull-up'),
@@ -40,12 +40,12 @@ class ActivityForm(FlaskForm):
         ('deadlift', 'Deadlift'),
         ('bench_press', 'Bench Press'),
         
-        # 柔韧性训练
+        # Flexibility Training
         ('yoga', 'Yoga'),
         ('pilates', 'Pilates'),
         ('stretching', 'Stretching'),
         
-        # 球类运动
+        # Ball Sports
         ('basketball', 'Basketball'),
         ('tennis', 'Tennis'),
         ('badminton', 'Badminton'),
@@ -53,7 +53,7 @@ class ActivityForm(FlaskForm):
         ('football', 'Football'),
         ('golf', 'Golf'),
         
-        # 其他
+        # Other
         ('other', 'Other')
     ], validators=[DataRequired()])
     
@@ -141,4 +141,4 @@ class VisualizationFilterForm(FlaskForm):
         ('golf', 'Golf'),
         ('other', 'Other')
     ])
-    submit = SubmitField('Apply Filters') 
+    submit = SubmitField('Apply Filters')
