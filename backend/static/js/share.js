@@ -149,20 +149,22 @@ function submitReply(shareId) {
 }
 
 // Revoke share
-function revokeShare(shareId) {
+function revokeShare(id) {
   if (!confirm('Are you sure you want to withdraw this share?')) return;
-
-  fetch(`/api/share/revoke/${shareId}`, {
+  
+  // Get CSRF token from meta tag
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  
+  fetch(`/api/share/revoke/${id}`, { 
     method: 'DELETE',
+    headers: {
+      'X-CSRFToken': csrfToken
+    }
   })
     .then(res => res.json())
     .then(data => {
-      if (data.status === 'success') {
-        alert(data.message || 'Share revoked successfully.');
-        loadSentShares();
-      } else {
-        alert(data.message || 'Failed to revoke share.');
-      }
+      loadSentShares();
+      alert(data.message || 'Share revoked.');
     })
     .catch(error => {
       console.error('Error revoking share:', error);
@@ -359,16 +361,6 @@ function capitalize(str) {
 function formatDate(dateStr) {
   const d = new Date(dateStr);
   return d.toLocaleDateString();
-}
-
-function revokeShare(id) {
-  if (!confirm('Are you sure you want to withdraw this share?')) return;
-  fetch(`/api/share/revoke/${id}`, { method: 'DELETE' })
-    .then(res => res.json())
-    .then(data => {
-      loadSentShares();
-      alert(data.message || 'Share revoked.');
-    });
 }
 
 function renderDashboardSnapshotV2(snapshot) {
