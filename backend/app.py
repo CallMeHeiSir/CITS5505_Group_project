@@ -200,7 +200,7 @@ def create_app():
                 # Update fields
                 user.username = username
                 user.email = email
-                user.phone_number = request.form.get('phone_number')
+                user.phone = request.form.get('phone')
                 user.gender = request.form.get('gender')
                 birthdate = request.form.get('birthdate')
                 if birthdate:
