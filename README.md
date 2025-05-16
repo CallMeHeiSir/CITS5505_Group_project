@@ -82,7 +82,6 @@ CITS5505_Group_project/
 │   ├── visualization.py
 │   └── venv/
 ├── .gitignore         
-├── forum.html
 └── README.md
 ```
 
@@ -138,9 +137,52 @@ CITS5505_Group_project/
 The application will be available at `http://localhost:5000`
 
 ## Running Tests
+### The project includes a comprehensive test suite to ensure functionality:
+
+#### 1. Check your Chrome browser version
+
+<img width="862" alt="Screenshot 2025-05-16 at 6 13 30 pm" src="https://github.com/user-attachments/assets/8179221f-e17d-4f11-976a-7bf631a35819" />
 
 
+#### 2.Go to the website shown below, click on `Stable`, and select the ChromeDriver version that matches your Chrome browser.
 
+<img width="903" alt="Screenshot 2025-05-16 at 6 15 37 pm" src="https://github.com/user-attachments/assets/68445e45-523a-4428-93a2-ca519e88cf88" />
+<img width="865" alt="Screenshot 2025-05-16 at 6 16 54 pm" src="https://github.com/user-attachments/assets/dc8f6946-2e09-411a-adb6-1459419b795b" />
+
+
+#### 3. Click the corresponding download link to download it to your local computer
+   
+<img width="913" alt="Screenshot 2025-05-16 at 6 17 43 pm" src="https://github.com/user-attachments/assets/f5b9d6ca-c532-42e7-b617-64f92a78805c" />
+
+
+#### 4.Extract the file and locate `chromedriver.exe`.
+
+<img width="874" alt="Screenshot 2025-05-16 at 6 21 03 pm" src="https://github.com/user-attachments/assets/a3097d95-7eba-4df6-9e7d-faec00b03fcc" />
+
+#### 5.Add `chromedriver.exe` to your system's environment variables. Alternatively, you can place `chromedriver.exe` in the Python `Scripts` folder (which was added to your environment variables when you installed Python).
+
+<img width="468" alt="Screenshot 2025-05-16 at 6 21 58 pm" src="https://github.com/user-attachments/assets/58909fcf-5b93-4f93-a868-0eb044b1f3ab" />
+<img width="544" alt="Screenshot 2025-05-16 at 6 24 07 pm" src="https://github.com/user-attachments/assets/8ccf9af3-dfbd-43f2-b81f-239664ea7feb" />
+
+#### 6.Activate the virtual environment, then enter the following command in the integrated terminal within the virtual environment to install the `selenium` package (this package should actually be listed in `requirements.txt`).
+
+```bash
+  pip install selenium
+  ```
+#### 7.Load the testing environment configuration in `app.py`.
+
+#### 8.Add the testing environment configuration in `config.py`.(You can switch the order of steps 7 and 8.)
+
+#### 9.Create a `tests` folder under the `backen` directory. Inside the `tests` folder, create two subfolders named `selenium_test` and `unit_test`. Then, create the corresponding test `.py` files inside each subfolder.
+<img width="306" alt="Screenshot 2025-05-16 at 6 36 09 pm" src="https://github.com/user-attachments/assets/adbbb826-7e97-4981-a5f4-e5358446df6a" />
+
+#### 10. In the `backend` folder, run the following commands to execute the automated tests:
+```bash
+python run_all_tests.py
+python -m unittest tests/selenium_test/all_selenium_tests.py
+  ```
+Sample output screenshot:
+<img width="480" alt="Screenshot 2025-05-16 at 6 38 58 pm" src="https://github.com/user-attachments/assets/b0d02c81-6663-42e5-b418-129e92786380" />
 
 
 ## Additional Notes
@@ -165,29 +207,21 @@ The application will be available at `http://localhost:5000`
 - Option to keep certain exercise data completely private
 - Ability to revoke access to shared data
 - Private messaging for secure communication
+  
+## AI Tools Used
+This project was developed with the assistance of AI tools including ChatGPT and Claude. These tools were utilized for:
+Code logic verification and debugging
+Optimization of existing code
+Enhancement of design concepts and implementation
+Improvement of code structure and readability
 
 ## References
-
-Beazley, D., & Pallets Team. (2024). *Flask security best practices*. In Flask documentation (Version 3.0.x). https://flask.palletsprojects.com/en/3.0.x/security/
-
-Bootstrap Core Team. (2024). *Getting started with Bootstrap* (Version 5.3). https://getbootstrap.com/docs/5.3/getting-started/introduction/
-
-Chart.js Development Team. (2024). *Chart.js: Simple yet flexible JavaScript charting* (Version 4.4). https://www.chartjs.org/docs/latest/
-
-Grinberg, M. (2024a). *Flask-Login: User session management for Flask* (Version 0.6.3). https://flask-login.readthedocs.io/en/latest/
-
-Grinberg, M. (2024b). *Flask-SocketIO: Socket.IO integration for Flask applications* (Version 5.3.6). https://flask-socketio.readthedocs.io/en/latest/
-
-Gunicorn Development Team. (2024). *Gunicorn: WSGI HTTP server for Unix* (Version 21.2.0). https://docs.gunicorn.org/en/stable/
-
-Kumar, S. (2024). *python-dotenv: Reads key-value pairs from a .env file* (Version 1.0.0). https://github.com/theskumar/python-dotenv
-
-NumPy Development Team. (2024). *NumPy user guide* (Version 2.2). https://numpy.org/doc/stable/
-
-Pallets Team. (2024). *Flask: Web development, one drop at a time* (Version 3.0.x). https://flask.palletsprojects.com/en/3.0.x/
-
-pandas Development Team. (2024). *pandas: Powerful data analysis toolkit* (Version 2.2). https://pandas.pydata.org/docs/
-
-pytest Development Team. (2024). *pytest: Simple powerful testing with Python* (Version 8.0). https://docs.pytest.org/en/stable/
-
-SQLAlchemy Development Team. (2024). *Flask-SQLAlchemy: Adds SQLAlchemy support to Flask* (Version 3.0.x). https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/
+- [Chart.js Documentation (v4.4)](https://www.chartjs.org/docs/latest/)
+- [Flask-Login Documentation (v0.6.3)](https://flask-login.readthedocs.io/en/latest/)
+- [Flask-SocketIO Documentation (v5.3.6)](https://flask-socketio.readthedocs.io/en/latest/)
+- [Gunicorn Documentation (v21.2.0)](https://docs.gunicorn.org/en/stable/)
+- [python-dotenv Documentation (v1.0.0)](https://github.com/theskumar/python-dotenv)
+- [NumPy Documentation (v2.2)](https://numpy.org/doc/stable/)
+- [pandas Documentation (v2.2)](https://pandas.pydata.org/docs/)
+- [pytest Documentation (v8.0)](https://docs.pytest.org/en/stable/)
+- [SQLAlchemy Documentation (v3.0.x)](https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/)
