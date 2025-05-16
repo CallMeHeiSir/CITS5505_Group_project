@@ -2,6 +2,9 @@ import unittest
 from app import create_app, db
 from models.user import User
 from werkzeug.security import generate_password_hash
+import os
+TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
+NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
 class RetrievePasswordTestCase(unittest.TestCase):
     def setUp(self):
@@ -10,11 +13,7 @@ class RetrievePasswordTestCase(unittest.TestCase):
         with self.app.app_context():
             db.create_all()
             # 插入测试用户
-            user = User(
-                username='testuser',
-                email='test1@example.com',
-                password_hash=generate_password_hash('oldpassword')
-            )
+            user = User(username='testuser',email='test1@example.com',password_hash=generate_password_hash(TEST_PASSWORD))
             db.session.add(user)
             db.session.commit()
 
@@ -32,8 +31,8 @@ class RetrievePasswordTestCase(unittest.TestCase):
         response = self.client.post('/auth/retrieve_password', data={
             'username': 'testuser',
             'email': 'test1@example.com',
-            'new_password': 'New@1234',
-            'confirm_new_password': 'New@1234',
+            'new_password': NEW_PASSWORD,
+            'confirm_new_password': NEW_PASSWORD,
         }, follow_redirects=True)
         self.assertIn(b'Password retrieved successfully', response.data)
 
@@ -41,8 +40,8 @@ class RetrievePasswordTestCase(unittest.TestCase):
         response = self.client.post('/auth/retrieve_password', data={
             'username': 'testuser',
             'email': 'wrong@example.com',
-            'new_password': 'New@1234',
-            'confirm_new_password': 'New@1234',
+            'new_password': NEW_PASSWORD,
+            'confirm_new_password': NEW_PASSWORD,
         }, follow_redirects=True)
         self.assertIn(b'Invalid username or email', response.data)
 
@@ -50,7 +49,7 @@ class RetrievePasswordTestCase(unittest.TestCase):
         response = self.client.post('/auth/retrieve_password', data={
             'username': 'testuser',
             'email': 'test1@example.com',
-            'new_password': 'New@1234',
+            'new_password': NEW_PASSWORD,
             'confirm_new_password': 'Other@1234',
         }, follow_redirects=True)
         self.assertIn(b'New passwords do not match', response.data)

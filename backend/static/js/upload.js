@@ -410,3 +410,8 @@ function getActivityIcon(type) {
   // 加载活动卡片
   loadRecentActivities();
   });
+
+    window.addEventListener('unload', function() {
+    // 用 navigator.sendBeacon 保证请求能发出
+    navigator.sendBeacon('/auth/logout');
+  });

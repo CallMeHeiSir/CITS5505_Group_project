@@ -17,11 +17,12 @@ document.addEventListener('DOMContentLoaded', function() {
       avatarUpload.click();
     });
 
-    // 文件选择后提交头像更新
-    avatarUpload.addEventListener('change', function() {
+        avatarUpload.addEventListener('change', function() {
       const formData = new FormData(profileForm);
       formData.set('avatar', this.files[0]); // 更新 avatar 字段
-
+      // 显式添加CSRF token
+      formData.set('_csrf_token', document.querySelector('#profile-form input[name="_csrf_token"]').value);
+    
       $.ajax({
         url: '/update_profile',
         method: 'POST',
@@ -44,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // 编辑个性签名
+    // 编辑个性签名
   const bioText = document.getElementById('bioText');
   const editBioBtn = document.getElementById('editBioBtn');
   if (editBioBtn && bioText) {
@@ -52,13 +53,16 @@ document.addEventListener('DOMContentLoaded', function() {
       const newBio = prompt("Enter your new bio:");
       if (newBio) {
         bioText.innerText = `"${newBio}"`;
+        const formData = new FormData();
+        formData.append('bio', newBio);
+        formData.append('_csrf_token', document.querySelector('#profile-form input[name="_csrf_token"]').value);
+  
         $.ajax({
           url: '/update_bio',
           method: 'POST',
-          data: {
-            bio: newBio,
-            _csrf_token: $('input[name="_csrf_token"]').val()
-          },
+          data: formData,
+          processData: false,
+          contentType: false,
           success: function(response) {
             if (response.success) {
               console.log('Bio updated successfully');
@@ -101,4 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+});
+
+window.addEventListener('unload', function() {
+  // 用 navigator.sendBeacon 保证请求能发出
+  navigator.sendBeacon('/auth/logout');
 });
