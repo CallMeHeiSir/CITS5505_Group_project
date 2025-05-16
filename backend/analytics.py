@@ -282,24 +282,34 @@ def upload_activities():
                 'status': 'error',
                 'message': 'No file uploaded'
             }), 400
-            
+        
         file = request.files['file']
         print(f"Received file: {file.filename}")
-        
+
+        # 文件大小判断（兜底）
+        file.seek(0, 2)  # 移动到文件末尾
+        size = file.tell()
+        file.seek(0)
+        if size > 5 * 1024 * 1024:
+            return jsonify({
+                'status': 'error',
+                'message': 'Uploaded CSV file is too large. Maximum allowed size is 5MB.'
+            }), 413
+
         if file.filename == '':
             print("Empty filename")
             return jsonify({
                 'status': 'error',
                 'message': 'No file selected'
             }), 400
-            
+        
         if not file.filename.endswith('.csv'):
             print("Invalid file type")
             return jsonify({
                 'status': 'error',
                 'message': 'Only CSV files are allowed'
             }), 400
-            
+        
         # 读取CSV文件
         print("Reading CSV file")
         stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)

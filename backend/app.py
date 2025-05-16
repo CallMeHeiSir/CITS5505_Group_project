@@ -12,6 +12,7 @@ import os
 import requests
 from models.check_in_log import CheckInLog
 from checkin import checkin_bp
+from werkzeug.exceptions import RequestEntityTooLarge
 
 # Load environment variables
 load_dotenv()
@@ -32,7 +33,7 @@ def create_app(config_name=None):
         app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app.db')
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
-        app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+        app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB
         app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
         app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
         app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'yes']
@@ -248,6 +249,14 @@ def create_app(config_name=None):
         @login_manager.user_loader
         def load_user(user_id):
             return db.session.get(User, int(user_id))
+
+        # Add global error handler for file too large
+        @app.errorhandler(RequestEntityTooLarge)
+        def handle_file_too_large(e):
+            return jsonify({
+                'status': 'error',
+                'message': 'Uploaded CSV file is too large. Maximum allowed size is 5MB.'
+            }), 413
     
     return app
 
