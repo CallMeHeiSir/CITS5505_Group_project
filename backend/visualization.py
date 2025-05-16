@@ -52,13 +52,6 @@ def get_visualization_data():
                 ]
             }
 
-            print('Sending visualization data:', {
-                'weekly_data_count': len(visualization_data['weekly_data']['labels']),
-                'progress_data_count': len(visualization_data['progress_data']['labels']),
-                'activity_distribution_count': len(visualization_data['activity_distribution']['labels']),
-                'calories_trend_count': len(visualization_data['calories_trend']['labels'])
-            })
-
             return jsonify(visualization_data)
         else:
             return jsonify({
@@ -93,7 +86,6 @@ def process_weekly_data(activities):
         'distance': [weekly_data[week]['distance'] for week in sorted_weeks],
         'calories': [weekly_data[week]['calories'] for week in sorted_weeks]
     }
-    # print('Weekly data:', result)
     return result
 
 def process_progress_data(activities):
@@ -115,7 +107,6 @@ def process_progress_data(activities):
         'distance': [progress_data[month]['distance'] for month in sorted_months],
         'duration': [progress_data[month]['duration'] for month in sorted_months]
     }
-    # print('Progress data:', result)
     return result
 
 def process_activity_distribution(activities):
@@ -133,7 +124,6 @@ def process_activity_distribution(activities):
         'labels': list(activity_types.keys()),
         'data': list(activity_types.values())
     }
-    # print('Activity distribution:', result)
     return result
 
 def process_calories_trend(activities):
@@ -152,7 +142,6 @@ def process_calories_trend(activities):
         'labels': sorted_dates,
         'data': [calories_data[date] for date in sorted_dates]
     }
-    # print('Calories trend:', result)
     return result
 
 def calculate_stats(activities):
