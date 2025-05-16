@@ -183,7 +183,7 @@ CITS5505_Group_project/
    pip install -r requirements.txt
    ```
 
-4. Set up environment variables:
+4. Set up environment variables（The `.env` file has already been included in the ZIP folder, located under the `backend` directory.）:
    - Obtain the `.env` file from the project administrator
    - Place the `.env` file in the `backend` directory
    - The `.env` file contains necessary configuration including:
@@ -193,12 +193,12 @@ CITS5505_Group_project/
      - Other sensitive information
    
 
-5. Initialize the database:
+6. Initialize the database:
    ```bash
    python setup_db.py
    ```
 
-6. Run the application:
+7. Run the application:
    ```bash
    python app.py
    ```
