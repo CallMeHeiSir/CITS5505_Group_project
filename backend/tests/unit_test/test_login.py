@@ -10,18 +10,18 @@ NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
 class LoginTestCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app('testing')  # 指定使用测试配置
+        self.app = create_app('testing')  # Specify to use test config
         self.client = self.app.test_client()
         with self.app.app_context():
             db.create_all()
-            # 插入测试用户
+            # Insert test user
             user = User(
                 username='testuser',
                 email='test1@example.com',
                 password_hash=generate_password_hash(TEST_PASSWORD)
             )
             db.session.add(user)
-            # 插入验证码
+            # Insert verification code
             code = VerificationCode(
                 email='test1@example.com',
                 code='123456',

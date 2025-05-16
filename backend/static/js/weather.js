@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  // 将 Open-Meteo 的天气代码转换为描述
+  // Convert Open-Meteo weather codes to descriptions
   function getWeatherDescription(code) {
     const weatherCodes = {
       0: 'Clear sky',
@@ -16,7 +16,7 @@ $(document).ready(function () {
     return weatherCodes[code] || 'Unknown';
   }
 
-  // 获取天气数据的函数
+  // Function to fetch weather data
   function fetchWeather(latitude, longitude, cityName) {
     const apiUrl = `/weather/${latitude}/${longitude}/${encodeURIComponent(cityName)}`;
 
@@ -47,14 +47,14 @@ $(document).ready(function () {
     });
   }
 
-  // 页面加载时，获取默认城市天气
+  // On page load, get default city weather
   const defaultCity = $('#city-select').val().split(',');
   const defaultLat = defaultCity[0];
   const defaultLon = defaultCity[1];
   const defaultCityName = defaultCity[2];
   fetchWeather(defaultLat, defaultLon, defaultCityName);
 
-  // 用户选择城市时，更新天气
+  // When user selects a city, update weather
   $('#city-select').on('change', function () {
     const selectedCity = $(this).val().split(',');
     const lat = selectedCity[0];

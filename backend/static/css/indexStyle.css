@@ -175,7 +175,7 @@ html, body {
   color: #333;
 }
 
-/* 左右两列布局 */
+/* Left and right column layout */
 .cards-row-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -184,7 +184,7 @@ html, body {
   position: relative;
 }
 
-/* 左侧列 */
+/* Left column */
 .column-left {
   display: flex;
   flex-direction: column;
@@ -192,14 +192,14 @@ html, body {
   margin-top: 24px;
 }
 
-/* 右侧列 */
+/* Right column */
 .column-right {
   display: flex;
   flex-direction: column;
   margin-top: 24px;
 }
 
-/* Health Tips 卡片 */
+/* Health Tips card */
 .card-health-tips {
   height: 200px !important;
   min-height: 200px !important;
@@ -208,7 +208,7 @@ html, body {
   overflow-y: auto;
 }
 
-/* Recent activities 卡片 */
+/* Recent activities card */
 .card-recent-activities {
   height: 200px !important;
   min-height: 200px !important;
@@ -217,7 +217,7 @@ html, body {
   overflow-y: auto;
 }
 
-/* My Friends 卡片 */
+/* My Friends card */
 .card-my-friends {
   height: 400px !important;
   min-height: 400px !important;
@@ -239,7 +239,7 @@ html, body {
   margin-top: 10px;
 }
 
-/* 调整卡片内边距以保持一致 */
+/* Adjust card padding for consistency */
 .card-health-tips,
 .card-recent-activities,
 .card-my-friends {
@@ -285,7 +285,7 @@ html, body {
   opacity: 0.9;
 }
 
-/* Progress Bar 容器 */
+/* Progress Bar container */
 .progress-bar-container {
   width: 80%;
   margin: 18px auto 0 auto;
@@ -300,7 +300,7 @@ html, body {
   display: block;
 }
 
-/* Progress Bar 本身 */
+/* Progress Bar itself */
 .progress-bar {
   height: 8px;
   background: #eee;
@@ -309,14 +309,14 @@ html, body {
   width: 100%;
 }
 
-/* Progress Bar 填充 */
+/* Progress Bar fill */
 .progress-fill {
   height: 100%;
   background: linear-gradient(135deg, #667eea, #764ba2);
   transition: width .3s ease;
 }
 
-/* Daily Check-In 部分 */
+/* Daily Check-In section */
 .daily-check-in {
   text-align: center;
 }
@@ -409,7 +409,7 @@ html, body {
   }
 }
 
-/* 天气 */
+/* Weather */
 .weather-section {
   padding: 20px;
   border-top: 1px solid #eee;

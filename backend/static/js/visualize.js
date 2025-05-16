@@ -1,5 +1,5 @@
 // Friend comparison and sharing functionality
-// 删除 selectFriend 和 shareBtn 的相关 DOM 操作
+// Remove DOM operations related to selectFriend and shareBtn
 
 // Chart configurations and data templates
 const chartConfigs = {
@@ -139,7 +139,7 @@ function renderCalendar() {
   const calendarDays = document.getElementById('calendar-days');
   calendarDays.innerHTML = '';
 
-  // 只生成需要的格子数（5行或6行）
+  // Only generate the required number of cells (5 or 6 rows)
   let totalCells = startingDay + totalDays;
   let cellCount = totalCells <= 35 ? 35 : 42;
 
@@ -155,7 +155,7 @@ function renderCalendar() {
     const day = i % 7;
 
     if (week === 0 && day < startingDay) {
-      // 上月
+      // Previous month
       dateNum = prevMonthLastDay - (startingDay - day - 1);
       cell.classList.add('other-month');
       isCurrentMonth = false;
@@ -163,7 +163,7 @@ function renderCalendar() {
       let prevYear = month === 0 ? year - 1 : year;
       dateStr = `${prevYear}-${pad(prevMonth)}-${pad(dateNum)}`;
     } else if (dayCount >= totalDays) {
-      // 下月
+      // Next month
       dateNum = dayCount - totalDays + 1;
       cell.classList.add('other-month');
       isCurrentMonth = false;
@@ -172,7 +172,7 @@ function renderCalendar() {
       dateStr = `${nextYear}-${pad(nextMonth)}-${pad(dateNum)}`;
       dayCount++;
     } else {
-      // 本月
+      // Current month
       dateNum = dayCount + 1;
       dateStr = `${year}-${pad(month + 1)}-${pad(dateNum)}`;
       dayCount++;
@@ -180,10 +180,10 @@ function renderCalendar() {
 
     cell.textContent = dateNum;
 
-    // 判断有无运动
+    // Check if there is activity
     const hasActivity = activityDates.has(dateStr);
 
-    // 高亮今天
+    // Highlight today
     const today = new Date();
     const isToday =
       isCurrentMonth &&
@@ -192,25 +192,25 @@ function renderCalendar() {
       year === today.getFullYear();
 
     if (hasActivity && isToday) {
-      // 今天且有运动
+      // Today and has activity
       cell.style.background = '#6366f1';
       cell.style.color = '#fff';
       cell.style.fontWeight = 'bold';
       cell.style.border = '2px solid #374151';
       cell.style.borderRadius = '50%';
     } else if (hasActivity) {
-      // 有运动
+      // Has activity
       cell.style.background = '#6366f1';
       cell.style.color = '#fff';
       cell.style.fontWeight = 'bold';
       cell.style.borderRadius = '50%';
     } else if (isToday) {
-      // 仅今天
+      // Only today
       cell.style.border = '2px solid #6366f1';
       cell.style.borderRadius = '50%';
     }
 
-    // 灰色显示其他月
+    // Gray out other months
     if (!isCurrentMonth) {
       cell.style.opacity = '0.4';
     }
@@ -223,7 +223,7 @@ function renderCalendar() {
 function predictCalories(activities) {
   if (activities.length < 1) return null;
 
-  // 用最近7天的均值（或全部均值）
+  // Use the average of the last 7 days (or all)
   const recent = activities.slice(-7);
   const avg = recent.reduce((sum, a) => sum + a.calories, 0) / recent.length;
   const maxVal = avg * 1.08;
@@ -235,7 +235,7 @@ function predictCalories(activities) {
     const date = new Date(lastDate);
     date.setDate(lastDate.getDate() + i);
 
-    // 线性插值：从avg平滑递增到maxVal
+    // Linear interpolation: smooth increase from avg to maxVal
     const t = i / 29; // 0~1
     const predicted = avg + (maxVal - avg) * t;
 
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize calendar
   renderCalendar();
 
-  // 在初始化卡片时为每个分享按钮加上唯一的data-chart属性
+  // When initializing cards, assign a unique data-chart attribute to each share button
   document.querySelectorAll('.card').forEach(card => {
     const shareBtn = card.querySelector('.share-btn');
     if (shareBtn) {
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // 针对stat-card统计卡片，手动赋予唯一data-chart（与charts key唯一对应）
+  // For stat-card statistic cards, manually assign unique data-chart (uniquely corresponding to charts key)
   const statCards = document.querySelectorAll('.stat-card');
   if (statCards.length > 0) {
     // 第一组：Total Calories + Total Distance
@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btn1) btn1.setAttribute('data-chart', 'stat-duration-activities');
   }
 
-  // 确保所有分享按钮都能正常弹出分享弹窗
+  // Ensure all share buttons can pop up the share dialog normally
   bindVisualizationShareButtons();
 });
 
@@ -309,7 +309,7 @@ function initializeDateFilter() {
   const dateRangeSelect = document.getElementById('date-range');
   const customDatesGroup = document.querySelector('.custom-dates');
 
-  // 默认选中"Last Month"
+  // Default to "Last Month"
   dateRangeSelect.value = 'month';
   startDateInput.value = lastMonth.toISOString().split('T')[0];
   endDateInput.value = today.toISOString().split('T')[0];
@@ -317,7 +317,7 @@ function initializeDateFilter() {
   currentFilters.startDate = lastMonth.toISOString().split('T')[0];
   currentFilters.endDate = today.toISOString().split('T')[0];
 
-  // 默认隐藏 custom range
+  // Default hide custom range
   if (customDatesGroup) customDatesGroup.style.display = 'none';
 
   dateRangeSelect.addEventListener('change', function() {
@@ -338,7 +338,7 @@ function initializeDateFilter() {
       endDateInput.value = today.toISOString().split('T')[0];
       if (customDatesGroup) customDatesGroup.style.display = 'none';
     } else if (this.value === 'custom') {
-      // custom range: 自动填充为所有运动数据的最早和最晚日期
+      // custom range: auto-fill with the earliest and latest dates of all activity data
       if (customDatesGroup) customDatesGroup.style.display = '';
       fetch('/api/visualization/activities', {
         method: 'POST',
@@ -348,12 +348,12 @@ function initializeDateFilter() {
       .then(res => res.json())
       .then(data => {
         if (data.activities && data.activities.length > 0) {
-          // activities 已按时间排序，取最早和最晚
+          // activities are already sorted by time, take the earliest and latest
           const dates = data.activities.map(a => a.date.split('T')[0]).sort();
           startDateInput.value = dates[0];
           endDateInput.value = dates[dates.length - 1];
         } else {
-          // 没有数据，默认今天
+          // No data, default to today
           startDateInput.value = today.toISOString().split('T')[0];
           endDateInput.value = today.toISOString().split('T')[0];
         }
@@ -797,32 +797,32 @@ async function exportData(format) {
 function updatePredictionChart(activities, predictions) {
   const ctx = document.getElementById('predictionChart').getContext('2d');
 
-  // 1. 实际数据
+  // 1. Actual data
   let actualLabels = activities.map(a => a.date.split('T')[0]);
   let actualData = activities.map(a => a.calories);
 
-  // 对真实区间按日期排序，且只保留有真实值的日期
+  // Sort actual interval by date, keep only dates with actual values
   const actualPairs = actualLabels.map((d, i) => ({ date: d, value: actualData[i] }));
   actualPairs.sort((a, b) => new Date(a.date) - new Date(b.date));
   actualLabels = actualPairs.map(p => p.date);
   actualData = actualPairs.map(p => p.value);
 
-  // 2. 预测数据
+  // 2. Prediction data
   const predictedLabels = predictions.map(p => p.date);
   const predictedData = predictions.map(p => p.calories);
 
-  // 3. 找到最后一个实际日期
+  // 3. Find the last actual date
   const lastActualDate = actualLabels[actualLabels.length - 1];
 
-  // 4. 预测区间（只取最后一个实际日期之后的预测）
+  // 4. Prediction interval (only take predictions after the last actual date)
   const predStartIdx = predictedLabels.findIndex(d => d > lastActualDate);
   const predLabelsAfter = predStartIdx >= 0 ? predictedLabels.slice(predStartIdx) : [];
   const predDataAfter = predStartIdx >= 0 ? predictedData.slice(predStartIdx) : [];
 
-  // 5. allDates = 真实值日期（递增）+ 预测区间日期（递增）
+  // 5. allDates = actual value dates (ascending) + prediction interval dates (ascending)
   const allDates = [...actualLabels, ...predLabelsAfter];
 
-  // 6. 对齐数据
+  // 6. Align data
   const actualFull = [...actualData, ...Array(predLabelsAfter.length).fill(null)];
   const predictedFull = [...Array(actualLabels.length).fill(null), ...predDataAfter];
 
@@ -921,7 +921,7 @@ function showError(message) {
   setTimeout(() => errorDiv.remove(), 3000);
 }
 
-// 保证bindVisualizationShareButtons时能正确获取data-chart
+// Ensure bindVisualizationShareButtons can correctly get data-chart
 function bindVisualizationShareButtons() {
   document.querySelectorAll('.share-btn').forEach(btn => {
     btn.onclick = function() {
@@ -931,7 +931,7 @@ function bindVisualizationShareButtons() {
       }
     };
   });
-  // dashboard分享按钮
+  // Dashboard share button
   const dashboardBtn = document.getElementById('share-dashboard-btn') || document.querySelector('.share-dashboard-btn');
   if (dashboardBtn) {
     dashboardBtn.onclick = function() {
@@ -942,6 +942,6 @@ function bindVisualizationShareButtons() {
 bindVisualizationShareButtons();
 
 window.addEventListener('unload', function() {
-  // 用 navigator.sendBeacon 保证请求能发出
+  // Use navigator.sendBeacon to ensure the request is sent
   navigator.sendBeacon('/auth/logout');
 });

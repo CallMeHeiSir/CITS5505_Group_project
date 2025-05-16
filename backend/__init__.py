@@ -26,6 +26,6 @@ def create_app():
     app.register_blueprint(visualization_blueprint, url_prefix='/api/visualization')
     app.register_blueprint(share_bp, url_prefix='/api')  # Register the share blueprint
 
-    print(app.url_map)  # 打印所有路由，方便调试
+    print(app.url_map)  # Print all routes for debugging
 
-    return app 
+    return app

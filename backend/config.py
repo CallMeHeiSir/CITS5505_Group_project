@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-# 加载环境变量
+# Load environment variables
 load_dotenv()
 
 class Config:
@@ -11,8 +11,8 @@ class Config:
 
 class TestConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # 使用内存数据库
-    WTF_CSRF_ENABLED = False  # 测试时关闭CSRF
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # Use in-memory database
+    WTF_CSRF_ENABLED = False  # Disable CSRF for testing
     DEBUG = True
 
 class DevelopmentConfig(Config):

@@ -1,4 +1,4 @@
-/* 全局样式 */
+/* Global styles */
 html, body {
   width: 100%;
   height: 100%;
@@ -8,7 +8,7 @@ html, body {
   font-family: "Segoe UI", Tahoma, sans-serif;
 }
 
-/* 自定义导航栏样式 */
+/* Custom navbar styles */
 .custom-navbar {
   background-color: #fff;
   color: #333;
@@ -46,7 +46,7 @@ html, body {
   color: #667eea;
 }
 
-/* 登录/注册容器样式 */
+/* Login/Register container styles */
 .login-container,
 .register-container {
   display: flex;
@@ -56,7 +56,7 @@ html, body {
   padding: 20px;
 }
 
-/* 卡片样式 */
+/* Card styles */
 .card {
   background: #fff;
   border-radius: 12px;
@@ -70,11 +70,11 @@ html, body {
   padding: 0;
 }
 
-/* 渐变按钮样式 */
+/* Gradient button styles */
 .btn-gradient {
-  display: block; /* 使按钮成为块级元素，以便居中 */
-  width: fit-content; /* 宽度自适应内容 */
-  margin: 0 auto; /* 水平居中 */
+  display: block; /* Make the button a block element for centering */
+  width: fit-content; /* Width adapts to content */
+  margin: 0 auto; /* Center horizontally */
   padding: 12px 24px;
   border: none;
   border-radius: 12px;
@@ -87,14 +87,14 @@ html, body {
    -4px -4px 8px rgba(255,255,255,0.7);
   transition: opacity .2s;
   text-align: center;
-  text-decoration: none; /* 确保 <a> 标签没有下划线 */
+  text-decoration: none; /* Ensure <a> tags have no underline */
 }
 
 .btn-gradient:hover {
   opacity: 0.9;
 }
 
-/* 表单输入框样式 */
+/* Form input styles */
 .form-input {
   width: 100%;
   padding: 12px;
@@ -115,7 +115,7 @@ html, body {
   border-color: #dc3545;
 }
 
-/* 文本区域样式（用于地址） */
+/* Textarea styles (for address) */
 .comment-box {
   width: 100%;
   resize: none;
@@ -127,7 +127,7 @@ html, body {
   margin: 12px 0;
 }
 
-/* 头像上传区域样式 */
+/* Avatar upload area styles */
 .upload-zone {
   padding: 40px;
   text-align: center;
@@ -171,7 +171,7 @@ html, body {
   border-radius: 8px;
 }
 
-/* 错误提示样式 */
+/* Error feedback styles */
 .invalid-feedback {
   display: none;
   color: #dc3545;
@@ -183,18 +183,18 @@ html, body {
   display: block;
 }
 
-/* 文本样式 */
+/* Text styles */
 .text-muted {
   color: #888;
   font-size: 0.85rem;
 }
 
-/* 表单组样式 */
+/* Form group styles */
 .form-group {
   margin-bottom: 1rem;
 }
 
-/* 密码输入框包裹样式 */
+/* Password input wrapper styles */
 .password-wrapper {
   position: relative;
   display: flex;
@@ -212,7 +212,7 @@ html, body {
   color: #666;
 }
 
-/* Flash 消息样式 */
+/* Flash message styles */
 .flash-messages {
   width: 100%;
   max-width: 600px;
@@ -256,7 +256,7 @@ html, body {
   color: #333;
 }
 
-/* 文本居中样式 */
+/* Text center styles */
 .text-center {
   text-align: center;
 }
@@ -269,7 +269,7 @@ html, body {
   margin-top: 1rem;
 }
 
-/* 移动端适配 */
+/* Mobile adaptation */
 @media (max-width: 767px) {
   .custom-navbar {
     flex-direction: column;

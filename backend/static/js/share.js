@@ -55,17 +55,17 @@ function createShareRecordHTML(share, type) {
   const isReceived = type === 'received';
   const statusBadge = isReceived ? `
     <div class="status-badge ${share.isRead ? 'status-read' : 'status-unread'}">
-      ${share.isRead ? '已读' : '未读'}
+      ${share.isRead ? 'Read' : 'Unread'}
     </div>
   ` : '';
 
   const actions = isReceived ? `
     <button class="action-btn btn-reply" onclick="toggleReplyForm(${share.id})">
-      <i class="bi bi-reply-fill"></i>回复
+      <i class="bi bi-reply-fill"></i>Reply
     </button>
   ` : `
     <button class="action-btn btn-revoke" onclick="revokeShare('${share.timestamp}')">
-      <i class="bi bi-trash-fill"></i>撤回
+      <i class="bi bi-trash-fill"></i>Withdraw
     </button>
   `;
 
@@ -105,9 +105,9 @@ function createShareRecordHTML(share, type) {
       </div>
       ${isReceived ? `
         <div class="reply-form" id="reply-form-${share.id}">
-          <textarea class="reply-input" placeholder="写下你的回复..."></textarea>
+          <textarea class="reply-input" placeholder="Write your reply..."></textarea>
           <div class="reply-actions">
-            <button class="btn-gradient" onclick="submitReply(${share.id})">发送回复</button>
+            <button class="btn-gradient" onclick="submitReply(${share.id})">Send Reply</button>
           </div>
         </div>
       ` : ''}
@@ -138,12 +138,12 @@ function submitReply(shareId) {
   const content = form.querySelector('textarea').value.trim();
 
   if (!content) {
-    alert('请输入回复内容！');
+    alert('Please enter your reply!');
     return;
   }
 
   // TODO: Send reply to backend
-  alert('回复已发送！');
+  alert('Reply sent!');
   form.querySelector('textarea').value = '';
   form.style.display = 'none';
 }
@@ -183,7 +183,7 @@ function renderShareMessage(share, type) {
     userInfoHtml = `<span style="font-weight:600;">To ${user ? user.username : '?'}</span>
                     <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
   } else {
-    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'}</span> <span style="color:#888;">send to you</span>
+    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'} <span style="color:#888;">send to you</span></span>
                     <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
   }
   const card = document.createElement('div');
@@ -231,8 +231,8 @@ function renderSharedContent(share) {
       try {
         share.snapshot = JSON.parse(share.snapshot);
       } catch (e) {
-        console.error('快照解析失败', e, share.snapshot);
-        return messageHtml + '<div style="color:#e57373;">快照数据损坏，无法显示图表。</div>';
+        console.error('Snapshot parsing failed', e, share.snapshot);
+        return messageHtml + '<div style="color:#e57373;">Snapshot data corrupted, unable to display chart.</div>';
       }
     }
     if (share.visualization_type === 'dashboard') {

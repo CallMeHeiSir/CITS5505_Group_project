@@ -12,7 +12,7 @@ class RetrievePasswordTestCase(unittest.TestCase):
         self.client = self.app.test_client()
         with self.app.app_context():
             db.create_all()
-            # 插入测试用户
+            # Insert test user
             user = User(username='testuser',email='test1@example.com',password_hash=generate_password_hash(TEST_PASSWORD))
             db.session.add(user)
             db.session.commit()

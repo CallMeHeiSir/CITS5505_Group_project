@@ -21,7 +21,7 @@
     {% endif %}
   {% endwith %}
 
-  <!-- 自定义导航栏 -->
+  <!-- Custom navigation bar -->
   <nav class="custom-navbar">
     <a href="{{ url_for('welcome') }}" class="logo">Data Analytics App</a>
     <div class="nav-links">
@@ -30,7 +30,7 @@
     </div>
   </nav>
 
-  <!-- 登录卡片 -->
+  <!-- Login card -->
   <div class="login-container">
     <div class="card">
       <h2 class="card-title text-center mb-4">Login to Your Account</h2>
@@ -69,7 +69,7 @@
           <button type="submit" class="btn-gradient" id="LoginButton">Login</button>
         </form>
       <p class="text-center mt-3">Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-      <p class="text-center mt-3">Don't remeber the password? <a href="{{ url_for('auth.retrieve_password') }}">Retrieve password</a></p>
+      <p class="text-center mt-3">Don't remember the password? <a href="{{ url_for('auth.retrieve_password') }}">Retrieve password</a></p>
     </div>
   </div>
 

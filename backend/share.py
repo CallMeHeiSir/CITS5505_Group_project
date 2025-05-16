@@ -38,7 +38,7 @@ def get_friends_list():
 @login_required
 def share_activity():
     try:
-        # 从 FormData 获取数据
+        # Get data from FormData
         share_to_user_id = request.form.get('share_to_user_id')
         share_message = request.form.get('share_message', '')
         share_type = request.form.get('share_type')
@@ -46,14 +46,14 @@ def share_activity():
         activity_id = request.form.get('activity_id')
         snapshot = request.form.get('snapshot')
 
-        # 验证是否是好友关系
+        # Verify if they are friends
         if not Friendship.are_friends(current_user.id, int(share_to_user_id)):
             return jsonify({
                 'status': 'error',
                 'message': 'You can only share with your friends'
             }), 403
 
-        # 允许 activity_id 为空（图表/仪表盘分享）
+        # Allow activity_id to be empty (for chart/dashboard sharing)
         activity = None
         if activity_id:
             activity = ActivityLog.query.filter_by(
@@ -74,7 +74,7 @@ def share_activity():
                 'message': 'Target user not found'
             }), 404
 
-        # 处理快照数据
+        # Handle snapshot data
         if snapshot:
             try:
                 snapshot = json.loads(snapshot)
@@ -105,7 +105,7 @@ def share_activity():
 
     except Exception as e:
         db.session.rollback()
-        print(f"Error in share_activity: {str(e)}")  # 添加错误日志
+        print(f"Error in share_activity: {str(e)}")  # Add error log
         return jsonify({
             'status': 'error',
             'message': str(e)
@@ -359,4 +359,4 @@ def revoke_share(share_id):
         return jsonify({
             'status': 'error',
             'message': str(e)
-        }), 500 
+        }), 500

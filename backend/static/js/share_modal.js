@@ -1,6 +1,6 @@
-// 通用分享弹窗逻辑
+// General share modal logic
 window.openShareModal = function(shareOptions) {
-  // shareOptions: { type: 'activity'|'chart'|'dashboard', id: 活动id/图表类型/等 }
+  // shareOptions: { type: 'activity'|'chart'|'dashboard', id: activity id/chart type/etc. }
   const modal = document.getElementById('share-modal');
   const closeBtn = document.getElementById('share-modal-close');
   const friendSelect = document.getElementById('share-friend-select');
@@ -8,13 +8,13 @@ window.openShareModal = function(shareOptions) {
   const confirmBtn = document.getElementById('share-modal-confirm');
   const statusDiv = document.getElementById('share-modal-status');
 
-  // 清空状态
+  // Clear status
   friendSelect.innerHTML = '<option value="">Loading...</option>';
   messageInput.value = '';
   statusDiv.textContent = '';
   modal.style.display = 'flex';
 
-  // 拉取好友列表
+  // Fetch friends list
   fetch('/api/friend/friends')
     .then(res => res.json())
     .then(data => {
@@ -34,11 +34,11 @@ window.openShareModal = function(shareOptions) {
       friendSelect.innerHTML = '<option value="">Failed to load friends</option>';
     });
 
-  // 关闭弹窗
+  // Close modal
   closeBtn.onclick = () => { modal.style.display = 'none'; };
   window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
 
-  // 分享按钮
+  // Share button
   confirmBtn.onclick = () => {
     const friendId = friendSelect.value;
     const message = messageInput.value.trim();
@@ -50,7 +50,7 @@ window.openShareModal = function(shareOptions) {
     statusDiv.textContent = 'Sharing...';
     let url = '/api/share/activity';
     
-    // 创建 FormData 对象
+    // Create FormData object
     const formData = new FormData();
     formData.append('share_to_user_id', friendId);
     formData.append('share_message', message);
@@ -61,13 +61,13 @@ window.openShareModal = function(shareOptions) {
       formData.append('activity_id', shareOptions.id);
     }
     
-    // 添加快照数据
+    // Add snapshot data
     const snapshot = collectSnapshot(shareOptions.id);
     if (snapshot) {
       formData.append('snapshot', JSON.stringify(snapshot));
     }
     
-    // 添加 CSRF Token
+    // Add CSRF Token
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     formData.append('csrf_token', csrfToken);
     
@@ -96,11 +96,11 @@ window.openShareModal = function(shareOptions) {
   };
 };
 
-// 采集快照参数
+// Collect snapshot parameters
 function collectSnapshot(type) {
-  // 1. 如果charts未定义，说明不是可视化页面，兼容recent activity等
+  // 1. If charts is undefined, it's not a visualization page, compatible with recent activity, etc.
   if (typeof charts === 'undefined') {
-    // 针对recent activity卡片，采集卡片上的基础数据
+    // For recent activity card, collect basic data on the card
     if (type === 'stat-calories-distance' || type === 'stat-card') {
       const calories = document.getElementById('total-calories')?.textContent || '';
       const distance = document.getElementById('total-distance')?.textContent || '';
@@ -120,14 +120,14 @@ function collectSnapshot(type) {
         activities
       };
     }
-    // 其他类型可按需扩展
+    // Other types can be extended as needed
     return null;
   }
-  // 2. 可视化页面原有逻辑
+  // 2. Original logic for visualization page
   if (type === 'dashboard') {
-    // 采集 dashboard 所有图表和统计卡片，顺序push到数组
+    // Collect all charts and stat cards on the dashboard, push to array in order
     const snapshot = [];
-    // 统计卡片
+    // Stat card
     const calories = document.getElementById('total-calories')?.textContent || '';
     const distance = document.getElementById('total-distance')?.textContent || '';
     snapshot.push({
@@ -146,7 +146,7 @@ function collectSnapshot(type) {
       activities,
       filters: currentFilters
     });
-    // 日历快照
+    // Calendar snapshot
     snapshot.push({
       type: 'calendar',
       year: currentDate.getFullYear(),
@@ -154,7 +154,7 @@ function collectSnapshot(type) {
       activityDates: Array.from(activityDates),
       filters: currentFilters
     });
-    // 主图表
+    // Main charts
     if (charts.weekly) snapshot.push({
       type: 'bar',
       data: JSON.parse(JSON.stringify(charts.weekly.data)),
@@ -229,4 +229,4 @@ function collectSnapshot(type) {
   }
 }
 
-// 供所有页面调用 window.openShareModal({type, id}) 
+// For all pages to call: window.openShareModal({type, id})

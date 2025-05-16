@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const checkInProgress = document.getElementById('checkInProgress');
   const streakDays = document.getElementById('streakDays');
 
-  // ✅ 自动从后端加载 streak 天数和进度条
+  // ✅ Automatically load streak days and progress bar from backend
   function loadStreakStatus() {
     fetch('/api/checkin/status')
       .then(res => res.json())
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ✅ 页面初始加载时调用
+    // ✅ Call on initial page load
     loadStreakStatus();
 
   } else {
@@ -78,15 +78,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ====== 首页 Recent Activities 汇总 ======
+  // ====== Home Page Recent Activities Summary ======
   function loadTodaySummary() {
     fetch('/analytics/api/activities/today_summary')
       .then(res => res.json())
       .then(data => {
-        // 找到 recent activities 卡片下的 stats-grid
+        // Find the stats-grid under the recent activities card
         const statsGrid = document.querySelector('.card-recent-activities .stats-grid');
         if (statsGrid) {
-          // 距离保留1位小数，时长为分钟，卡路里整数
+          // Distance to 1 decimal, duration in minutes, calories as integer
           statsGrid.innerHTML = `
             <div class="stat-item">
               <span class="stat-value">${data.total_distance ? data.total_distance.toFixed(1) : '0.0'} km</span>
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       })
       .catch(err => {
-        // 失败时显示默认内容
+        // Show default content on failure
         const statsGrid = document.querySelector('.card-recent-activities .stats-grid');
         if (statsGrid) {
           statsGrid.innerHTML = `<div style='color:#888;'>Failed to load today's summary.</div>`;
@@ -115,6 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.addEventListener('unload', function() {
-  // 用 navigator.sendBeacon 保证请求能发出
+  // Use navigator.sendBeacon to ensure the request is sent
   navigator.sendBeacon('/auth/logout');
 });

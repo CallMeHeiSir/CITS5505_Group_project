@@ -4,19 +4,19 @@ body, html {
   padding: 0;
   height: 100%;
   font-family: sans-serif;
-  display: flex; /* 使用 flex 布局 */
-  flex-direction: column; /* 垂直排列 */
+  display: flex; /* Use flex layout */
+  flex-direction: column; /* Vertical arrangement */
 }
 
 .hero {
   background: url("../img/welcome-bg.jpg") no-repeat center center/cover;
-  min-height: 60vh; /* 减少高度到 60vh */
+  min-height: 60vh; /* Reduce height to 60vh */
   display: flex;
   justify-content: flex-end;
   align-items: center;
   padding: 40px;
   color: white;
-  flex: 1; /* 占据剩余空间 */
+  flex: 1; /* Take up remaining space */
 }
 
 .hero-box {
@@ -52,42 +52,42 @@ body, html {
   background: #f0f0f0;
 }
 
-/* 页脚 */
+/* Footer */
 .footer {
   padding: 20px 0;
   background: #f8fafc;
   border-top: 1px solid #ddd;
   text-align: center;
   width: 100%;
-  margin-top: 10px; /* 进一步减少间距 */
+  margin-top: 10px; /* Further reduce spacing */
 }
 
 .footer-links {
   display: flex;
-  justify-content: center; /* 居中对齐 */
-  gap: 15px; /* 按钮之间的间距 */
+  justify-content: center; /* Center alignment */
+  gap: 15px; /* Spacing between buttons */
 }
 
 .footer-link {
   display: inline-block;
-  padding: 10px 20px; /* 增加内边距，使按钮更宽大 */
-  background: linear-gradient(135deg, #667eea, #764ba2); /* 渐变背景，与 btn-gradient 一致 */
-  color: #fff; /* 白色文字 */
-  font-size: 1rem; /* 字体大小 */
-  font-weight: 500; /* 字体粗细 */
-  text-decoration: none; /* 移除下划线 */
-  border-radius: 8px; /* 圆角 */
-  transition: opacity 0.2s ease, transform 0.2s ease; /* 添加悬停动画 */
+  padding: 10px 20px; /* Increase padding for wider buttons */
+  background: linear-gradient(135deg, #667eea, #764ba2); /* Gradient background, same as btn-gradient */
+  color: #fff; /* White text */
+  font-size: 1rem; /* Font size */
+  font-weight: 500; /* Font weight */
+  text-decoration: none; /* Remove underline */
+  border-radius: 8px; /* Rounded corners */
+  transition: opacity 0.2s ease, transform 0.2s ease; /* Add hover animation */
 }
 
 .footer-link:hover {
-  opacity: 0.9; /* 悬停时降低透明度 */
-  transform: scale(1.05); /* 轻微放大 */
-  color: #fff; /* 保持白色文字 */
-  text-decoration: none; /* 确保无下划线 */
+  opacity: 0.9; /* Lower opacity on hover */
+  transform: scale(1.05); /* Slightly enlarge */
+  color: #fff; /* Keep white text */
+  text-decoration: none; /* Ensure no underline */
 }
 
-/* ============== Modal 样式 ============== */
+/* ============== Modal Styles ============== */
 .modal {
   display: none;
   position: fixed;
@@ -121,10 +121,10 @@ body, html {
   color: #666;
 }
 
-/* 响应式调整 */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .hero {
-    min-height: 50vh; /* 移动端减少高度 */
+    min-height: 50vh; /* Reduce height on mobile */
     padding: 20px;
   }
 
@@ -143,11 +143,11 @@ body, html {
 
   .footer {
     padding: 15px 0;
-    margin-top: 5px; /* 移动端进一步减少间距 */
+    margin-top: 5px; /* Further reduce spacing on mobile */
   }
 
   .footer-links {
-    gap: 10px; /* 移动端减少按钮间距 */
+    gap: 10px; /* Reduce button spacing on mobile */
   }
 
   .footer-link {
@@ -156,7 +156,7 @@ body, html {
   }
 }
 
-/* Flash 消息样式 */
+/* Flash message styles */
 .flash-messages {
   width: 100%;
   max-width: 600px;
@@ -200,7 +200,7 @@ body, html {
   color: #333;
 }
 
-/* 文本居中样式 */
+/* Text center styles */
 .text-center {
   text-align: center;
 }

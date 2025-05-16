@@ -12,7 +12,7 @@ import os
 TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
 NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
-# 登录测试
+# Login Test
 class SeleniumLoginTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

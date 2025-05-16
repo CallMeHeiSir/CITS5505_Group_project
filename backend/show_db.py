@@ -6,7 +6,7 @@ from sqlalchemy import select
 app = create_app()
 
 with app.app_context():
-    # 查询所有用户
+    # Query all users
     stmt = select(User)
     users = db.session.execute(stmt).scalars().all()
     
@@ -24,7 +24,7 @@ with app.app_context():
         print(f"Created at: {user.created_at if user.created_at else 'Not set'}")
         print("-" * 100)
 
-    # 查询所有活动日志
+    # Query all activity logs
     stmt = select(ActivityLog)
     logs = db.session.execute(stmt).scalars().all()
     
@@ -44,4 +44,4 @@ with app.app_context():
         print(f"Age: {log.age}")
         print(f"Location: {log.location}")
         print(f"Created at: {log.created_at if log.created_at else 'Not set'}")
-        print("-" * 100) 
+        print("-" * 100)

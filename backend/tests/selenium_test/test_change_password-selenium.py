@@ -10,6 +10,8 @@ import os
 TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
 NEW_PASSWORD = os.environ['NEW_USER_PASSWORD']
 
+# This test case uses Selenium to test the change password functionality in the web application.
+# It includes setup and teardown for the test environment, user login, and the password change process.
 class SeleniumChangePasswordTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -35,6 +37,7 @@ class SeleniumChangePasswordTestCase(unittest.TestCase):
         db.drop_all()
         cls.app_context.pop()
     def login(self):
+        # Log in as the test user before changing password
         driver = self.driver
         driver.get("http://127.0.0.1:5004/auth/login")
         driver.find_element(By.ID, "username").send_keys("testuser")
@@ -44,6 +47,7 @@ class SeleniumChangePasswordTestCase(unittest.TestCase):
         driver.find_element(By.ID, "LoginButton").click()
         time.sleep(1)
     def test_change_password(self):
+        # Test the change password process
         self.login()
         driver = self.driver
         driver.get("http://127.0.0.1:5004/auth/change_password")
@@ -55,4 +59,5 @@ class SeleniumChangePasswordTestCase(unittest.TestCase):
         self.assertTrue("Password changed successfully" in driver.page_source)
 
 if __name__ == "__main__":
+    # Run the Selenium change password test case
     unittest.main()

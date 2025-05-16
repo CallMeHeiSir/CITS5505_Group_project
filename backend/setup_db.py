@@ -9,17 +9,17 @@ import os
 app = create_app()
 
 with app.app_context():
-    # 创建数据库表
+    # Create database tables
     db.create_all()
     
-    # 检查是否已存在初始用户
+    # Check if initial user already exists
     stmt = select(User).where(User.username == 'test')
     test_user = db.session.execute(stmt).scalar_one_or_none()
     
     if not test_user:
-        # 创建初始用户
+        # Create initial user
         user = User(username='test', email='test@example.com')
-        # 从环境变量读取用户密码
+        # Read user password from environment variable
         test_password = os.getenv('TEST_USER_PASSWORD')
         if not test_password:
             raise ValueError("TEST_USER_PASSWORD environment variable is not set")
@@ -28,4 +28,4 @@ with app.app_context():
         db.session.commit()
         print('Initial user created successfully!')
     else:
-        print('Initial user already exists!') 
+        print('Initial user already exists!')

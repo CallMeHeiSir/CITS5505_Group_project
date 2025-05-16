@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const checkInProgress = document.getElementById('checkInProgress');
   const streakDays = document.getElementById('streakDays');
 
-  // 编辑个性签名
+  // Edit bio
   editBioBtn.addEventListener('click', function() {
     const newBio = prompt("Enter your new bio:");
     if (newBio) {
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // 打卡功能
+  // Check-in functionality
   checkInBtn.addEventListener('click', function() {
     let progress = parseInt(checkInProgress.style.width);
     let days = parseInt(streakDays.innerText);
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     alert('Check-in successful!');
   });
 
-  // 点击勋章展示详情
+  // Click badge to show details
   document.querySelectorAll('.badge-card').forEach(card => {
     card.addEventListener('click', function() {
       const message = this.getAttribute('data-message');

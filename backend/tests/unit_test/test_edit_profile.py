@@ -11,12 +11,12 @@ TEST_PASSWORD = os.environ['TEST_USER_PASSWORD']
 class EditProfileTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
-        self.app.config['AVATAR_FOLDER'] = 'backend/static/avatars/'  # 添加这一行
-        os.makedirs(self.app.config['AVATAR_FOLDER'], exist_ok=True)  # 确保目录存在
+        self.app.config['AVATAR_FOLDER'] = 'backend/static/avatars/'  # Add this line
+        os.makedirs(self.app.config['AVATAR_FOLDER'], exist_ok=True)  # Ensure the directory exists
         self.client = self.app.test_client()
         with self.app.app_context():
             db.create_all()
-            # 创建测试用户
+            # Create test user
             user = User(
                 username='testuser',
                 email='test1@example.com',
@@ -32,7 +32,7 @@ class EditProfileTestCase(unittest.TestCase):
             db.drop_all()
 
     def login(self):
-        # 直接登录用户（绕过登录页面）
+        # Directly log in the user (bypass login page)
         with self.app.test_request_context():
             user = User.query.get(self.user_id)
             login_user(user)
@@ -62,7 +62,7 @@ class EditProfileTestCase(unittest.TestCase):
 
     def test_update_profile_duplicate_email(self):
         with self.app.app_context():
-            # 新增一个用户
+            # Add another user
             user2 = User(
                 username='otheruser',
                 email='other@example.com',
@@ -74,7 +74,7 @@ class EditProfileTestCase(unittest.TestCase):
             self.login()
             data = {
                 'username': 'testuser',
-                'email': 'other@example.com',  # 已存在邮箱
+                'email': 'other@example.com',  # Existing email
             }
             response = self.client.post('/update_profile', data=data)
             self.assertEqual(response.status_code, 400)
@@ -92,7 +92,7 @@ class EditProfileTestCase(unittest.TestCase):
         with self.app.app_context():
             self.login()
             data = {
-                'username': 'otheruser',  # 已存在用户名
+                'username': 'otheruser',  # Existing username
                 'email': 'test1@example.com',
             }
             response = self.client.post('/update_profile', data=data)
@@ -106,7 +106,7 @@ class EditProfileTestCase(unittest.TestCase):
                 'username': 'testuser',
                 'email': 'test1@example.com',
             }
-            # 模拟上传图片
+            # Simulate image upload
             data['avatar'] = (io.BytesIO(b'my file contents'), 'test.png')
             response = self.client.post('/update_profile', data=data, content_type='multipart/form-data')
             self.assertEqual(response.status_code, 200)

@@ -43,7 +43,7 @@ def create_app(config_name=None):
 
     
     
-    # 自动创建头像文件夹
+    # Automatically create avatar folder
     avatar_folder = app.config.get('AVATAR_FOLDER', 'static/avatars/')
     if not os.path.exists(avatar_folder):
         os.makedirs(avatar_folder, exist_ok=True)
@@ -59,9 +59,9 @@ def create_app(config_name=None):
     csrf.init_app(app)
     
     # Exempt specific routes from CSRF protection
-    csrf.exempt('friend.send_friend_request') # 发送好友请求
-    csrf.exempt('friend.handle_friend_request') # 处理好友请求
-    csrf.exempt('checkin.daily_checkin') # 每日签到
+    csrf.exempt('friend.send_friend_request') # Send friend request
+    csrf.exempt('friend.handle_friend_request') # Handle friend request
+    csrf.exempt('checkin.daily_checkin') # Daily check-in
     
     
 
@@ -263,4 +263,4 @@ def create_app(config_name=None):
 if __name__ == '__main__':
     app = create_app()
     print(app.url_map)
-    app.run(debug=True) 
+    app.run(debug=True)

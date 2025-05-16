@@ -3,10 +3,10 @@ from flask_login import login_user, logout_user, login_required, current_user
 from extensions import db,mail
 from flask_mail import Message
 from sqlalchemy import select
-from datetime import datetime  # 用于处理日期和时间
-import os  # 用于操作文件路径
+from datetime import datetime  # For handling date and time
+import os  # For file path operations
 import random
-import string  # 用于生成随机字符串
+import string  # For generating random strings
 
 auth = Blueprint('auth', __name__)
 
@@ -16,13 +16,13 @@ def send_verification_code():
     from models.verification_code import VerificationCode
     
     email = request.form.get('email')
-    # 生成新的验证码
+    # Generate a new verification code
     code = ''.join(random.choices(string.digits, k=6))
     new_code = VerificationCode(email=email, code=code)
     db.session.add(new_code)
     db.session.commit()
 
-    # 发送验证码邮件
+    # Send verification code email
     body_content = f"Your Verification Code is:{code}, Valid for 5 minutes."
     message = Message(subject="Your Verification Code",recipients=[email],body=body_content)
     mail.send(message)
@@ -42,15 +42,15 @@ def login():
         
         user = User.query.filter_by(username=username).first()
         
-        # 检查用户是否存在
+        # Check if user exists
         if not user or user.email != email:
             flash('Invalid username or email', 'danger')
             return redirect(url_for('auth.login'))
         
-        # 验证验证码
-        verificationCode = None  # 先定义，避免UnboundLocalError
+        # Validate verification code
+        verificationCode = None  # Define first to avoid UnboundLocalError
         if current_app.config.get('TESTING') and code == 'bypass':
-            # 测试环境下，验证码为'bypass'时直接通过
+            # In test environment, pass if code is 'bypass'
             verification_passed = True
         else:
             verificationCode = VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
@@ -60,13 +60,13 @@ def login():
             flash('Invalid or expired verification code.', 'danger')
             return redirect(url_for('auth.login'))
 
-        # 检查验证码是否过期（仅在有验证码对象时检查）
+        # Check if verification code is expired (only check if object exists)
         if verificationCode and verificationCode.is_expired():
             flash('Verification code has expired. Please request a new one.', 'danger')
             return redirect(url_for('auth.login'))
 
         
-        # 检查密码
+        # Check password
         if user and user.check_password(password):
             db.session.commit()
             login_user(user)
@@ -82,7 +82,7 @@ def login():
 def logout():
     logout_user()
     flash('You have been logged out.', 'success')
-    return redirect(url_for('welcome'))  # 注销后跳转到 welcome 页面
+    return redirect(url_for('welcome'))  # Redirect to welcome page after logout
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -107,34 +107,33 @@ def register():
             avatar_path = os.path.join(avatar_folder, avatar_filename)
             avatar.save(avatar_path)
         
-        # 将 birthdate 转换为 datetime.date 对象
+        # Convert birthdate to datetime.date object
         try:
             birthdate = datetime.strptime(birthdate, '%Y-%m-%d').date()
         except ValueError:
             flash('Invalid birthdate format. Please use YYYY-MM-DD.', 'danger')
             return redirect(url_for('auth.register'))
         
-        # 验证验证码
+        # Validate verification code
         verificationCode =  VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
         if not verificationCode or verificationCode.code != code:
             flash('Invalid or expired verification code.', 'danger')
             return redirect(url_for('auth.register'))
 
-        # 检查验证码是否过期
+        # Check if verification code is expired
         if verificationCode.is_expired():
             flash('Verification code has expired. Please request a new one.', 'danger')
             return redirect(url_for('auth.register'))
 
-        # 删除验证码
+        # Delete verification code
         verificationCode.code = None
         
-        # 检查用户名是否已存在
+        # Check if username already exists
         stmt = select(User).where(User.username == username)
         if db.session.execute(stmt).scalar_one_or_none():
             flash('Username already exists', 'danger')
             return redirect(url_for('auth.register'))
-        
-        # 检查邮箱是否已存在
+        # Check if email already exists
         stmt = select(User).where(User.email == email)
         if db.session.execute(stmt).scalar_one_or_none():
             flash('Email already exists', 'danger')
@@ -171,14 +170,14 @@ def change_personal_information():
         address = request.form.get('address')
         avatar = request.files.get('avatar')
 
-        # 将 birthdate 转换为 datetime.date 对象
+        # Convert birthdate to datetime.date object
         try:
             birthdate = datetime.strptime(birthdate, '%Y-%m-%d').date()
         except ValueError:
             flash('Invalid birthdate format. Please use YYYY-MM-DD.', 'danger')
             return redirect(url_for('auth.change_personal_information'))
 
-        # 更新用户信息
+        # Update user information
         current_user.username = username
         current_user.email = email
         current_user.phone = phone

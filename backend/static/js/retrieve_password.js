@@ -16,7 +16,7 @@ $(function () {
         }
     });
 
-    // 切换密码显示/隐藏功能
+    // Toggle password show/hide functionality
     function togglePasswordVisibility(inputId, toggleIconId) {
         const $input = $('#' + inputId);
         const $toggleIcon = $('#' + toggleIconId);
@@ -28,7 +28,7 @@ $(function () {
         });
     }
 
-    // 为每个密码输入框添加切换功能
+    // Add toggle functionality for each password input
     togglePasswordVisibility('new_password', 'toggleNewPassword');
     togglePasswordVisibility('confirm_new_password', 'toggleConfirmPassword');
 });
