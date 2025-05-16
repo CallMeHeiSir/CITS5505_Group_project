@@ -172,7 +172,7 @@ CITS5505_Group_project/
 2. Create and activate a virtual environment:
    ```bash
    cd backend
-   python3 -m venv venv
+   python3 -m venv venv      # Or: python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
