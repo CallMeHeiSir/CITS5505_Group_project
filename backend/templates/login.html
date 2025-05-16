@@ -35,10 +35,6 @@
     <div class="card">
       <h2 class="card-title text-center mb-4">Login to Your Account</h2>
       <p class="text-center text-muted mb-4">Access your data and insights.</p>
-      {% if current_user.is_authenticated %}
-        <p class="text-center text-muted">You are currently logged in as {{ current_user.username }}. Please logout to switch accounts or continue login.</p>
-        <a href="{{ url_for('auth.logout') }}" class="btn-gradient">Logout</a>
-      {% else %}
         <form id="loginForm" action="#" method="POST">
           <!-- CSRF Token -->
           <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}">
@@ -72,7 +68,6 @@
           </div>
           <button type="submit" class="btn-gradient" id="LoginButton">Login</button>
         </form>
-      {% endif %}
       <p class="text-center mt-3">Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
       <p class="text-center mt-3">Don't remeber the password? <a href="{{ url_for('auth.retrieve_password') }}">Retrieve password</a></p>
     </div>
