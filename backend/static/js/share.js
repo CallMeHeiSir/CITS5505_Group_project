@@ -69,6 +69,7 @@ function createShareRecordHTML(share, type) {
     </button>
   `;
 
+  // Render replies if any
   const replies = share.replies ? share.replies.map(reply => `
     <div class="reply-item">
       <div class="reply-author">${reply.author}</div>
@@ -149,20 +150,22 @@ function submitReply(shareId) {
 }
 
 // Revoke share
-function revokeShare(shareId) {
+function revokeShare(id) {
   if (!confirm('Are you sure you want to withdraw this share?')) return;
-
-  fetch(`/api/share/revoke/${shareId}`, {
+  
+  // Get CSRF token from meta tag
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  
+  fetch(`/api/share/revoke/${id}`, { 
     method: 'DELETE',
+    headers: {
+      'X-CSRFToken': csrfToken
+    }
   })
     .then(res => res.json())
     .then(data => {
-      if (data.status === 'success') {
-        alert(data.message || 'Share revoked successfully.');
-        loadSentShares();
-      } else {
-        alert(data.message || 'Failed to revoke share.');
-      }
+      loadSentShares();
+      alert(data.message || 'Share revoked.');
     })
     .catch(error => {
       console.error('Error revoking share:', error);
@@ -183,7 +186,7 @@ function renderShareMessage(share, type) {
     userInfoHtml = `<span style="font-weight:600;">To ${user ? user.username : '?'}</span>
                     <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
   } else {
-    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'} <span style="color:#888;">send to you</span></span>
+    userInfoHtml = `<span style="font-weight:600;">${user ? user.username : '?'}</span> <span style="color:#888;">send to you</span>
                     <span style="color:#888;font-size:0.95em;margin-left:8px;">${time}</span>`;
   }
   const card = document.createElement('div');
@@ -231,8 +234,8 @@ function renderSharedContent(share) {
       try {
         share.snapshot = JSON.parse(share.snapshot);
       } catch (e) {
-        console.error('Snapshot parsing failed', e, share.snapshot);
-        return messageHtml + '<div style="color:#e57373;">Snapshot data corrupted, unable to display chart.</div>';
+        console.error('Failed to parse snapshot', e, share.snapshot);
+        return messageHtml + '<div style="color:#e57373;">Snapshot data is corrupted, unable to display chart.</div>';
       }
     }
     if (share.visualization_type === 'dashboard') {
@@ -361,16 +364,6 @@ function formatDate(dateStr) {
   return d.toLocaleDateString();
 }
 
-function revokeShare(id) {
-  if (!confirm('Are you sure you want to withdraw this share?')) return;
-  fetch(`/api/share/revoke/${id}`, { method: 'DELETE' })
-    .then(res => res.json())
-    .then(data => {
-      loadSentShares();
-      alert(data.message || 'Share revoked.');
-    });
-}
-
 function renderDashboardSnapshotV2(snapshot) {
   if (!Array.isArray(snapshot)) return '';
   let html = '<div class="dashboard-container" style="display:flex;flex-direction:column;gap:24px;margin-bottom:16px;">';
@@ -392,6 +385,6 @@ function renderDashboardSnapshotV2(snapshot) {
 }
 
 window.addEventListener('unload', function() {
-  // 用 navigator.sendBeacon 保证请求能发出
+  // Use navigator.sendBeacon to ensure the request is sent
   navigator.sendBeacon('/auth/logout');
 });

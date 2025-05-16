@@ -9,10 +9,8 @@ from datetime import datetime
 from sqlalchemy import desc
 import json
 from forms import ShareForm
-from flask_wtf.csrf import CSRFProtect
 
 share_bp = Blueprint('share', __name__)
-csrf = CSRFProtect()
 
 @share_bp.route('/api/share/friends', methods=['GET'])
 @login_required
@@ -46,7 +44,7 @@ def share_activity():
         activity_id = request.form.get('activity_id')
         snapshot = request.form.get('snapshot')
 
-        # Verify if they are friends
+        # Verify if they are friends before sharing
         if not Friendship.are_friends(current_user.id, int(share_to_user_id)):
             return jsonify({
                 'status': 'error',
@@ -74,7 +72,7 @@ def share_activity():
                 'message': 'Target user not found'
             }), 404
 
-        # Handle snapshot data
+        # Handle snapshot data if present
         if snapshot:
             try:
                 snapshot = json.loads(snapshot)
@@ -105,7 +103,7 @@ def share_activity():
 
     except Exception as e:
         db.session.rollback()
-        print(f"Error in share_activity: {str(e)}")  # Add error log
+        print(f"Error in share_activity: {str(e)}")  # 添加错误日志
         return jsonify({
             'status': 'error',
             'message': str(e)
