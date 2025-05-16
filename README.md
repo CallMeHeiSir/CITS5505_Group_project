@@ -176,13 +176,29 @@ The application will be available at `http://localhost:5000`
 #### 9.Create a `tests` folder under the `backen` directory. Inside the `tests` folder, create two subfolders named `selenium_test` and `unit_test`. Then, create the corresponding test `.py` files inside each subfolder.
 <img width="306" alt="Screenshot 2025-05-16 at 6 36 09 pm" src="https://github.com/user-attachments/assets/adbbb826-7e97-4981-a5f4-e5358446df6a" />
 
-#### 10. In the `backend` folder, run the following commands to execute the automated tests:
+#### 10. Also, we have prepared unit test for each major function:
+![image](https://github.com/user-attachments/assets/02ffd336-c72a-424a-9684-e7347a5275a4)
+You can view it under backend/tests/unittest/, there are 8 related unittests in total.
+Each unit_test can be executed through the following code in the `backend` folder.
+```bash
+python -m unittest tests/unit_test/test_login.py
+  ```
+
+#### 11. In the `backend/tests/unit_test` folder, run the following commands to execute the automated tests:
 ```bash
 python run_all_tests.py
+  ```
+Sample output screenshot:
+![image](https://github.com/user-attachments/assets/bc583ea6-ce00-48f1-8beb-4dae60e005c7)
+
+
+#### 12. In the `backend` folder, run the following commands to execute the automated tests:
+```bash
 python -m unittest tests/selenium_test/all_selenium_tests.py
   ```
 Sample output screenshot:
 <img width="480" alt="Screenshot 2025-05-16 at 6 38 58 pm" src="https://github.com/user-attachments/assets/b0d02c81-6663-42e5-b418-129e92786380" />
+
 
 
 ## Additional Notes
