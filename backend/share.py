@@ -67,7 +67,7 @@ def share_activity():
                 }), 404
 
         # Verify if the target user exists
-        target_user = User.query.get(share_to_user_id)
+        target_user = db.session.get(User, int(share_to_user_id))
         if not target_user:
             return jsonify({
                 'status': 'error',
@@ -126,7 +126,7 @@ def batch_share_activities():
             }), 400
             
         # Verify if target user exists
-        target_user = User.query.get(share_to_user_id)
+        target_user = db.session.get(User, share_to_user_id)
         if not target_user:
             return jsonify({
                 'status': 'error',
