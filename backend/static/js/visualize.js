@@ -530,14 +530,19 @@ async function updateData() {
 
     console.log('Sending request with filters:', currentFilters);
 
-    // Get data
+    // 创建 FormData 对象
+    const formData = new FormData();
+    formData.append('startDate', currentFilters.startDate);
+    formData.append('endDate', currentFilters.endDate);
+    formData.append('activityType', currentFilters.activityType);
+    // 添加 CSRF Token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    formData.append('csrf_token', csrfToken);
+
+    // 发送 POST 请求
     const response = await fetch('/api/visualization/activities', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
-      },
-      body: JSON.stringify(currentFilters)
+      body: formData
     });
 
     if (!response.ok) {

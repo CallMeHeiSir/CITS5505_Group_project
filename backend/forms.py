@@ -104,4 +104,41 @@ class ShareForm(FlaskForm):
     share_type = StringField('Share Type', validators=[DataRequired()])
     visualization_type = StringField('Visualization Type', validators=[Optional()])
     activity_id = StringField('Activity ID', validators=[Optional()])
-    submit = SubmitField('Share') 
+    submit = SubmitField('Share')
+
+class VisualizationFilterForm(FlaskForm):
+    """Form for filtering visualization data."""
+    startDate = DateField('Start Date', validators=[Optional()])
+    endDate = DateField('End Date', validators=[Optional()])
+    activityType = SelectField('Activity Type', validators=[Optional()], choices=[
+        ('', 'All Activities'),
+        ('running', 'Running'),
+        ('cycling', 'Cycling'),
+        ('swimming', 'Swimming'),
+        ('walking', 'Walking'),
+        ('hiking', 'Hiking'),
+        ('dancing', 'Dancing'),
+        ('jumping', 'Jumping Rope'),
+        ('climbing', 'Rock Climbing'),
+        ('skating', 'Skating'),
+        ('skiing', 'Skiing'),
+        ('pushup', 'Push-up'),
+        ('situp', 'Sit-up'),
+        ('pullup', 'Pull-up'),
+        ('squats', 'Squats'),
+        ('plank', 'Plank'),
+        ('lunges', 'Lunges'),
+        ('deadlift', 'Deadlift'),
+        ('bench_press', 'Bench Press'),
+        ('yoga', 'Yoga'),
+        ('pilates', 'Pilates'),
+        ('stretching', 'Stretching'),
+        ('basketball', 'Basketball'),
+        ('tennis', 'Tennis'),
+        ('badminton', 'Badminton'),
+        ('volleyball', 'Volleyball'),
+        ('football', 'Football'),
+        ('golf', 'Golf'),
+        ('other', 'Other')
+    ])
+    submit = SubmitField('Apply Filters') 
