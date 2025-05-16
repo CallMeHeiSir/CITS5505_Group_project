@@ -166,6 +166,10 @@ CITS5505_Group_project/
    git clone https://github.com/CallMeHeiSir/CITS5505_Group_project.git
    cd CITS5505_Group_project
    ```
+OR Unzip the `.zip` compressed file we uploaded in lms
+   ```bash
+   cd CITS5505_Group_project
+   ```
 
 2. Create and activate a virtual environment:
    ```bash
