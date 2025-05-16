@@ -6,7 +6,7 @@ from models.check_in_log import CheckInLog
 
 checkin_bp = Blueprint('checkin', __name__)
 
-@checkin_bp.route('/api/checkin', methods=['POST'])
+@checkin_bp.route('/checkin', methods=['POST'])
 @login_required
 def daily_checkin():
     today = datetime.now().date()
@@ -16,7 +16,7 @@ def daily_checkin():
     db.session.add(new_log)
     db.session.commit()
 
-    # ✅ streak = 连续多少天都有“至少一次打卡”
+    # ✅ streak = 连续多少天都有"至少一次打卡"
     streak = 0
     for i in range(0, 100):
         day = today - timedelta(days=i)
@@ -29,7 +29,7 @@ def daily_checkin():
     return jsonify({'success': True, 'streak': streak}), 200
 
 
-@checkin_bp.route('/api/checkin/status', methods=['GET'])
+@checkin_bp.route('/checkin/status', methods=['GET'])
 @login_required
 def checkin_status():
     today = datetime.now().date()

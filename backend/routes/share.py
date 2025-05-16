@@ -14,7 +14,7 @@ from flask_wtf.csrf import CSRFProtect
 share_bp = Blueprint('share', __name__)
 csrf = CSRFProtect()
 
-@share_bp.route('/api/share/friends', methods=['GET'])
+@share_bp.route('/share/friends', methods=['GET'])
 @login_required
 def get_friends_list():
     """Get list of current user's friends for sharing"""
@@ -34,7 +34,7 @@ def get_friends_list():
             'message': str(e)
         }), 500
 
-@share_bp.route('/api/share/activity', methods=['POST'])
+@share_bp.route('/share/activity', methods=['POST'])
 @login_required
 def share_activity():
     try:
@@ -111,7 +111,7 @@ def share_activity():
             'message': str(e)
         }), 500
 
-@share_bp.route('/api/share/batch', methods=['POST'])
+@share_bp.route('/share/batch', methods=['POST'])
 @login_required
 def batch_share_activities():
     try:
@@ -176,7 +176,7 @@ def batch_share_activities():
             'message': str(e)
         }), 500
 
-@share_bp.route('/api/share/batch_revoke', methods=['POST'])
+@share_bp.route('/share/batch_revoke', methods=['POST'])
 @login_required
 def batch_revoke_shares():
     try:
@@ -219,7 +219,7 @@ def batch_revoke_shares():
             'message': str(e)
         }), 500
 
-@share_bp.route('/api/share/received', methods=['GET'])
+@share_bp.route('/share/received', methods=['GET'])
 @login_required
 def get_received_shares():
     try:
@@ -276,7 +276,7 @@ def get_received_shares():
             'message': str(e)
         }), 500
 
-@share_bp.route('/api/share/sent', methods=['GET'])
+@share_bp.route('/share/sent', methods=['GET'])
 @login_required
 def get_sent_shares():
     try:
@@ -333,7 +333,7 @@ def get_sent_shares():
             'message': str(e)
         }), 500
 
-@share_bp.route('/api/share/revoke/<int:share_id>', methods=['DELETE'])
+@share_bp.route('/share/revoke/<int:share_id>', methods=['DELETE'])
 @login_required
 def revoke_share(share_id):
     try:

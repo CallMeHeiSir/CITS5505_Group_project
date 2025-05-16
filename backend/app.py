@@ -11,7 +11,7 @@ from datetime import datetime
 import os
 import requests
 from models.check_in_log import CheckInLog
-from checkin import checkin_bp
+from routes.checkin import checkin_bp
 from werkzeug.exceptions import RequestEntityTooLarge
 
 # Load environment variables
@@ -59,9 +59,9 @@ def create_app(config_name=None):
     csrf.init_app(app)
     
     # Exempt specific routes from CSRF protection
-    csrf.exempt('friend.send_friend_request') # 发送好友请求
-    csrf.exempt('friend.handle_friend_request') # 处理好友请求
-    csrf.exempt('checkin.daily_checkin') # 每日签到
+    csrf.exempt('routes.friend.send_friend_request') # 发送好友请求
+    csrf.exempt('routes.friend.handle_friend_request') # 处理好友请求
+    csrf.exempt('routes.checkin.daily_checkin') # 每日签到
     
     
 
@@ -78,19 +78,19 @@ def create_app(config_name=None):
         db.create_all()
         
         # Register blueprints
-        from auth import auth as auth_blueprint
-        from analytics import analytics as analytics_blueprint
-        from visualization import visualization as visualization_blueprint
-        from activity_records import activity_records as activity_records_blueprint
-        from friend import friend_bp
-        from share import share_bp
+        from routes.auth import auth as auth_blueprint
+        from routes.analytics import analytics as analytics_blueprint
+        from routes.visualization import visualization as visualization_blueprint
+        from routes.activity_records import activity_records as activity_records_blueprint
+        from routes.friend import friend_bp
+        from routes.share import share_bp
         app.register_blueprint(auth_blueprint, url_prefix='/auth')
         app.register_blueprint(analytics_blueprint, url_prefix='/analytics')
         app.register_blueprint(visualization_blueprint, url_prefix='/api/visualization')
-        app.register_blueprint(activity_records_blueprint)
+        app.register_blueprint(activity_records_blueprint, url_prefix='/api')
         app.register_blueprint(friend_bp, url_prefix='/api/friend')
-        app.register_blueprint(share_bp)
-        app.register_blueprint(checkin_bp)
+        app.register_blueprint(share_bp, url_prefix='/api')
+        app.register_blueprint(checkin_bp, url_prefix='/api')
 
         
         # Page routes
