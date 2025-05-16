@@ -41,42 +41,52 @@ window.openShareModal = function(shareOptions) {
   // 分享按钮
   confirmBtn.onclick = () => {
     const friendId = friendSelect.value;
-    const message = messageInput.value;
+    const message = messageInput.value.trim();
     if (!friendId) {
       statusDiv.textContent = 'Please select a friend.';
       return;
     }
+    
     statusDiv.textContent = 'Sharing...';
     let url = '/api/share/activity';
-    let body = {
-      share_to_user_id: friendId,
-      share_message: message
-    };
+    
+    // 创建 FormData 对象
+    const formData = new FormData();
+    formData.append('share_to_user_id', friendId);
+    formData.append('share_message', message);
+    formData.append('share_type', shareOptions.type);
+    formData.append('visualization_type', shareOptions.id);
+    
     if (shareOptions.type === 'activity') {
-      body.activity_id = shareOptions.id;
-    } else if (shareOptions.type === 'chart') {
-      body.visualization_type = shareOptions.id;
-      body.snapshot = collectSnapshot(shareOptions.id);
-      console.log('分享快照:', body.snapshot);
-    } else if (type === 'calendar') {
-      // 采集日历快照：当前年月、已打卡日期、过滤器
-      body.snapshot = collectSnapshot('calendar');
-      console.log('分享快照:', body.snapshot);
+      formData.append('activity_id', shareOptions.id);
     }
+    
+    // 添加快照数据
+    const snapshot = collectSnapshot(shareOptions.id);
+    if (snapshot) {
+      formData.append('snapshot', JSON.stringify(snapshot));
+    }
+    
+    // 添加 CSRF Token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    formData.append('csrf_token', csrfToken);
+    
     fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: formData
     })
       .then(res => res.json())
       .then(data => {
-        if (data.success || data.message === 'Activity shared successfully') {
+        if (data.status === 'success') {
           statusDiv.style.color = '#388e3c';
           statusDiv.textContent = 'Share successful!';
           setTimeout(() => { modal.style.display = 'none'; }, 1200);
         } else {
           statusDiv.style.color = '#d32f2f';
           statusDiv.textContent = data.message || 'Share failed.';
+          if (data.errors) {
+            console.error('Form validation errors:', data.errors);
+          }
         }
       })
       .catch(() => {
@@ -88,6 +98,32 @@ window.openShareModal = function(shareOptions) {
 
 // 采集快照参数
 function collectSnapshot(type) {
+  // 1. 如果charts未定义，说明不是可视化页面，兼容recent activity等
+  if (typeof charts === 'undefined') {
+    // 针对recent activity卡片，采集卡片上的基础数据
+    if (type === 'stat-calories-distance' || type === 'stat-card') {
+      const calories = document.getElementById('total-calories')?.textContent || '';
+      const distance = document.getElementById('total-distance')?.textContent || '';
+      return {
+        type: 'stat-card',
+        cardType: 'calories-distance',
+        calories,
+        distance
+      };
+    } else if (type === 'duration-activities') {
+      const duration = document.getElementById('total-duration')?.textContent || '';
+      const activities = document.getElementById('activity-count')?.textContent || '';
+      return {
+        type: 'stat-card',
+        cardType: 'duration-activities',
+        duration,
+        activities
+      };
+    }
+    // 其他类型可按需扩展
+    return null;
+  }
+  // 2. 可视化页面原有逻辑
   if (type === 'dashboard') {
     // 采集 dashboard 所有图表和统计卡片，顺序push到数组
     const snapshot = [];
@@ -151,7 +187,6 @@ function collectSnapshot(type) {
     });
     return snapshot;
   } else if (type === 'stat-calories-distance') {
-    // 采集统计卡片：卡路里+距离
     const calories = document.getElementById('total-calories')?.textContent || '';
     const distance = document.getElementById('total-distance')?.textContent || '';
     return {
@@ -161,8 +196,7 @@ function collectSnapshot(type) {
       distance,
       filters: currentFilters
     };
-  } else if (type === 'stat-duration-activities') {
-    // 采集统计卡片：时长+活动数
+  } else if (type === 'duration-activities') {
     const duration = document.getElementById('total-duration')?.textContent || '';
     const activities = document.getElementById('activity-count')?.textContent || '';
     return {
@@ -173,19 +207,16 @@ function collectSnapshot(type) {
       filters: currentFilters
     };
   } else if (type === 'calendar') {
-    // 采集日历快照：当前年月、已打卡日期、过滤器
     return {
       type: 'calendar',
       year: currentDate.getFullYear(),
-      month: currentDate.getMonth() + 1, // 1-12
+      month: currentDate.getMonth() + 1,
       activityDates: Array.from(activityDates),
       filters: currentFilters
     };
   } else {
-    // 采集单个图表的状态
     const chart = charts[type];
     if (chart) {
-      // 深拷贝 options，去掉 Proxy
       const options = JSON.parse(JSON.stringify(chart.options));
       return {
         type: chart.config.type,

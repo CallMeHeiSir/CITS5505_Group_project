@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from extensions import db, login_manager, mail
 from sqlalchemy.orm import DeclarativeBase
 from flask_wtf.csrf import CSRFProtect
-from forms import ActivityForm
+from forms import ActivityForm, RevokeShareForm
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -51,11 +51,11 @@ def create_app():
     csrf.init_app(app)
     
     # Exempt specific routes from CSRF protection
-    csrf.exempt('friend.send_friend_request')
-    csrf.exempt('friend.handle_friend_request')
-    csrf.exempt('checkin.daily_checkin')
-    csrf.exempt('share.share_activity')
-    csrf.exempt('share.revoke_share')
+    csrf.exempt('friend.send_friend_request') # 发送好友请求
+    csrf.exempt('friend.handle_friend_request') # 处理好友请求
+    csrf.exempt('checkin.daily_checkin') # 每日签到
+    
+    
 
     
     

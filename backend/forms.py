@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, FloatField, ValidationError
+from wtforms import StringField, IntegerField, SelectField, FloatField, ValidationError, TextAreaField, SubmitField
 from wtforms.fields import DateField
-from wtforms.validators import DataRequired, NumberRange, Length, Optional
+from wtforms.validators import DataRequired, NumberRange, Length, Optional, Email
 from datetime import datetime
 
 class MultiFormatDateField(DateField):
@@ -92,4 +92,53 @@ class ActivityForm(FlaskForm):
     location = StringField('Location', validators=[
         DataRequired(),
         Length(min=1, max=100, message='Location must be between 1 and 100 characters')
-    ]) 
+    ])
+
+class RevokeShareForm(FlaskForm):
+    """Form for revoking a shared activity. Only used for CSRF protection."""
+    pass
+
+class ShareForm(FlaskForm):
+    share_to_user_id = SelectField('Friend', validators=[DataRequired()], coerce=int)
+    share_message = TextAreaField('Message', validators=[Optional(), Length(max=500)])
+    share_type = StringField('Share Type', validators=[DataRequired()])
+    visualization_type = StringField('Visualization Type', validators=[Optional()])
+    activity_id = StringField('Activity ID', validators=[Optional()])
+    submit = SubmitField('Share')
+
+class VisualizationFilterForm(FlaskForm):
+    """Form for filtering visualization data."""
+    startDate = DateField('Start Date', validators=[Optional()])
+    endDate = DateField('End Date', validators=[Optional()])
+    activityType = SelectField('Activity Type', validators=[Optional()], choices=[
+        ('', 'All Activities'),
+        ('running', 'Running'),
+        ('cycling', 'Cycling'),
+        ('swimming', 'Swimming'),
+        ('walking', 'Walking'),
+        ('hiking', 'Hiking'),
+        ('dancing', 'Dancing'),
+        ('jumping', 'Jumping Rope'),
+        ('climbing', 'Rock Climbing'),
+        ('skating', 'Skating'),
+        ('skiing', 'Skiing'),
+        ('pushup', 'Push-up'),
+        ('situp', 'Sit-up'),
+        ('pullup', 'Pull-up'),
+        ('squats', 'Squats'),
+        ('plank', 'Plank'),
+        ('lunges', 'Lunges'),
+        ('deadlift', 'Deadlift'),
+        ('bench_press', 'Bench Press'),
+        ('yoga', 'Yoga'),
+        ('pilates', 'Pilates'),
+        ('stretching', 'Stretching'),
+        ('basketball', 'Basketball'),
+        ('tennis', 'Tennis'),
+        ('badminton', 'Badminton'),
+        ('volleyball', 'Volleyball'),
+        ('football', 'Football'),
+        ('golf', 'Golf'),
+        ('other', 'Other')
+    ])
+    submit = SubmitField('Apply Filters') 

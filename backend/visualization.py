@@ -6,6 +6,7 @@ from extensions import db
 import numpy as np
 import traceback
 from flask_login import login_required, current_user
+from forms import VisualizationFilterForm
 
 visualization = Blueprint('visualization', __name__)
 
@@ -13,58 +14,58 @@ visualization = Blueprint('visualization', __name__)
 @login_required
 def get_visualization_data():
     try:
-        data = request.get_json()
-        # print('前端传参:', data)
-        start_date = datetime.strptime(data.get('startDate'), '%Y-%m-%d') if data.get('startDate') else None
-        end_date = datetime.strptime(data.get('endDate'), '%Y-%m-%d') if data.get('endDate') else None
-        activity_type = data.get('activityType')
+        form = VisualizationFilterForm()
+        if form.validate_on_submit():
+            # 构建查询（加上用户隔离）
+            query = ActivityLog.query.filter_by(user_id=current_user.id)
+            
+            if form.startDate.data:
+                query = query.filter(ActivityLog.date >= form.startDate.data)
+            if form.endDate.data:
+                query = query.filter(ActivityLog.date <= form.endDate.data)
+            if form.activityType.data:
+                query = query.filter(ActivityLog.activity_type == form.activityType.data)
 
-        # 构建查询（加上用户隔离）
-        query = ActivityLog.query.filter_by(user_id=current_user.id)
-        if start_date:
-            query = query.filter(ActivityLog.date >= start_date)
-        if end_date:
-            query = query.filter(ActivityLog.date <= end_date)
-        if activity_type:
-            query = query.filter(ActivityLog.activity_type == activity_type)
+            activities = query.all()
+            
+            # 处理数据用于可视化
+            visualization_data = {
+                'weekly_data': process_weekly_data(activities),
+                'progress_data': process_progress_data(activities),
+                'activity_distribution': process_activity_distribution(activities),
+                'calories_trend': process_calories_trend(activities),
+                'stats': calculate_stats(activities),
+                'activities': [
+                    {
+                        'id': a.id,
+                        'user_id': a.user_id,
+                        'activity_type': a.activity_type,
+                        'date': a.date.strftime('%Y-%m-%d'),
+                        'duration': a.duration,
+                        'distance': a.distance,
+                        'calories': a.calories,
+                        'height': a.height,
+                        'weight': a.weight,
+                        'age': a.age,
+                        'location': a.location
+                    } for a in activities
+                ]
+            }
 
-        activities = query.all()
-        # print('Found activities:', len(activities))
-        if activities:
-            pass
+            print('Sending visualization data:', {
+                'weekly_data_count': len(visualization_data['weekly_data']['labels']),
+                'progress_data_count': len(visualization_data['progress_data']['labels']),
+                'activity_distribution_count': len(visualization_data['activity_distribution']['labels']),
+                'calories_trend_count': len(visualization_data['calories_trend']['labels'])
+            })
 
-        # 处理数据用于可视化
-        visualization_data = {
-            'weekly_data': process_weekly_data(activities),
-            'progress_data': process_progress_data(activities),
-            'activity_distribution': process_activity_distribution(activities),
-            'calories_trend': process_calories_trend(activities),
-            'stats': calculate_stats(activities),
-            'activities': [
-                {
-                    'id': a.id,
-                    'user_id': a.user_id,
-                    'activity_type': a.activity_type,
-                    'date': a.date.strftime('%Y-%m-%d'),
-                    'duration': a.duration,
-                    'distance': a.distance,
-                    'calories': a.calories,
-                    'height': a.height,
-                    'weight': a.weight,
-                    'age': a.age,
-                    'location': a.location
-                } for a in activities
-            ]
-        }
-
-        print('Sending visualization data:', {
-            'weekly_data_count': len(visualization_data['weekly_data']['labels']),
-            'progress_data_count': len(visualization_data['progress_data']['labels']),
-            'activity_distribution_count': len(visualization_data['activity_distribution']['labels']),
-            'calories_trend_count': len(visualization_data['calories_trend']['labels'])
-        })
-
-        return jsonify(visualization_data)
+            return jsonify(visualization_data)
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Invalid form data',
+                'errors': form.errors
+            }), 400
 
     except Exception as e:
         traceback.print_exc()

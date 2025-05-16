@@ -8,8 +8,11 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from sqlalchemy import desc
 import json
+from forms import ShareForm
+from flask_wtf.csrf import CSRFProtect
 
 share_bp = Blueprint('share', __name__)
+csrf = CSRFProtect()
 
 @share_bp.route('/api/share/friends', methods=['GET'])
 @login_required
@@ -35,16 +38,16 @@ def get_friends_list():
 @login_required
 def share_activity():
     try:
-        data = request.get_json()
-        activity_id = data.get('activity_id')
-        share_to_user_id = data.get('share_to_user_id')
-        visualization_type = data.get('visualization_type')
-        custom_message = data.get('share_message') or data.get('message', '')
-        share_type = data.get('share_type', 'activity')
-        snapshot = data.get('snapshot')
+        # 从 FormData 获取数据
+        share_to_user_id = request.form.get('share_to_user_id')
+        share_message = request.form.get('share_message', '')
+        share_type = request.form.get('share_type')
+        visualization_type = request.form.get('visualization_type')
+        activity_id = request.form.get('activity_id')
+        snapshot = request.form.get('snapshot')
 
         # 验证是否是好友关系
-        if not Friendship.are_friends(current_user.id, share_to_user_id):
+        if not Friendship.are_friends(current_user.id, int(share_to_user_id)):
             return jsonify({
                 'status': 'error',
                 'message': 'You can only share with your friends'
@@ -71,24 +74,38 @@ def share_activity():
                 'message': 'Target user not found'
             }), 404
 
+        # 处理快照数据
+        if snapshot:
+            try:
+                snapshot = json.loads(snapshot)
+            except json.JSONDecodeError:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Invalid snapshot data'
+                }), 400
+
         # Create a new share log record for the target user
         share_log = ShareLog(
             from_user_id=current_user.id,
-            to_user_id=share_to_user_id,
+            to_user_id=int(share_to_user_id),
             activity_log_id=activity_id if activity else None,
             share_type=share_type,
             snapshot=json.dumps(snapshot) if snapshot is not None else None,
-            share_message=custom_message,
+            share_message=share_message,
             created_at=datetime.utcnow(),
             status='active'
         )
         db.session.add(share_log)
         db.session.commit()
 
-        return jsonify({'status': 'success', 'message': 'Activity shared successfully'})
+        return jsonify({
+            'status': 'success',
+            'message': 'Activity shared successfully'
+        })
 
     except Exception as e:
         db.session.rollback()
+        print(f"Error in share_activity: {str(e)}")  # 添加错误日志
         return jsonify({
             'status': 'error',
             'message': str(e)
@@ -337,7 +354,6 @@ def revoke_share(share_id):
             'status': 'success',
             'message': 'Share revoked successfully'
         })
-        
     except Exception as e:
         db.session.rollback()
         return jsonify({
