@@ -1,5 +1,14 @@
 # Exercise Data Visualization & Analysis Platform
 
+## Team Members
+
+| Student ID | Name         | GitHub Username |
+|------------|--------------|-----------------|
+| 23824629   | Gawen Hei   | GallMeHeiSir    |
+| 24171143   | Yiran Li    | Yiran1Li        |
+| 24070858   | Jiazheng Guo| GJZ99123        |
+| 24308319   | Guoxing Zhu | uwaguoxing      |
+
 ## Project Description
 
 This web application is a specialized platform for exercise data visualization and analysis. Its primary purpose is to transform raw exercise data files into meaningful visual insights and analytical reports. Users can upload their exercise data files, which are automatically processed to generate interactive visualizations, statistical analyses, and performance trends. While the platform includes social features, its core strength lies in its sophisticated data processing and visualization capabilities.
@@ -52,47 +61,103 @@ The application uses a modern web architecture:
 - Privacy Controls: Granular access control system
 
 ## Project Structure
+
 ```
 CITS5505_Group_project/
-├── backend/           
-│   ├── __init__.py
-│   ├── activity_records.py
-│   ├── analytics.py
-│   ├── app.py
-│   ├── auth.py
-│   ├── checkin.py
-│   ├── config.py
-│   ├── create_env.py
-│   ├── extensions.py
-│   ├── forms.py
-│   ├── friend.py
-│   ├── instance/
-│   ├── migrations/
-│   ├── models/
-│   ├── requirements.txt
-│   ├── setup_db.py
-│   ├── share.py
-│   ├── show_db.py
-│   ├── static/
-│   │   ├── css/
-│   │   ├── js/
-│   │   └── images/
-│   ├── templates/
-│   ├── tests/
-│   ├── visualization.py
-│   └── venv/
-├── .gitignore         
-└── README.md
+├── backend/                 # Main backend application directory
+│   ├── __init__.py         # Flask application initialization
+│   ├── activity_records.py  # Activity records management
+│   ├── analytics.py        # Data analysis functionality
+│   ├── app.py              # Main Flask application
+│   ├── auth.py             # Authentication system
+│   ├── checkin.py          # Check-in functionality
+│   ├── config.py           # Configuration settings
+│   ├── create_env.py       # Environment setup
+│   ├── extensions.py       # Flask extensions
+│   ├── forms.py            # Form definitions
+│   ├── friend.py           # Friend system functionality
+│   ├── migrations/         # Database migrations
+│   │   ├── add_shared_from.py        # Migration for shared data tracking
+│   │   └── add_visualization_and_message.py  # Migration for visualization features
+│   ├── models/             # Database models
+│   │   ├── __init__.py              # Models initialization
+│   │   ├── activity_log.py          # Activity logging model
+│   │   ├── check_in_log.py          # Check-in records model
+│   │   ├── friend.py                # Friend relationship model
+│   │   ├── share_log.py             # Data sharing logs model
+│   │   ├── user.py                  # User account model
+│   │   └── verification_code.py      # Email verification model
+│   ├── requirements.txt    # Python package dependencies
+│   ├── setup_db.py         # Database initialization script
+│   ├── share.py            # Data sharing functionality
+│   ├── show_db.py          # Database visualization
+│   ├── static/             # Static files directory
+│   │   ├── avatars/        # User profile pictures
+│   │   ├── css/            # Stylesheets
+│   │   │   ├── ch_settings.css     
+│   │   │   ├── friends.css          
+│   │   │   ├── indexStyle.css       
+│   │   │   ├── LoginStyles.css      
+│   │   │   ├── settingsStyle.css    
+│   │   │   ├── shareStyle.css       
+│   │   │   ├── uploadStyle.css      
+│   │   │   ├── visualizeStyle.css   
+│   │   │   └── WelcomeStyle.css     
+│   │   ├── img/            # Image assets
+│   │   │   └── welcome-bg.jpg     
+│   │   ├── js/             # JavaScript files
+│   │   │   ├── ch_password.js       # Password change logic 
+│   │   │   ├── friends.js           # Friends functionality 
+│   │   │   ├── index.js             # Main page logic 
+│   │   │   ├── login.js             # Login functionality 
+│   │   │   ├── navigation.js        # Navigation handling 
+│   │   │   ├── register.js          # Registration logic 
+│   │   │   ├── retrieve_password.js  # Password recovery 
+│   │   │   ├── settings.js          # Settings management 
+│   │   │   ├── share_modal.js       # Share modal handling 
+│   │   │   ├── share.js             # Sharing functionality 
+│   │   │   ├── upload.js            # File upload handling 
+│   │   │   ├── visualize.js         # Data visualization 
+│   │   │   ├── weather.js           # Weather integration 
+│   │   │   └── welcome.js           # Welcome page logic 
+│   │   └── user_data_templates/  # Upload templates
+│   │       └── fitness_data_template.csv  # CSV template 
+│   ├── templates/          # HTML templates
+│   │   ├── change_password.html  # Password change page 
+│   │   ├── index.html            # Main dashboard 
+│   │   ├── login.html            # User login page 
+│   │   ├── register.html         # User registration 
+│   │   ├── retrieve_password.html # Password recovery 
+│   │   ├── settings.html         # User settings 
+│   │   ├── share.html            # Data sharing page 
+│   │   ├── upload.html           # File upload page 
+│   │   ├── visualize.html        # Data visualization 
+│   │   └── welcome.html          # Welcome page 
+│   ├── tests/              # Test directory
+│   │   ├── selenium_test/  # Integration tests
+│   │   │   ├── all_selenium_tests.py           # Test suite runner
+│   │   │   ├── test_change_password-selenium.py # Password change tests
+│   │   │   ├── test_edit_profile-selenium.py   # Profile editing tests
+│   │   │   ├── test_login-selenium.py          # Login functionality tests
+│   │   │   ├── test_register-selenium.py       # Registration tests
+│   │   │   └── test_retrieve_password-selenium.py # Password recovery tests
+│   │   └── unit_test/      # Unit tests
+│   │       ├── run_all_tests.py          # Test runner script
+│   │       ├── test_change_password.py    # Password change tests
+│   │       ├── test_checkin.py           # Check-in functionality tests
+│   │       ├── test_edit_profile.py      # Profile editing tests
+│   │       ├── test_login.py             # Login functionality tests
+│   │       ├── test_register.py          # Registration tests
+│   │       ├── test_retrieve_password.py # Password recovery tests
+│   │       ├── test_share.py             # Sharing functionality tests
+│   │       ├── test_upload.py            # File upload tests
+│   │       ├── test_utils.py             # Utility function tests
+│   │       └── test_visualization.py     # Visualization tests
+│   └── visualization.py    # Visualization logic
+├── .gitignore             # Git ignore rules
+└── README.md              # Project documentation
 ```
 
-## Team Members
-
-| Student ID | Name         | GitHub Username |
-|------------|--------------|-----------------|
-| 23824629   | Gawen Hei   | GallMeHeiSir    |
-| 24171143   | Yiran Li    | Yiran1Li        |
-| 24070858   | Jiazheng Guo| GJZ99123        |
-| 24308319   | Guoxing Zhu | uwaguoxing      |
 
 ## Setup Instructions
 
@@ -189,6 +254,7 @@ python -m unittest tests/unit_test/test_login.py
 python run_all_tests.py
   ```
 Sample output screenshot:
+
 ![image](https://github.com/user-attachments/assets/bc583ea6-ce00-48f1-8beb-4dae60e005c7)
 
 
@@ -197,6 +263,7 @@ Sample output screenshot:
 python -m unittest tests/selenium_test/all_selenium_tests.py
   ```
 Sample output screenshot:
+
 <img width="480" alt="Screenshot 2025-05-16 at 6 38 58 pm" src="https://github.com/user-attachments/assets/b0d02c81-6663-42e5-b418-129e92786380" />
 
 
