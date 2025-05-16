@@ -98,6 +98,32 @@ window.openShareModal = function(shareOptions) {
 
 // 采集快照参数
 function collectSnapshot(type) {
+  // 1. 如果charts未定义，说明不是可视化页面，兼容recent activity等
+  if (typeof charts === 'undefined') {
+    // 针对recent activity卡片，采集卡片上的基础数据
+    if (type === 'stat-calories-distance' || type === 'stat-card') {
+      const calories = document.getElementById('total-calories')?.textContent || '';
+      const distance = document.getElementById('total-distance')?.textContent || '';
+      return {
+        type: 'stat-card',
+        cardType: 'calories-distance',
+        calories,
+        distance
+      };
+    } else if (type === 'duration-activities') {
+      const duration = document.getElementById('total-duration')?.textContent || '';
+      const activities = document.getElementById('activity-count')?.textContent || '';
+      return {
+        type: 'stat-card',
+        cardType: 'duration-activities',
+        duration,
+        activities
+      };
+    }
+    // 其他类型可按需扩展
+    return null;
+  }
+  // 2. 可视化页面原有逻辑
   if (type === 'dashboard') {
     // 采集 dashboard 所有图表和统计卡片，顺序push到数组
     const snapshot = [];
@@ -161,7 +187,6 @@ function collectSnapshot(type) {
     });
     return snapshot;
   } else if (type === 'stat-calories-distance') {
-    // 采集统计卡片：卡路里+距离
     const calories = document.getElementById('total-calories')?.textContent || '';
     const distance = document.getElementById('total-distance')?.textContent || '';
     return {
@@ -171,8 +196,7 @@ function collectSnapshot(type) {
       distance,
       filters: currentFilters
     };
-  } else if (type === 'stat-duration-activities') {
-    // 采集统计卡片：时长+活动数
+  } else if (type === 'duration-activities') {
     const duration = document.getElementById('total-duration')?.textContent || '';
     const activities = document.getElementById('activity-count')?.textContent || '';
     return {
@@ -183,19 +207,16 @@ function collectSnapshot(type) {
       filters: currentFilters
     };
   } else if (type === 'calendar') {
-    // 采集日历快照：当前年月、已打卡日期、过滤器
     return {
       type: 'calendar',
       year: currentDate.getFullYear(),
-      month: currentDate.getMonth() + 1, // 1-12
+      month: currentDate.getMonth() + 1,
       activityDates: Array.from(activityDates),
       filters: currentFilters
     };
   } else {
-    // 采集单个图表的状态
     const chart = charts[type];
     if (chart) {
-      // 深拷贝 options，去掉 Proxy
       const options = JSON.parse(JSON.stringify(chart.options));
       return {
         type: chart.config.type,
