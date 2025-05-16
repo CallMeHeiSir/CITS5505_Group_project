@@ -1,8 +1,5 @@
 # Exercise Data Visualization & Analysis Platform
 
-## Important Notice
-⚠️ This is a private project developed for CITS5505 Agile Web Development unit at UWA. This repository and its contents are not intended for public use or distribution.
-
 ## Project Description
 
 This web application is a specialized platform for exercise data visualization and analysis. Its primary purpose is to transform raw exercise data files into meaningful visual insights and analytical reports. Users can upload their exercise data files, which are automatically processed to generate interactive visualizations, statistical analyses, and performance trends. While the platform includes social features, its core strength lies in its sophisticated data processing and visualization capabilities.
@@ -127,7 +124,6 @@ CITS5505_Group_project/
      - Security keys
      - Other sensitive information
    
-   ⚠️ Note: For security reasons, the `.env` file is not included in the repository. Please contact the project administrator to obtain the required file.
 
 5. Initialize the database:
    ```bash
