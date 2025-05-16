@@ -57,9 +57,7 @@ The application uses a modern web architecture:
 ## Project Structure
 ```
 CITS5505_Group_project/
-├── .env                # 环境变量配置文件
-├── .gitignore         # Git忽略文件配置
-├── backend/           # 后端目录
+├── backend/           
 │   ├── __init__.py
 │   ├── activity_records.py
 │   ├── analytics.py
@@ -86,6 +84,7 @@ CITS5505_Group_project/
 │   ├── tests/
 │   ├── visualization.py
 │   └── venv/
+├── .gitignore         
 ├── forum.html
 └── README.md
 ```
@@ -103,7 +102,7 @@ CITS5505_Group_project/
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/CallMeHeiSir/CITS5505_Group_project.git
    cd CITS5505_Group_project
    ```
 
@@ -143,6 +142,10 @@ CITS5505_Group_project/
 The application will be available at `http://localhost:5000`
 
 ## Running Tests
+
+
+
+
 
 ## Additional Notes
 
