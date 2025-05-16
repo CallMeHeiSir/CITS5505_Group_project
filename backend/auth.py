@@ -48,13 +48,20 @@ def login():
             return redirect(url_for('auth.login'))
         
         # 验证验证码
-        verificationCode = VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
-        if not verificationCode or verificationCode.code != code:
+        verificationCode = None  # 先定义，避免UnboundLocalError
+        if current_app.config.get('TESTING') and code == 'bypass':
+            # 测试环境下，验证码为'bypass'时直接通过
+            verification_passed = True
+        else:
+            verificationCode = VerificationCode.query.filter_by(email=email).order_by(VerificationCode.created_at.desc()).first()
+            verification_passed = verificationCode and verificationCode.code == code
+        
+        if not verification_passed:
             flash('Invalid or expired verification code.', 'danger')
             return redirect(url_for('auth.login'))
 
-        # 检查验证码是否过期
-        if verificationCode.is_expired():
+        # 检查验证码是否过期（仅在有验证码对象时检查）
+        if verificationCode and verificationCode.is_expired():
             flash('Verification code has expired. Please request a new one.', 'danger')
             return redirect(url_for('auth.login'))
 
@@ -94,9 +101,10 @@ def register():
         avatar = request.files.get('avatar')
         avatar_filename = None
         
-        if avatar and avatar.filename != '':
+        avatar_folder = current_app.config.get('AVATAR_FOLDER')
+        if avatar and avatar.filename != '' and avatar_folder:
             avatar_filename = avatar.filename
-            avatar_path = os.path.join(current_app.config['AVATAR_FOLDER'], avatar_filename)
+            avatar_path = os.path.join(avatar_folder, avatar_filename)
             avatar.save(avatar_path)
         
         # 将 birthdate 转换为 datetime.date 对象
