@@ -41,42 +41,52 @@ window.openShareModal = function(shareOptions) {
   // 分享按钮
   confirmBtn.onclick = () => {
     const friendId = friendSelect.value;
-    const message = messageInput.value;
+    const message = messageInput.value.trim();
     if (!friendId) {
       statusDiv.textContent = 'Please select a friend.';
       return;
     }
+    
     statusDiv.textContent = 'Sharing...';
     let url = '/api/share/activity';
-    let body = {
-      share_to_user_id: friendId,
-      share_message: message
-    };
+    
+    // 创建 FormData 对象
+    const formData = new FormData();
+    formData.append('share_to_user_id', friendId);
+    formData.append('share_message', message);
+    formData.append('share_type', shareOptions.type);
+    formData.append('visualization_type', shareOptions.id);
+    
     if (shareOptions.type === 'activity') {
-      body.activity_id = shareOptions.id;
-    } else if (shareOptions.type === 'chart') {
-      body.visualization_type = shareOptions.id;
-      body.snapshot = collectSnapshot(shareOptions.id);
-      console.log('分享快照:', body.snapshot);
-    } else if (type === 'calendar') {
-      // 采集日历快照：当前年月、已打卡日期、过滤器
-      body.snapshot = collectSnapshot('calendar');
-      console.log('分享快照:', body.snapshot);
+      formData.append('activity_id', shareOptions.id);
     }
+    
+    // 添加快照数据
+    const snapshot = collectSnapshot(shareOptions.id);
+    if (snapshot) {
+      formData.append('snapshot', JSON.stringify(snapshot));
+    }
+    
+    // 添加 CSRF Token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    formData.append('csrf_token', csrfToken);
+    
     fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: formData
     })
       .then(res => res.json())
       .then(data => {
-        if (data.success || data.message === 'Activity shared successfully') {
+        if (data.status === 'success') {
           statusDiv.style.color = '#388e3c';
           statusDiv.textContent = 'Share successful!';
           setTimeout(() => { modal.style.display = 'none'; }, 1200);
         } else {
           statusDiv.style.color = '#d32f2f';
           statusDiv.textContent = data.message || 'Share failed.';
+          if (data.errors) {
+            console.error('Form validation errors:', data.errors);
+          }
         }
       })
       .catch(() => {
