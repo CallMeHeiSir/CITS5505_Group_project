@@ -76,11 +76,11 @@
           <div class="card card-my-friends">
             <div class="card-header d-flex justify-content-between align-items-center">
               <h5 class="mb-0">Friends</h5>
-              <span id="requestCount" class="request-count" style="display: none;">0</span>
+              
             </div>
             <div class="tabs">
               <button class="tab active" data-tab="friends" onclick="switchTab('friends')">My Friends</button>
-              <button class="tab" data-tab="requests" onclick="switchTab('requests')">Requests</button>
+              <button class="tab" data-tab="requests" onclick="switchTab('requests')">Requests <span id="requestCount" class="request-count" style="display: none;">0</span></button>
               <button class="tab" data-tab="search" onclick="switchTab('search')">Find Friends</button>
             </div>
             <div id="friendsContent" class="tab-content active">
