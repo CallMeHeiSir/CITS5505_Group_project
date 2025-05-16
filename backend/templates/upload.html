@@ -57,7 +57,9 @@
         <div class="cards-row">
           <div class="card upload-info-card">
             <h2>Upload</h2>
-            <p>Upload your fitness data files or manually add activities</p>
+            <p style="font-size:1.1em; font-weight:600; color:#333; background:#f5f7ff; border-radius:8px; padding:6px 12px; margin-bottom:2px;">
+              Upload your fitness data files or manually add activities
+            </p>
             <!-- Upload Process Flow Diagram -->
             <div class="upload-flow">
               <div class="flow-step">
@@ -124,13 +126,30 @@
               <!-- File Upload Tab -->
               <div class="tab-content active" id="file-upload">
                 <div class="upload-description">
-                  <p>Upload your fitness data in CSV format. <a href="{{ url_for('static', filename='user_data_templates/fitness_data_template.csv') }}" download class="template-link">Download template</a></p>
-                  <p style="color:#888;font-size:0.95em;">
-                    <b>Tip:</b> Date format should be <code>YYYY-MM-DD</code> (e.g. 2024-05-01). Also supports <code>YYYY/M/D</code> and <code>YYYY/MM/DD</code>.
+                  <p>
+                    Upload your fitness data in CSV format.
+                    <a href="{{ url_for('static', filename='user_data_templates/fitness_data_template.csv') }}" download class="template-link">Download template</a>
                   </p>
-                  <p style="color:#888;font-size:0.95em;">
-                    <b>Note:</b> Maximum file size is <b>5MB</b> per CSV file.
-                  </p>
+                  <ul style="color:#888; font-size:0.92em; line-height:1.7; margin: 0 auto 0 0; padding: 0; text-align:left; max-width:600px;">
+                    <li>
+                      <b>Date format:</b> <code>YYYY-MM-DD</code>, <code>YYYY/M/D</code>, or <code>YYYY/MM/DD</code>
+                    </li>
+                    <li>
+                      <b>Distance <i>or</i> Count:</b> Optional. Fill in one, or leave both blank, depending on activity type
+                    </li>
+                    <li>
+                      <b>Example:</b>
+                      <span style="display:block; margin-left:1em;">
+                        Running: <code>2024-05-01,Run,30,170,65,25,Perth,5.2,,Evening jog</code>
+                      </span>
+                      <span style="display:block; margin-left:1em;">
+                        Push-ups: <code>2024-05-01,Push-up,10,170,65,25,Perth,,20,Morning workout</code>
+                      </span>
+                    </li>
+                    <li>
+                      <b>Max file size:</b> 5MB
+                    </li>
+                  </ul>
                 </div>
                 <form class="upload-form" id="upload-form" enctype="multipart/form-data">
                   {{ form.csrf_token }}
