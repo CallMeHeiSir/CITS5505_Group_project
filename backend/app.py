@@ -20,25 +20,32 @@ load_dotenv()
 class Base(DeclarativeBase):
     pass
 
-def create_app():
+def create_app(config_name=None):
     app = Flask(__name__)
     
-    # Configuration
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app.db')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit upload file size to 16MB
-    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
-    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'yes']
-    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+    # 加载配置
+    if config_name:
+        from config import config
+        app.config.from_object(config[config_name])
+    else:
+        app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app.db')
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['AVATAR_FOLDER'] = os.getenv('AVATAR_FOLDER', 'static/avatars/')
+        app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+        app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+        app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+        app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'yes']
+        app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+        app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+        app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
     
-    # Automatically create avatar folder
-    if not os.path.exists(app.config['AVATAR_FOLDER']):
-        os.makedirs(app.config['AVATAR_FOLDER'], exist_ok=True)
+    
+    # 自动创建头像文件夹
+    avatar_folder = app.config.get('AVATAR_FOLDER', 'static/avatars/')
+    if not os.path.exists(avatar_folder):
+        os.makedirs(avatar_folder, exist_ok=True)
     
     # Initialize extensions
     db.init_app(app)
